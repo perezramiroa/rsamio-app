@@ -1,0 +1,137 @@
+/* ============================================
+   ESTILOS RESPONSIVE PARA rsamio PWA
+   ============================================ */
+
+/* Reset y base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Contenedor principal responsive */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Botones táctiles más grandes */
+.btn, button, .button {
+  min-height: 48px !important;
+  min-width: 120px !important;
+  padding: 12px 24px !important;
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+
+/* Grid responsive para módulos */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+/* Tablas responsive */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Formularios móviles */
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px; /* Evita zoom en iOS */
+  transition: border-color 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #00384d;
+  box-shadow: 0 0 0 3px rgba(0, 56, 77, 0.1);
+}
+
+/* Botón flotante de instalación PWA */
+.btn-install-pwa {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+  cursor: pointer;
+  z-index: 10000;
+  transition: all 0.3s ease;
+  display: none;
+}
+
+.btn-install-pwa:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.5);
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Evitar selección accidental en móviles */
+@media (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+  
+  /* Ajustar padding en móviles */
+  .container {
+    padding: 15px;
+  }
+  
+  /* Botones más grandes en móviles */
+  .btn {
+    min-height: 56px !important;
+    font-size: 18px !important;
+  }
+}
+
+/* Loading spinner */
+.spinner {
+  border: 4px solid rgba(0, 56, 77, 0.1);
+  border-top: 4px solid #00384d;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

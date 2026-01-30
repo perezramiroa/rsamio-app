@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Monitor Dataloggers – Laboratorio</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#00384d">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="/css/pwa-styles.css">
+<style>
+:root {
+--bg: #f8fafc;
+--fg: #1e293b;
+--primary: #3b82f6;
+--success: #10b981;
+--danger: #ef4444;
+--border: #e2e8f0;
+--card-bg: #ffffff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+<script src="/js/pwa-utils.js"></script>
+body {
+font-family: 'Segoe UI', system-ui, sans-serif;
+background-color: var(--bg);
+color: var(--fg);
+padding: 20px;
+line-height: 1.5;
+}
+.header {
+background: var(--card-bg);
+padding: 20px;
+border-radius: 12px;
+margin-bottom: 24px;
+box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+}
+.logo-bar {
+display: flex;
+justify-content: space-between;
+align-items: center;
+width: 100%;
+margin-bottom: 16px;
+padding: 0 10px;
+}
+.logo-item {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 150px;
+}
+.logo-item img {
+max-height: 100%;
+max-width: 100%;
+object-fit: contain;
+margin: 0 5px;
+}
+.header input,
+.header select {
+padding: 12px 16px;
+border: 1px solid var(--border);
+border-radius: 8px;
+font-size: 1rem;
+}
+.header input {
+flex: 1;
+min-width: 200px;
+}
+.header input:focus,
+.header select:focus {
+outline: 2px solid var(--primary);
+border-color: transparent;
+}
+.header button {
+padding: 12px 20px;
+border: none;
+border-radius: 8px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s;
+}
+.btn-add {
+background: var(--primary);
+color: white;
+}
+.btn-add:hover {
+background: #2563eb;
+}
+.btn-clear {
+background: #94a3b8;
+color: white;
+}
+.btn-clear:hover {
+background: #64748b;
+}
+.device-list {
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
+.device-card {
+background: var(--card-bg);
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+border-left: 5px solid var(--success);
+transition: box-shadow 0.2s;
+}
+.device-card.alert {
+border-left-color: var(--danger);
+}
+.device-card.power-outage {
+border: 2px solid var(--danger);
+animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+.device-header {
+padding: 16px;
+background: #f8fafc;
+font-weight: 600;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.type-badge {
+margin-left: 12px;
+font-size: 0.85rem;
+padding: 2px 10px;
+border-radius: 20px;
+font-weight: 600;
+display: inline-flex;
+align-items: center;
+gap: 4px;
+}
+.laboratorio { background-color: rgba(249, 115, 22, 0.15); color: #f97316; }
+.device-body {
+padding: 16px;
+background: #f1f5f9;
+border-top: 1px solid var(--border);
+}
+.sensor-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+gap: 16px;
+}
+.sensor-card {
+background: white;
+padding: 14px;
+border-radius: 10px;
+text-align: center;
+display: flex;
+flex-direction: column;
+box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+border-top: 4px solid var(--success);
+}
+.sensor-card.danger {
+border-top-color: var(--danger);
+}
+.sensor-label {
+font-size: 0.85rem;
+color: #64748b;
+margin-bottom: 6px;
+min-height: 36px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.sensor-value {
+font-size: 1.6rem;
+font-weight: 700;
+color: var(--fg);
+margin-bottom: 10px;
+}
+.sensor-value.danger {
+color: var(--danger);
+}
+.btn-hist {
+margin-top: auto;
+padding: 8px;
+width: 100%;
+border: none;
+background: var(--primary);
+color: white;
+border-radius: 6px;
+cursor: pointer;
+font-size: 0.8rem;
+font-weight: 600;
+}
+.btn-hist:hover {
+background: #2563eb;
+}
+.btn-del {
+margin-top: 12px;
+padding: 6px 12px;
+border: 1px solid var(--border);
+background: transparent;
+color: #94a3b8;
+border-radius: 6px;
+font-size: 0.85rem;
+cursor: pointer;
+}
+.btn-del:hover {
+color: var(--danger);
+border-color: var(--danger);
+}
+/* NUEVO: Selector de campos */
+.fields-selector {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin: 8px 0;
+padding: 8px;
+background: #f1f5f9;
+border-radius: 6px;
+}
+.field-checkbox {
+display: inline-block;
+margin-right: 16px;
+margin-bottom: 8px;
+}
+.field-checkbox label {
+display: flex;
+align-items: center;
+gap: 6px;
+cursor: pointer;
+font-weight: 600;
+}
+@media (max-width: 600px) {
+.header {
+flex-direction: column;
+}
+.logo-bar {
+flex-direction: column;
+gap: 10px;
+height: auto;
+}
+.logo-item {
+width: 100%;
+}
+.sensor-grid {
+grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+}
+}
+.page-title {
+text-align: center;
+font-size: 1.8rem;
+margin: 16px 0;
+color: var(--fg);
+font-weight: 600;
+background: var(--card-bg);
+padding: 12px 20px;
+border-radius: 8px;
+box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+</style>
+</head>
+<body onload="init()">
+<div class="header">
+<div class="logo-bar">
+<div class="logo-item">
+<img src="logos/logo_hnb_oscuro.jpg" alt="HNB">
+</div>
+<div class="logo-item">
+<img src="logos/logo_rih.jpg" alt="RIH">
+</div>
+<div class="logo-item">
+<img src="logos/logo_hnb_blanco.jpg" alt="HNB">
+</div>
+</div>
+<div style="display:flex; gap:12px; flex-wrap:wrap; width:100%;">
+<input type="text" id="urlIn" placeholder="Pega la URL del canal de ThingSpeak..." />
+<!-- Selector de campos -->
+<div class="fields-selector">
+<strong>Sensores:</strong>
+<div class="field-checkbox">
+<input type="checkbox" id="field1" value="field1">
+<label for="field1">Sensor 1</label>
+</div>
+<div class="field-checkbox">
+<input type="checkbox" id="field2" value="field2">
+<label for="field2">Sensor 2</label>
+</div>
+<div class="field-checkbox">
+<input type="checkbox" id="field3" value="field3">
+<label for="field3">Señal de WiFi</label>
+</div>
+</div>
+</div>
+<button class="btn-add" onclick="add()">Agregar</button>
+<button class="btn-clear" onclick="wipe()">Borrar Todo</button>
+<button class="btn-clear" onclick="toggleNormativa()">Normativa</button>
+</div>
+<h1 class="page-title">Monitoreo de Cadena de Frío para Reactivos y Muestras Biológicas - Laboratorio</h1>
+<div id="app" class="device-list"></div>
+<div style="margin-top: 8px; text-align: center;">
+<div style="background-color: #00384d; padding: 6px 16px; border-top: 1px solid var(--border);">
+<img src="logos/footer.jpg" alt="HNB - Provincia del Neuquén" style="max-width: 100%; height: auto; display: inline-block;">
+</div>
+</div>
+<!-- Panel de Normativa (versión completa con descripciones y conclusión) -->
+<div id="normativaPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; overflow:auto; padding:20px; box-sizing:border-box;">
+<div style="max-width:900px; margin:0 auto;">
+<div style="text-align:right; margin-bottom:20px;">
+<button onclick="toggleNormativa()" style="padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer;">Cerrar ✕</button>
+</div>
+<div style="text-align:center; margin-bottom:20px;">
+<div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; margin-bottom:16px;">
+<img src="logos/logo_hnb_oscuro.jpg" alt="HNB" style="max-height:80px; object-fit:contain;">
+<img src="logos/logo_rih.jpg" alt="RIH" style="max-height:80px; object-fit:contain;">
+<img src="logos/logo_hnb_blanco.jpg" alt="HNB Blanco" style="max-height:80px; object-fit:contain;">
+</div>
+<h1 style="color:#1d4ed8; font-size:24px;">Marco Normativo para Laboratorios y Reactivos</h1>
+<p>Sistemas de monitoreo – rsamio | Vigencia: Enero 2026</p>
+<button onclick="buscarTodasNormas()" style="background:#dbeafe; border:1px solid #cbd5e1; padding:6px 12px; border-radius:4px; color:#1d4ed8; cursor:pointer; margin-top:10px;">🔍 Verificar todas las normas</button>
+</div>
+<div style="background:#fffbeb; border-left:4px solid #fbbf24; padding:12px; margin:16px 0; border-radius:4px; font-size:14px;">
+ℹ️ <strong>Nota importante:</strong> Si al verificar una norma no se encuentran resultados, esto <em>no significa que haya sido derogada</em>. Puede deberse a cambios en la indexación, formato de publicación o mantenimiento del sitio. En caso de duda, consulte con la autoridad sanitaria competente (Ministerio de Salud de Neuquén o Nación).
+</div>
+<!-- SECCIÓN 1: NORMATIVA NACIONAL (ANMAT) -->
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">1. Normativa Nacional (ANMAT)</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Disposición ANMAT N° 2674/1999</strong>
+<p style="margin:8px 0;">Reactivos para Diagnóstico In Vitro (RDI). Define requisitos de almacenamiento y conservación para mantener estabilidad química y biológica.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Disposición ANMAT 2674/1999 reactivos diagnóstico in vitro')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Disposición ANMAT N° 750/2006</strong>
+<p style="margin:8px 0;">Productos Médicos para Diagnóstico In Vitro. Establece condiciones de almacenamiento y transporte para garantizar la integridad de los reactivos.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Disposición ANMAT 750/2006 productos médicos diagnóstico')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Disposición ANMAT N° 8194/2023</strong>
+<p style="margin:8px 0;">Actualización sobre el registro y vigilancia de productos médicos para diagnóstico in vitro, reforzando los requisitos de estabilidad biológica y química.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Disposición ANMAT 8194/2023 reactivos diagnóstico in vitro')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+</div>
+<!-- SECCIÓN 2: NORMATIVA PROVINCIAL - NEUQUÉN -->
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">2. Normativa Provincial – Neuquén</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Resolución Ministerial N° 224/18</strong>
+<p style="margin:8px 0;">Normas de funcionamiento para Laboratorios de Análisis Clínicos en Neuquén.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Resolución 224/18 Ministerio Salud Neuquén normas laboratorio')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Ley Provincial de Salud</strong>
+<p style="margin:8px 0;">Habilitación y funcionamiento de laboratorios clínicos. Requiere condiciones adecuadas de almacenamiento para reactivos y muestras biológicas.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Ley Provincial Salud Neuquén habilitación laboratorios')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+</div>
+<!-- SECCIÓN 3: FUENTES OFICIALES -->
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">3. Fuentes Oficiales</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<ul style="padding-left:20px; margin-top:8px; line-height:1.6;">
+<li><a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="color:#2563eb; text-decoration:underline;">Programa Nacional de Inmunizaciones</a></li>
+<li><a href="https://www.argentina.gob.ar/anmat/productos-biologicos" target="_blank" style="color:#2563eb; text-decoration:underline;">ANMAT – Productos Biológicos</a></li>
+<li><a href="https://salud.neuquen.gov.ar/programas/inmunizaciones/" target="_blank" style="color:#2563eb; text-decoration:underline;">Inmunizaciones – Neuquén</a></li>
+</ul>
+</div>
+</div>
+<!-- SECCIÓN DE CONCLUSIÓN -->
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">Conclusión</h2>
+<p>El módulo "Laboratorio" de rsamio cumple con la normativa vigente para reactivos y muestras biológicas siempre que se respeten los rangos térmicos, se incluyan los elementos gráficos exigidos y se permita el registro y exportación detallada de eventos térmicos.</p>
+</div>
+</div>
+</div>
+<script>
+const MAX = 8.0, MIN = 2.0;
+const WIFI_CUTOFF = 10;
+let db = JSON.parse(localStorage.getItem('iot_db_laboratorio')) || [];
+function formatDurationFull(minutesFloat) {
+const totalSeconds = Math.round(minutesFloat * 60);
+const d = Math.floor(totalSeconds / 86400);
+const h = Math.floor((totalSeconds % 86400) / 3600);
+const m = Math.floor((totalSeconds % 3600) / 60);
+const s = totalSeconds % 60;
+let parts = [];
+if (d > 0) parts.push(`${d} d`);
+if (h > 0) parts.push(`${h} h`);
+if (m > 0) parts.push(`${m} min`);
+if (s > 0 || parts.length === 0) parts.push(`${s} seg`);
+return parts.join(' ');
+}
+function init() {
+render();
+setInterval(refresh, 10000);
+refresh();
+}
+function add() {
+try {
+const input = document.getElementById('urlIn').value.trim();
+const type = "laboratorio";
+// Obtener campos seleccionados
+const fields = [];
+if (document.getElementById('field1').checked) fields.push('field1');
+if (document.getElementById('field2').checked) fields.push('field2');
+if (document.getElementById('field3').checked) fields.push('field3');
+if (!input) return alert("Ingresa una URL.");
+if (fields.length === 0) return alert("Selecciona al menos un campo.");
+const u = new URL(input);
+const k = u.searchParams.get('api_key');
+const match = u.pathname.match(/channels\/(\d+)/);
+const id = match ? match[1] : null;
+if (!id || !k) throw new Error("Faltan ID o API key");
+// Verificar si ya existe
+if (!db.some(x => x.id == id)) {
+db.push({ id, k, n: `ID: ${id}`, type, fields });
+save();
+render();
+refresh();
+}
+document.getElementById('urlIn').value = "";
+document.getElementById('field1').checked = false;
+document.getElementById('field2').checked = false;
+document.getElementById('field3').checked = false;
+} catch (e) {
+alert("URL inválida. Usa el enlace completo del canal con api_key.");
+}
+}
+function wipe() {
+if (confirm("¿Borrar todos los dispositivos?")) {
+db = [];
+save();
+render();
+}
+}
+function del(id) {
+db = db.filter(x => x.id != id);
+save();
+render();
+}
+function save() {
+localStorage.setItem('iot_db_laboratorio', JSON.stringify(db));
+}
+function render() {
+const app = document.getElementById('app');
+app.innerHTML = "";
+db.forEach(c => {
+const card = document.createElement('div');
+card.className = 'device-card';
+card.id = `p-${c.id}`;
+const typeLabel = 'Laboratorio 🔬';
+const typeClass = 'laboratorio';
+// Renderizar nombre y tipo
+card.innerHTML = `
+<div class="device-header">
+<span id="n-${c.id}">${c.n}</span>
+<span class="type-badge ${typeClass}">${typeLabel}</span>
+<small>ID: ${c.id}</small>
+</div>
+<div class="device-body">
+<div class="sensor-grid" id="g-${c.id}">Cargando...</div>
+<div style="text-align: right; margin-top: 12px;">
+<button class="btn-del" onclick="del('${c.id}')">Eliminar</button>
+</div>
+</div>
+`;
+app.appendChild(card);
+// Renderizar cada campo
+if (c.fields && c.fields.length > 0) {
+const grid = document.getElementById(`g-${c.id}`);
+grid.innerHTML = "";
+c.fields.forEach(f => {
+const fieldCard = document.createElement('div');
+fieldCard.className = 'sensor-card';
+fieldCard.id = `f-${c.id}-${f}`;
+fieldCard.innerHTML = `
+<div class="sensor-label" id="l-${c.id}-${f}">Cargando...</div>
+<div class="sensor-value" id="v-${c.id}-${f}">--</div>
+<button class="btn-hist" onclick="openRep('${c.id}','${c.k}','${f}','${c.type}')">📊 Gráfico</button>
+`;
+grid.appendChild(fieldCard);
+});
+}
+});
+}
+function checkRecentPowerOutage(c, feeds) {
+const now = new Date();
+const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+for (let i = 1; i < feeds.length; i++) {
+const prevTime = new Date(feeds[i-1].created_at);
+const currTime = new Date(feeds[i].created_at);
+if (currTime < twentyFourHoursAgo) continue;
+const diffMin = (currTime - prevTime) / 60000;
+if (diffMin > WIFI_CUTOFF) {
+const tb = parseFloat(feeds[i-1][c.fields[0]]);
+const ta = parseFloat(feeds[i][c.fields[0]]);
+const validA = !isNaN(ta);
+const inRangeAfter = validA && ta >= MIN && ta <= MAX;
+if (validA && !inRangeAfter) return true;
+}
+}
+return false;
+}
+async function refresh() {
+for (let c of db) {
+if (!c.alertsState) c.alertsState = {};
+try {
+const url = `https://api.thingspeak.com/channels/${c.id}/feeds.json?api_key=${c.k}&results=100`;
+const r = await fetch(url);
+const d = await r.json();
+if (!d.channel || !d.feeds || d.feeds.length === 0) continue;
+c.n = d.channel.name || `ID: ${c.id}`;
+const nameEl = document.getElementById(`n-${c.id}`);
+if (nameEl) nameEl.innerText = c.n;
+// Para cada campo seleccionado
+for (let f of c.fields) {
+const fLabel = d.channel[f] || f;
+const fValue = parseFloat(d.feeds[0][f]);
+// Actualizar etiqueta y valor
+const labelEl = document.getElementById(`l-${c.id}-${f}`);
+const valueEl = document.getElementById(`v-${c.id}-${f}`);
+if (labelEl) labelEl.innerText = fLabel;
+if (valueEl) {
+valueEl.innerText = isNaN(fValue) ? '--' : fValue.toFixed(1);
+// Colorear según rango
+if (f === 'field1' || f === 'field2') { // asumimos temperaturas
+if (fValue < MIN || fValue > MAX) {
+valueEl.classList.add('danger');
+} else {
+valueEl.classList.remove('danger');
+}
+}
+}
+// Actualizar estado de alerta
+const isDanger = (f === 'field1' || f === 'field2') && !isNaN(fValue) && (fValue > MAX || fValue < MIN);
+if (isDanger) {
+  checkTemperatureAlerts(fLabel, fValue, MIN, MAX);
+}
+c.alertsState[f] = isDanger;
+// Actualizar clase de tarjeta
+const cardEl = document.getElementById(`f-${c.id}-${f}`);
+if (cardEl) {
+cardEl.classList.toggle('danger', isDanger);
+}
+}
+// Actualizar estado de tarjeta principal
+const hasAnyAlert = c.fields.some(f => c.alertsState[f]);
+const card = document.getElementById(`p-${c.id}`);
+if (card) {
+card.classList.toggle('alert', hasAnyAlert);
+const hasPowerOutage = checkRecentPowerOutage(c, d.feeds);
+card.classList.toggle('power-outage', hasPowerOutage);
+}
+save();
+} catch (e) { console.warn(`Error al cargar canal ${c.id}:`, e); }
+}
+}
+function openRep(id, k, f, type) {
+window.open(`reporte_individual_laboratorio_final.html?id=${id}&key=${k}&field=${f}&type=${type}&days=7`, '_blank');
+}
+// === FUNCIONES DE NORMATIVA ===
+function toggleNormativa() {
+const panel = document.getElementById('normativaPanel');
+panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+function buscarNorma(query) {
+window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+}
+function buscarTodasNormas() {
+if (confirm('¿Desea abrir pestañas para verificar todas las normas?')) {
+const queries = [
+'Disposición ANMAT 2674/1999 reactivos diagnóstico in vitro',
+'Disposición ANMAT 750/2006 productos médicos diagnóstico',
+'Disposición ANMAT 8194/2023 reactivos diagnóstico in vitro',
+'Resolución 224/18 Ministerio Salud Neuquén normas laboratorio',
+'Ley Provincial Salud Neuquén habilitación laboratorios'
+];
+queries.forEach((q, i) => {
+setTimeout(() => window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank'), i * 600);
+});
+}
+}
+function checkTemperatureAlerts(sensorName, temperature, minTemp, maxTemp) {
+  if (temperature < minTemp || temperature > maxTemp) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('🔬 ALERTA LABORATORIO - REACTIVOS', {
+        body: `Sensor: ${sensorName}\nTemperatura: ${temperature}°C\nRango: ${minTemp}°C - ${maxTemp}°C\nRIESGO DE DEGRADACIÓN`,
+        icon: '/icons/icon-192x192.png',
+        vibrate: [200, 100, 200],
+        requireInteraction: true
+      });
+    }
+  }
+}
+</script>
+</body>
+</html>

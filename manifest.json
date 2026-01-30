@@ -1,0 +1,25 @@
+{
+  "name": "rsamio - Monitoreo Cadena de Frío",
+  "short_name": "rsamio",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00384d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "utilities", "productivity"],
+  "description": "Sistema de monitoreo de cadena de frío para Farmacia, Hemoterapia, Vacunas y Laboratorio - Hospital Natalio Burd"
+}

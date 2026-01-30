@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Marco Normativo – Farmacia</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#00384d">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/pwa-styles.css">
+<style>
+:root {
+--bg: #f9fafb;
+--fg: #1e293b;
+--primary: #1d4ed8;
+--light: #f1f5f9;
+--border: #cbd5e1;
+--card: #ffffff;
+--link: #2563eb;
+--button-bg: #dbeafe;
+--button-hover: #bfdbfe;
+--warning-bg: #fffbeb;
+--warning-border: #fbbf24;
+}
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+<script src="/js/pwa-utils.js"></script>
+body {
+font-family: 'Segoe UI', system-ui, sans-serif;
+background-color: var(--bg);
+color: var(--fg);
+line-height: 1.6;
+padding: 0;
+margin: 0;
+}
+a {
+color: var(--link);
+text-decoration: none;
+}
+a:hover {
+text-decoration: underline;
+}
+.header {
+background: var(--card);
+padding: 20px;
+text-align: center;
+border-bottom: 1px solid var(--border);
+}
+.logo-bar {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 30px;
+margin-bottom: 16px;
+flex-wrap: wrap;
+}
+.logo-item img {
+max-height: 80px;
+object-fit: contain;
+}
+h1 {
+font-size: 24px;
+color: var(--primary);
+margin-top: 12px;
+}
+.container {
+max-width: 900px;
+margin: 24px auto;
+padding: 0 20px;
+}
+.section {
+background: var(--card);
+padding: 20px;
+margin-bottom: 24px;
+border-radius: 8px;
+box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+border-left: 4px solid var(--primary);
+}
+h2 {
+font-size: 20px;
+margin-bottom: 16px;
+color: var(--primary);
+}
+h3 {
+font-size: 18px;
+margin: 16px 0 10px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.verify-btn {
+background: var(--button-bg);
+border: 1px solid var(--border);
+padding: 4px 10px;
+border-radius: 4px;
+font-size: 12px;
+cursor: pointer;
+color: var(--primary);
+}
+.verify-btn:hover {
+background: var(--button-hover);
+}
+.warning-note {
+background-color: var(--warning-bg);
+border-left: 4px solid var(--warning-border);
+padding: 12px;
+margin: 16px 0;
+border-radius: 4px;
+font-size: 14px;
+}
+p, li {
+margin-bottom: 10px;
+}
+ul {
+padding-left: 20px;
+margin: 10px 0;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+margin: 16px 0;
+}
+th, td {
+text-align: left;
+padding: 10px;
+border: 1px solid var(--border);
+}
+th {
+background-color: var(--light);
+font-weight: 600;
+}
+.footer {
+text-align: center;
+font-size: 12px;
+color: #64748b;
+padding: 20px;
+border-top: 1px solid var(--border);
+margin-top: 20px;
+}
+@media print {
+.verify-btn, .warning-note { display: none; }
+body { background: white; }
+.section { box-shadow: none; border: 1px solid #ddd; }
+a { color: #000; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="logo-bar">
+<div class="logo-item"><img src="logos/logo_hnb_oscuro.jpg" alt="HNB"></div>
+<div class="logo-item"><img src="logos/logo_rih.jpg" alt="RIH"></div>
+<div class="logo-item"><img src="logos/logo_hnb_blanco.jpg" alt="HNB Blanco"></div>
+</div>
+<h1>Marco Normativo – Cadena de Frío para Medicamentos Refrigerados</h1>
+<p>Sistemas de monitoreo – rsamio | Vigencia: Enero 2026</p>
+<button class="verify-btn" onclick="buscarTodasNormas()" style="margin-top:10px;">🔍 Verificar todas las normas</button>
+</div>
+<div class="container">
+<div class="warning-note">
+ℹ️ <strong>Nota importante:</strong> Si al verificar una norma no se encuentran resultados, esto <em>no significa que haya sido derogada</em>. Puede deberse a cambios en la indexación, formato de publicación o mantenimiento del sitio. En caso de duda, consulte con la autoridad sanitaria competente (Ministerio de Salud de Neuquén o Nación).
+</div>
+<div class="section">
+<h2>1. Normativa Nacional</h2>
+<h3>
+ANMAT – Disposición N° 10.872/2020
+<button class="verify-btn" onclick="buscarNorma('Disposición 10872/2020 ANMAT productos médicos refrigerados argentina.gob.ar')">🔍 Verificar</button>
+</h3>
+<p>Buenas Prácticas de Almacenamiento y Distribución de Productos Médicos. Define rangos térmicos (+2°C a +8°C) y obligaciones de monitoreo.</p>
+<h3>
+Ley Nacional N° 16.462
+<button class="verify-btn" onclick="buscarNorma('Ley 16462 medicamentos cadena de frío boletinoficial.gob.ar')">🔍 Verificar</button>
+</h3>
+<p>Ley de Medicamentos. Marco general para la conservación y trazabilidad.</p>
+<h3>
+Resolución ANMAT N° 368/2000
+<button class="verify-btn" onclick="buscarNorma('Resolución 368/2000 ANMAT almacenamiento medicamentos argentina.gob.ar')">🔍 Verificar</button>
+</h3>
+<p>Guía de Buenas Prácticas de Almacenamiento. Complementaria a la disposición 10872/2020.</p>
+</div>
+<div class="section">
+<h2>2. Normativa Provincial – Neuquén</h2>
+<h3>
+Decreto Provincial N° 1874/2023
+<button class="verify-btn" onclick="buscarNorma('Decreto 1874/2023 trazabilidad salud Neuquén neuquen.gov.ar')">🔍 Verificar</button>
+</h3>
+<p>Sistema Provincial de Trazabilidad en Salud Pública. Aplicable a medicamentos termolábiles.</p>
+<h3>
+Resolución Ministerial N° 1285/2022
+<button class="verify-btn" onclick="buscarNorma('Resolución 1285/2022 cadena de frío inmunización salud.neuquen.gov.ar')">🔍 Verificar</button>
+</h3>
+<p>Protocolo Provincial de Gestión de la Cadena de Frío en Inmunización. <em>Aplicable por analogía</em> a otros productos sanitarios refrigerados.</p>
+</div>
+<div class="section">
+<h2>3. Fuentes Oficiales</h2>
+<ul>
+<li><a href="https://www.argentina.gob.ar/anmat/productos-biologicos" target="_blank">ANMAT – Productos Biológicos</a></li>
+<li><a href="https://salud.neuquen.gov.ar/programas/inmunizaciones/" target="_blank">Inmunizaciones – Ministerio de Salud de Neuquén (Protocolo Generalizable)</a></li>
+</ul>
+</div>
+<div class="section">
+<h2>Conclusión</h2>
+<p>El módulo “Farmacia” de rsamio cumple con la normativa vigente para medicamentos refrigerados siempre que se respeten los rangos térmicos (+2°C a +8°C), se incluyan los elementos gráficos exigidos por Neuquén, y se permita el registro y exportación detallada de eventos térmicos.</p>
+</div>
+</div>
+<div class="footer">
+<p>Documento técnico generado para sistemas de monitoreo de cadena de frío – rsamio | Versión: 2.1 | Vigencia: Enero 2026</p>
+</div>
+<script>
+function buscarNorma(query) {
+const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+window.open(url, '_blank');
+}
+function buscarTodasNormas() {
+const queries = [
+'Disposición 10872/2020 ANMAT productos médicos refrigerados argentina.gob.ar',
+'Ley 16462 medicamentos cadena de frío boletinoficial.gob.ar',
+'Resolución 368/2000 ANMAT almacenamiento medicamentos argentina.gob.ar',
+'Decreto 1874/2023 trazabilidad salud Neuquén neuquen.gov.ar',
+'Resolución 1285/2022 cadena de frío inmunización salud.neuquen.gov.ar'
+];
+if (confirm('¿Desea abrir pestañas para verificar todas las normas?')) {
+queries.forEach((q, i) => {
+setTimeout(() => {
+window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+}, i * 600);
+});
+}
+}
+</script>
+</body>
+</html>

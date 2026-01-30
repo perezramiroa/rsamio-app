@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Monitor Dataloggers – Inmunización Zona 1</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#00384d">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="/css/pwa-styles.css">
+<style>
+:root {
+--bg: #f8fafc;
+--fg: #1e293b;
+--primary: #3b82f6;
+--success: #10b981;
+--danger: #ef4444;
+--border: #e2e8f0;
+--card-bg: #ffffff;
+--green-border: #10b981;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+<script src="/js/pwa-utils.js"></script>
+body {
+font-family: 'Segoe UI', system-ui, sans-serif;
+background-color: var(--bg);
+color: var(--fg);
+padding: 20px;
+line-height: 1.5;
+}
+.header {
+background: var(--card-bg);
+padding: 20px;
+border-radius: 12px;
+margin-bottom: 24px;
+box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+align-items: center;
+justify-content: space-between;
+}
+.logo-bar {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 20px;
+flex-wrap: wrap;
+}
+.logo-item {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 80px;
+}
+.logo-item img {
+max-height: 100%;
+max-width: 100%;
+object-fit: contain;
+margin: 0 5px;
+}
+.title-section {
+text-align: center;
+margin: 0 20px;
+}
+.title-section h1 {
+font-size: 1.6rem;
+font-weight: 600;
+color: var(--fg);
+margin: 0;
+}
+.title-section p {
+font-size: 0.9rem;
+color: #64748b;
+margin: 4px 0 0;
+}
+.controls {
+display: flex;
+gap: 12px;
+align-items: center;
+margin-top: 12px;
+}
+.btn-normativa {
+padding: 8px 16px;
+background: #64748b;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-weight: 600;
+}
+.btn-normativa:hover {
+background: #475569;
+}
+.device-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 16px;
+margin-top: 16px;
+}
+.device-card {
+background: var(--card-bg);
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+border-left: 5px solid var(--green-border);
+transition: transform 0.2s, box-shadow 0.2s;
+position: relative;
+}
+.device-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.device-card.alert {
+border-left-color: var(--danger);
+}
+.device-card.power-outage {
+border: 2px solid var(--danger);
+animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+.device-header {
+padding: 16px;
+background: #f8fafc;
+font-weight: 600;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.device-name {
+font-size: 1.1rem;
+font-weight: 600;
+color: var(--fg);
+}
+.type-badge {
+margin-left: 8px;
+font-size: 0.75rem;
+padding: 2px 8px;
+border-radius: 20px;
+font-weight: 600;
+display: inline-flex;
+align-items: center;
+gap: 4px;
+}
+.vacunas { background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.sensor-cards {
+display: flex;
+gap: 12px;
+padding: 16px;
+background: #f1f5f9;
+border-top: 1px solid var(--border);
+flex-wrap: wrap;
+}
+.sensor-card {
+background: white;
+border-radius: 10px;
+padding: 16px;
+text-align: center;
+box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+border: 1px solid var(--border);
+flex: 1;
+min-width: 120px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all 0.2s;
+}
+.sensor-card:hover {
+transform: scale(1.03);
+}
+.sensor-card.danger {
+border-color: var(--danger);
+}
+.sensor-card .label {
+font-size: 0.9rem;
+color: #64748b;
+margin-bottom: 8px;
+text-align: center;
+font-weight: 600;
+}
+.sensor-card .value {
+font-size: 1.8rem;
+font-weight: 700;
+color: var(--fg);
+margin-bottom: 12px;
+}
+.sensor-card .value.danger {
+color: var(--danger);
+}
+.sensor-card .btn-hist {
+padding: 8px 16px;
+background: var(--primary);
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-size: 0.85rem;
+font-weight: 600;
+width: 100%;
+}
+.sensor-card .btn-hist:hover {
+background: #2563eb;
+}
+@media (max-width: 600px) {
+.header { flex-direction: column; }
+.logo-bar { gap: 10px; }
+.device-grid { grid-template-columns: 1fr; }
+.sensor-card { min-width: 100%; }
+}
+</style>
+</head>
+<body onload="init()">
+<div class="header">
+<div class="logo-bar">
+<div class="logo-item"><img src="logos/logo_hnb_oscuro.jpg" alt="HNB"></div>
+<div class="logo-item"><img src="logos/logo_rih.jpg" alt="RIH"></div>
+<div class="logo-item"><img src="logos/logo_hnb_blanco.jpg" alt="HNB"></div>
+</div>
+<div class="title-section">
+<h1>Inmunización Zona 1 – Monitoreo Térmico Dual</h1>
+<p>Sin "Temp Ambiente" | Actualización suave</p>
+</div>
+<div class="controls">
+<button class="btn-normativa" onclick="toggleNormativa()">Normativa</button>
+</div>
+</div>
+<div id="app" class="device-grid">
+<p style="text-align:center;color:#94a3b8;">Cargando dispositivos...</p>
+</div>
+<div style="margin-top: 32px; text-align: center;">
+<div style="background-color: #00384d; padding: 6px 16px; border-top: 1px solid var(--border);">
+<img src="logos/footer.jpg" alt="HNB - Provincia del Neuquén" style="max-width: 100%; height: auto; display: inline-block;">
+</div>
+</div>
+<!-- Panel de Normativa (versión completa con descripciones y conclusión) -->
+<div id="normativaPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; overflow:auto; padding:20px; box-sizing:border-box;">
+<div style="max-width:900px; margin:0 auto;">
+<div style="text-align:right; margin-bottom:20px;">
+<button onclick="toggleNormativa()" style="padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer;">Cerrar ✕</button>
+</div>
+<div style="text-align:center; margin-bottom:20px;">
+<div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; margin-bottom:16px;">
+<img src="logos/logo_hnb_oscuro.jpg" alt="HNB" style="max-height:80px; object-fit:contain;">
+<img src="logos/logo_rih.jpg" alt="RIH" style="max-height:80px; object-fit:contain;">
+<img src="logos/logo_hnb_blanco.jpg" alt="HNB Blanco" style="max-height:80px; object-fit:contain;">
+</div>
+<h1 style="color:#1d4ed8; font-size:24px;">Marco Normativo para la Cadena de Frío en Inmunización</h1>
+<p>Sistemas de monitoreo – rsamio | Vigencia: Enero 2026</p>
+<button onclick="buscarTodasNormas()" style="background:#dbeafe; border:1px solid #cbd5e1; padding:6px 12px; border-radius:4px; color:#1d4ed8; cursor:pointer; margin-top:10px;">🔍 Verificar todas las normas</button>
+</div>
+<div style="background:#fffbeb; border-left:4px solid #fbbf24; padding:12px; margin:16px 0; border-radius:4px; font-size:14px;">
+ℹ️ <strong>Nota importante:</strong> Si al verificar una norma no se encuentran resultados, esto <em>no significa que haya sido derogada</em>. Puede deberse a cambios en la indexación, formato de publicación o mantenimiento del sitio. En caso de duda, consulte con la autoridad sanitaria competente (Ministerio de Salud de Neuquén o Nación).
+</div>
+<!-- SECCIÓN 1: NORMATIVA NACIONAL -->
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">1. Normativa Nacional</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Ley Nacional N° 27.491 (2018)</strong> – "Ley de Vacunas"
+<p style="margin:8px 0;">Establece el Programa Nacional de Inmunizaciones (PNI) como política de Estado.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Ley 27.491 boletinoficial.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Resolución MSAL N° 1030/2021</strong>
+<p style="margin:8px 0;">Normas técnicas para la cadena de frío del PNI. Define rangos (+2 °C a +8 °C), prohibiciones y requisitos de monitoreo.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Resolución 1030/2021 cadena de frío argentina.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>ANMAT – Disposición N° 10.872/2020</strong>
+<p style="margin:8px 0;">Buenas Prácticas de Almacenamiento y Distribución de Productos Médicos (incluye vacunas).</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Disposición 10872/2020 ANMAT productos biológicos argentina.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+</div>
+<!-- SECCIÓN 2: NORMATIVA PROVINCIAL - NEUQUÉN -->
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">2. Normativa Provincial – Neuquén</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Resolución Ministerial N° 1285/2022</strong>
+<p style="margin:8px 0;">Protocolo Provincial de Gestión de la Cadena de Frío en Inmunización.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Resolución 1285/2022 cadena de frío inmunización salud.neuquen.gov.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Decreto Provincial N° 1874/2023</strong>
+<p style="margin:8px 0;">Sistema Provincial de Trazabilidad en Salud Pública.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Decreto 1874/2023 trazabilidad salud Neuquén neuquen.gov.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+</div>
+<!-- SECCIÓN 3: FUENTES OFICIALES -->
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">3. Fuentes Oficiales</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<ul style="padding-left:20px; margin-top:8px; line-height:1.6;">
+<li><a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="color:#2563eb; text-decoration:underline;">Programa Nacional de Inmunizaciones</a></li>
+<li><a href="https://www.argentina.gob.ar/anmat/productos-biologicos" target="_blank" style="color:#2563eb; text-decoration:underline;">ANMAT – Productos Biológicos</a></li>
+<li><a href="https://salud.neuquen.gov.ar/programas/inmunizaciones/" target="_blank" style="color:#2563eb; text-decoration:underline;">Inmunizaciones – Ministerio de Salud de Neuquén</a></li>
+</ul>
+</div>
+</div>
+<!-- SECCIÓN DE CONCLUSIÓN -->
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">Conclusión</h2>
+<p>El módulo "Inmunización" de rsamio cumple con la normativa vigente siempre que se respeten los rangos térmicos, se incluyan los elementos gráficos exigidos por Neuquén, y se permita el registro y exportación detallada de eventos térmicos.</p>
+</div>
+</div>
+</div>
+<script>
+const MAX = 8.0, MIN = 2.0;
+const WIFI_CUTOFF = 10;
+// Lista fija de canales
+const CHANNELS = [
+"3016635", "3016636", "3082646", "3125888", "2986932", "2986935",
+"2993812", "2993815", "3102139", "3003527", "3003528", "3015641",
+"3018408", "3019919", "3060520", "3079464", "3090672"
+];
+const API_KEYS = {
+"3016635": "8QKPERAJWIATGC5F",
+"3016636": "SAP43F3FB83V79KP",
+"3082646": "TSE6UAW72LLR8R39",
+"3125888": "SCAORB4D3OCPE9DK",
+"2986932": "9ODQC0Q4Y05C1O1T",
+"2986935": "Q1CXSNKL68D24MJH",
+"2993812": "PNS5MD5VS74CKIIM",
+"2993815": "XZ0DG337HFATUG1O",
+"3102139": "YPWRU12M4LY6DBIX",
+"3003527": "9ALDC8QUP8JV6ZDJ",
+"3003528": "3ENZ4FNKZRFF1I2W",
+"3015641": "4IV9V3L1RC08AAQ5",
+"3018408": "ZY1L55G8AUXGCV9B",
+"3019919": "BGIYFCS3AS3BBQC0",
+"3060520": "YBS2XVLA80RQ63J6",
+"3079464": "18OTBS7ODP225VBW",
+"3090672": "7K994UH4606YRUE1"
+};
+// Normaliza y verifica si es "Temp Ambiente"
+function isTempAmbiente(label) {
+if (!label) return false;
+return label.trim().toLowerCase() === "temp ambiente";
+}
+// Renderiza la estructura inicial (una sola vez)
+function renderInitialStructure() {
+const app = document.getElementById('app');
+app.innerHTML = "";
+CHANNELS.forEach(id => {
+const card = document.createElement('div');
+card.className = 'device-card';
+card.id = `p-${id}`;
+card.innerHTML = `
+<div class="device-header">
+<span class="device-name">ID: ${id}</span>
+<span class="type-badge vacunas">Vacunas 💉</span>
+</div>
+<div class="sensor-cards" id="sensors-${id}">
+<div class="sensor-card"><div class="label">Cargando...</div><div class="value">--</div></div>
+<div class="sensor-card"><div class="label">Cargando...</div><div class="value">--</div></div>
+</div>
+`;
+app.appendChild(card);
+});
+}
+// Actualiza SOLO los valores y estados (sin borrar/recrear)
+async function refreshData() {
+for (const id of CHANNELS) {
+try {
+const k = API_KEYS[id];
+const url = `https://api.thingspeak.com/channels/${id}/feeds.json?api_key=${k}&results=1`;
+const res = await fetch(url);
+const data = await res.json();
+if (!data.channel || !data.feeds || data.feeds.length === 0) continue;
+const channelName = data.channel.name || `ID: ${id}`;
+const feed = data.feeds[0];
+// Filtrar campos válidos (solo field1 y field2, y no "Temp Ambiente")
+let validFields = [];
+if (!isTempAmbiente(data.channel.field1)) validFields.push({ key: 'field1', label: data.channel.field1 || 'Campo 1' });
+if (!isTempAmbiente(data.channel.field2)) validFields.push({ key: 'field2', label: data.channel.field2 || 'Campo 2' });
+// Actualizar nombre del dispositivo
+const nameEl = document.querySelector(`#p-${id} .device-name`);
+if (nameEl && !channelName.includes("Sarmiento 1 Farmacia")) {
+nameEl.innerText = channelName;
+} else if (channelName.includes("Sarmiento 1 Farmacia")) {
+document.getElementById(`p-${id}`).style.display = 'none';
+continue;
+}
+// Actualizar sensores
+const sensors = document.querySelectorAll(`#sensors-${id} .sensor-card`);
+let hasAlert = false;
+for (let i = 0; i < 2; i++) {
+if (i < validFields.length) {
+const f = validFields[i];
+const val = parseFloat(feed[f.key]);
+const isDanger = !isNaN(val) && (val < MIN || val > MAX);
+if (isDanger) {
+  checkTemperatureAlerts(f.label, val, MIN, MAX, id);
+}
+const valueText = isNaN(val) ? '--' : val.toFixed(1);
+sensors[i].querySelector('.label').innerText = f.label;
+sensors[i].querySelector('.value').innerText = valueText;
+sensors[i].classList.toggle('danger', isDanger);
+sensors[i].querySelector('.value').classList.toggle('danger', isDanger);
+sensors[i].onclick = () => openRep(id, k, f.key);
+sensors[i].querySelector('.btn-hist')?.remove();
+const btn = document.createElement('button');
+btn.className = 'btn-hist';
+btn.innerText = '📊 Gráfico';
+btn.onclick = () => openRep(id, k, f.key);
+sensors[i].appendChild(btn);
+if (isDanger) hasAlert = true;
+} else {
+sensors[i].style.display = 'none';
+}
+}
+// Alerta general
+const card = document.getElementById(`p-${id}`);
+if (card) {
+card.classList.toggle('alert', hasAlert);
+card.style.display = validFields.length > 0 ? 'block' : 'none';
+}
+} catch (e) {
+console.warn(`Error al cargar canal ${id}:`, e);
+}
+}
+}
+function init() {
+renderInitialStructure();
+refreshData(); // Primera carga
+setInterval(refreshData, 10000); // Refresco suave cada 10 segundos
+}
+function openRep(id, k, f) {
+window.open(`reporte_individual_inmunizacion_zona1.html?id=${id}&key=${k}&field=${f}&type=vacunas&days=7`, '_blank');
+}
+// === FUNCIONES DE NORMATIVA ===
+function toggleNormativa() {
+const panel = document.getElementById('normativaPanel');
+panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+function buscarNorma(query) {
+window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+}
+function buscarTodasNormas() {
+if (confirm('¿Desea abrir pestañas para verificar todas las normas?')) {
+const queries = [
+'Ley 27.491 boletinoficial.gob.ar',
+'Resolución 1030/2021 cadena de frío argentina.gob.ar',
+'Disposición 10872/2020 ANMAT productos biológicos argentina.gob.ar',
+'Resolución 1285/2022 cadena de frío inmunización salud.neuquen.gov.ar',
+'Decreto 1874/2023 trazabilidad salud Neuquén neuquen.gov.ar'
+];
+queries.forEach((q, i) => {
+setTimeout(() => window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank'), i * 600);
+});
+}
+}
+function checkTemperatureAlerts(sensorName, temperature, minTemp, maxTemp, channelId) {
+  if (temperature < minTemp || temperature > maxTemp) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('💉 ZONA 1 - ALERTA DE TEMPERATURA', {
+        body: `Canal: ${channelId}\nSensor: ${sensorName}\nTemperatura: ${temperature}°C\nRango: ${minTemp}°C - ${maxTemp}°C`,
+        icon: '/icons/icon-192x192.png',
+        vibrate: [200, 100, 200],
+        requireInteraction: true
+      });
+    }
+  }
+}
+</script>
+</body>
+</html>
