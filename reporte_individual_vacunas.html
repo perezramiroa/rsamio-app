@@ -777,5 +777,59 @@ label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; 
         </div>
     </div>
 </div>
+  // Funciones de Control del Modal
+function abrirModalDesvio() {
+    document.getElementById("modalDesvio").style.display = "block";
+    document.getElementById("desvio_fecha").valueAsDate = new Date(); // Pre-cargar fecha hoy
+}
+
+function cerrarModalDesvio() {
+    document.getElementById("modalDesvio").style.display = "none";
+}
+
+// Mostrar/Ocultar sección de dosis
+function toggleDosis() {
+    var seleccion = document.getElementById("desvio_dosis_afectadas").value;
+    document.getElementById("areaDosis").style.display = (seleccion === "Si") ? "block" : "none";
+}
+
+// Función para Generar y Descargar PDF
+function generarPDFDesvio() {
+    // 1. Validación Pedagógica: Asegurar datos mínimos
+    var establecimiento = document.getElementById("desvio_establecimiento").value;
+    var responsable = document.getElementById("desvio_responsable").value;
+    
+    if(establecimiento === "" || responsable === "") {
+        alert("⚠️ Por favor complete al menos el Establecimiento y el Responsable para validar el documento.");
+        return;
+    }
+
+    // 2. Elemento a convertir
+    var elemento = document.getElementById("contenidoFormularioDesvio");
+    
+    // 3. Configuración del PDF
+    var opt = {
+        margin:       10,
+        filename:     'Desvio_Cadena_Frio_' + document.getElementById("desvio_fecha").value + '.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 4. Generar y Descargar
+    // Usamos la librería html2pdf cargada en el Paso 2
+    html2pdf().set(opt).from(elemento).save().then(function(){
+        alert("✅ Formulario generado correctamente. Revise su carpeta de descargas.");
+        cerrarModalDesvio();
+    });
+}
+
+// Cerrar modal si se hace clic fuera del contenido
+window.onclick = function(event) {
+    var modal = document.getElementById("modalDesvio");
+    if (event.target == modal) {
+        cerrarModalDesvio();
+    }
+}
 </body>
 </html>
