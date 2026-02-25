@@ -637,6 +637,7 @@
   </script>
 <!-- =========================================== -->
 <!-- FORMULARIO DE DESVÍO DE CADENA DE FRÍO -->
+<!-- CON GENERACIÓN DE PDF COMPLETO -->
 <!-- =========================================== -->
 
 <!-- Estilos para el Modal -->
@@ -1035,6 +1036,29 @@
     const btnCerrar2 = document.getElementById('btnCerrarFormulario');
     const btnDescargar = document.getElementById('btnDescargarFormularioPDF');
 
+    // Función para obtener el estado de un checkbox
+    function getCheckboxEstado(id) {
+      const checkbox = document.getElementById(id);
+      return checkbox && checkbox.checked ? '[X]' : '[ ]';
+    }
+
+    // Función para obtener el valor de un campo editable
+    function getCampoValor(id) {
+      const campo = document.getElementById(id);
+      return campo ? campo.innerText.trim() : '';
+    }
+
+    // Función para obtener el valor de un radio button
+    function getRadioValor(name) {
+      const radios = document.getElementsByName(name);
+      for (let radio of radios) {
+        if (radio.checked) {
+          return radio.nextSibling?.nodeValue?.trim() || radio.parentElement?.innerText?.trim() || 'Seleccionado';
+        }
+      }
+      return '[ ]';
+    }
+
     // Abrir modal
     if (btnAbrir) {
       btnAbrir.addEventListener('click', function() {
@@ -1063,48 +1087,252 @@
       }
     });
 
-    // Función para generar PDF del formulario
-    function generarPDFFormulario() {
+    // Función para generar PDF completo del formulario
+    function generarPDFFormularioCompleto() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('p', 'mm', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
       const margin = 15;
+      
+      let yPos = 20;
 
-      // Título
+      // Función auxiliar para agregar texto y actualizar yPos
+      function addText(text, fontSize = 10, isBold = false, indent = 0) {
+        doc.setFontSize(fontSize);
+        doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+        const lines = doc.splitTextToSize(text, pageWidth - (margin * 2) - indent);
+        doc.text(lines, margin + indent, yPos);
+        yPos += (lines.length * (fontSize * 0.35));
+        return yPos;
+      }
+
+      // Función para agregar una línea divisoria
+      function addLine() {
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, yPos - 2, pageWidth - margin, yPos - 2);
+      }
+
+      // Título principal
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(0, 56, 77);
-      doc.text('DICEI - Formulario de Desvío de Cadena de Frío', margin, 20);
+      doc.text('DICEI - Formulario de Desvío de Cadena de Frío', margin, yPos);
+      yPos += 10;
 
-      let yPos = 30;
+      // Subtítulos
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Dirección de Control de Enfermedades Inmunoprevenibles', margin, yPos);
+      yPos += 6;
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
+      doc.text('Coordinación de Logística', margin, yPos);
+      yPos += 6;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Formulario para registro de desvíos de cadena de frío en Vacunas', margin, yPos);
+      yPos += 6;
+      doc.setFont('helvetica', 'normal');
+      doc.text('Marzo 2023', margin, yPos);
+      yPos += 8;
 
-      // Recopilar datos de los campos principales
-      const campos = [
-        `Provincia: ${document.getElementById('formProvincia')?.innerText || ''}`,
-        `Fecha: ${document.getElementById('formFecha')?.innerText || ''}`,
-        `Establecimiento: ${document.getElementById('formEstablecimiento')?.innerText || ''}`,
-        `Tipo: ${document.getElementById('formTipoEstablecimiento')?.innerText || ''}`,
-        `Localidad: ${document.getElementById('formLocalidad')?.innerText || ''}`,
-        `Identificado por: ${document.getElementById('formIdentificador')?.innerText || ''}`,
-        `Temperatura ambiente: ${document.getElementById('formTempAmbiente')?.innerText || ''} °C`,
-        `Heladera 1 - Temp previa: ${document.getElementById('tempPrevia1')?.innerText || ''} °C (${document.getElementById('fechaPrevia1')?.innerText || ''} ${document.getElementById('horaPrevia1')?.innerText || ''})`,
-        `Heladera 1 - Temp desvío: ${document.getElementById('tempDesvio1')?.innerText || ''} °C (${document.getElementById('fechaDesvio1')?.innerText || ''} ${document.getElementById('horaDesvio1')?.innerText || ''})`,
-        `Descripción: ${document.getElementById('formDescripcion')?.innerText || ''}`,
-        `Completado por: ${document.getElementById('formCompletoNombre')?.innerText || ''} (${document.getElementById('formCompletoCargo')?.innerText || ''})`,
-      ];
+      // Provincia y Fecha
+      doc.setFont('helvetica', 'bold');
+      doc.text(`PROVINCIA: ${getCampoValor('formProvincia')}`, margin, yPos);
+      doc.text(`FECHA: ${getCampoValor('formFecha')}`, pageWidth - margin - 50, yPos);
+      yPos += 8;
 
-      campos.forEach(texto => {
-        if (yPos > 270) {
-          doc.addPage();
-          yPos = 20;
+      // IDENTIFICACIÓN DEL DESVÍO
+      doc.setFillColor(226, 232, 240);
+      doc.rect(margin, yPos - 4, pageWidth - (margin * 2), 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.text('IDENTIFICACIÓN DEL DESVÍO', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      addText(`Nombre del establecimiento: ${getCampoValor('formEstablecimiento')}`);
+      addText(`Tipo de establecimiento: ${getCampoValor('formTipoEstablecimiento')}`);
+      addText(`Localidad: ${getCampoValor('formLocalidad')}`);
+      addText(`Nombre y cargo de quien lo identificó: ${getCampoValor('formIdentificador')}`);
+      yPos += 2;
+
+      // Tipo de equipo
+      doc.setFont('helvetica', 'bold');
+      addText('Tipo y características del equipo frigorífico:');
+      doc.setFont('helvetica', 'normal');
+      let equipos = [];
+      if (document.getElementById('equipoHeladera')?.checked) equipos.push('Heladera');
+      if (document.getElementById('equipoFreezer')?.checked) equipos.push('Freezer');
+      if (document.getElementById('equipoUltra')?.checked) equipos.push('Ultra-freezer');
+      if (document.getElementById('equipoTermo')?.checked) equipos.push('Termo/caja térmica');
+      if (document.getElementById('equipoOtros')?.checked) equipos.push(`Otros: ${getCampoValor('equipoOtrosTexto')}`);
+      addText(equipos.join(', ') || 'Ninguno seleccionado');
+      yPos += 2;
+
+      // Características del equipo
+      doc.setFont('helvetica', 'bold');
+      addText('Características del equipo:');
+      doc.setFont('helvetica', 'normal');
+      addText(`Marca 1: ${getCampoValor('formMarca1')} - Modelo 1: ${getCampoValor('formModelo1')}`);
+      addText(`Marca 2: ${getCampoValor('formMarca2')} - Modelo 2: ${getCampoValor('formModelo2')}`);
+      addText(`Marca 3: ${getCampoValor('formMarca3')} - Modelo 3: ${getCampoValor('formModelo3')}`);
+      
+      if (getCampoValor('formOtrasCaract')) {
+        addText(`Otras características: ${getCampoValor('formOtrasCaract')}`);
+      }
+      yPos += 2;
+
+      // Inspección visual
+      doc.setFont('helvetica', 'bold');
+      addText('Inspección visual al momento del desvío:');
+      doc.setFont('helvetica', 'normal');
+      let inspeccion = '';
+      if (document.getElementById('vacunaCongelada')?.checked) inspeccion = 'Vacuna Congelada';
+      else if (document.getElementById('vacunaDescongelada')?.checked) inspeccion = 'Vacuna descongelada';
+      else inspeccion = 'No especificado';
+      addText(inspeccion);
+      
+      if (getCampoValor('formTempAmbiente')) {
+        addText(`Temperatura del ambiente: ${getCampoValor('formTempAmbiente')} °C`);
+      }
+      yPos += 2;
+
+      // Modalidad de monitoreo
+      doc.setFont('helvetica', 'bold');
+      addText('Modalidad de monitoreo:');
+      doc.setFont('helvetica', 'normal');
+      addText(`Sensor manual: ${getCampoValor('formMarcaTerm')} - ${getCampoValor('formModeloTerm')}`);
+      addText(`Sensor digital: ${getCampoValor('formMarcaData')} - ${getCampoValor('formModeloData')}`);
+      if (getCampoValor('formFrecuencia')) {
+        addText(`Frecuencia: ${getCampoValor('formFrecuencia')}`);
+      }
+      yPos += 2;
+
+      // Registro de temperaturas
+      doc.setFillColor(226, 232, 240);
+      doc.rect(margin, yPos - 4, pageWidth - (margin * 2), 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.text('REGISTRO DE TEMPERATURAS - HELADERA N°1', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      addText(`Datos previos - Última Temp: ${getCampoValor('tempPrevia1')} °C - Fecha: ${getCampoValor('fechaPrevia1')} Hora: ${getCampoValor('horaPrevia1')}`);
+      addText(`Desvío detectado - Temp: ${getCampoValor('tempDesvio1')} °C - Fecha: ${getCampoValor('fechaDesvio1')} Hora: ${getCampoValor('horaDesvio1')}`);
+      yPos += 2;
+
+      // Causa del desvío
+      doc.setFillColor(226, 232, 240);
+      doc.rect(margin, yPos - 4, pageWidth - (margin * 2), 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.text('CAUSA DEL DESVÍO', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      addText(`${getCheckboxEstado('causaCorteEnergia')} Corte de energía`);
+      addText(`${getCheckboxEstado('causaFallaEquipo')} Falla en el equipo`);
+      addText(`${getCheckboxEstado('causaFueraRango')} Equipos de frío con temperatura fuera de rango`);
+      addText(`${getCheckboxEstado('causaTraslado')} Problemas en el traslado`);
+      addText(`${getCheckboxEstado('causaCajaTermica')} Inconvenientes en la preparación de la caja térmica`);
+      if (document.getElementById('causaOtros')?.checked) {
+        addText(`[X] Otros: ${getCampoValor('causaOtrosTexto')}`);
+      } else {
+        addText(`[ ] Otros: ${getCampoValor('causaOtrosTexto')}`);
+      }
+      yPos += 2;
+
+      if (getCampoValor('formDescripcion')) {
+        doc.setFont('helvetica', 'bold');
+        addText('Descripción del desvío:');
+        doc.setFont('helvetica', 'normal');
+        addText(getCampoValor('formDescripcion'));
+        yPos += 2;
+      }
+
+      // ACCIONES TOMADAS
+      doc.setFillColor(226, 232, 240);
+      doc.rect(margin, yPos - 4, pageWidth - (margin * 2), 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.text('ACCIONES TOMADAS', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      addText(`${getCheckboxEstado('accionTransporte')} Transporte a otro sitio de almacenamiento`);
+      addText(`${getCheckboxEstado('accionNuevoSitio')} Nuevo Sitio de Almacenamiento`);
+      addText(`${getCheckboxEstado('accionRestablecimiento')} Restablecimiento de energía de red eléctrica`);
+      addText(`${getCheckboxEstado('accionHorario')} Horario de restablecimiento`);
+      if (document.getElementById('accionOtrosCheck')?.checked) {
+        addText(`[X] Otros: ${getCampoValor('accionOtrosTexto')}`);
+      } else {
+        addText(`[ ] Otros: ${getCampoValor('accionOtrosTexto')}`);
+      }
+      
+      if (getCampoValor('formObsAcciones')) {
+        addText(`Observaciones: ${getCampoValor('formObsAcciones')}`);
+      }
+      yPos += 2;
+
+      // ACCIONES CORRECTIVAS
+      doc.setFillColor(226, 232, 240);
+      doc.rect(margin, yPos - 4, pageWidth - (margin * 2), 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.text('ACCIONES CORRECTIVAS Y/O PREVENTIVAS PLANIFICADAS', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      addText(`${getCheckboxEstado('correctivaGenerador')} Adquisición de grupo electrógeno`);
+      addText(`${getCheckboxEstado('correctivaAplicarPlan')} Aplicación de plan de contingencia`);
+      addText(`${getCheckboxEstado('correctivaReformularPlan')} Reformulación del plan de contingencia`);
+      addText(`${getCheckboxEstado('correctivaNuevosEquipos')} Adquisición de nuevos equipos de frío`);
+      addText(`${getCheckboxEstado('correctivaEntrenamiento')} Entrenamiento de personal`);
+      
+      if (getCampoValor('formObsCorrectivas')) {
+        addText(`Observaciones: ${getCampoValor('formObsCorrectivas')}`);
+      }
+      yPos += 2;
+
+      // DOSIS AFECTADAS
+      if (getCampoValor('dosis1_vacuna') || getCampoValor('dosis2_vacuna')) {
+        doc.setFillColor(226, 232, 240);
+        doc.rect(margin, yPos - 4, pageWidth - (margin * 2), 8, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.text('Dosis afectadas', margin, yPos);
+        yPos += 8;
+
+        doc.setFont('helvetica', 'normal');
+        if (getCampoValor('dosis1_vacuna')) {
+          addText(`1. Vacuna: ${getCampoValor('dosis1_vacuna')} - Laboratorio: ${getCampoValor('dosis1_lab')} - Lote: ${getCampoValor('dosis1_lote')} - Vencimiento: ${getCampoValor('dosis1_venc')} - Cantidad: ${getCampoValor('dosis1_cant')}`);
         }
-        // Dividir texto largo en múltiples líneas
-        const lineas = doc.splitTextToSize(texto, pageWidth - (margin * 2));
-        doc.text(lineas, margin, yPos);
-        yPos += (lineas.length * 7);
-      });
+        if (getCampoValor('dosis2_vacuna')) {
+          addText(`2. Vacuna: ${getCampoValor('dosis2_vacuna')} - Laboratorio: ${getCampoValor('dosis2_lab')} - Lote: ${getCampoValor('dosis2_lote')} - Vencimiento: ${getCampoValor('dosis2_venc')} - Cantidad: ${getCampoValor('dosis2_cant')}`);
+        }
+        yPos += 2;
+      }
+
+      // Completó el Formulario
+      doc.setFillColor(226, 232, 240);
+      doc.rect(margin, yPos - 4, pageWidth - (margin * 2), 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.text('Completó el Formulario', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      addText(`Nombre: ${getCampoValor('formCompletoNombre')}`);
+      addText(`Cargo: ${getCampoValor('formCompletoCargo')}`);
+      yPos += 2;
+
+      // A COMPLETAR POR LA DICEI
+      doc.setFillColor(226, 232, 240);
+      doc.rect(margin, yPos - 4, pageWidth - (margin * 2), 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.text('A COMPLETAR POR LA DICEI', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      addText(`N° de desvío CNV: ${getCampoValor('diceiCnv')}`);
+      addText(`Recomendaciones: ${getCampoValor('diceiRecomendaciones')}`);
+      addText(`Fecha: ${getCampoValor('diceiFecha')}`);
+      addText(`Firma: ${getCampoValor('diceiFirma')}`);
+      addText(`N° de desvío COVID: ${getCampoValor('diceiCovid')}`);
 
       // Guardar PDF
       const nombreArchivo = `Formulario_Desvio_${new Date().toISOString().slice(0,10)}.pdf`;
@@ -1114,13 +1342,13 @@
     // Asignar evento al botón de descargar
     if (btnDescargar) {
       btnDescargar.addEventListener('click', function() {
-        generarPDFFormulario();
+        generarPDFFormularioCompleto();
       });
     }
 
   })();
 </script>
 
-<!-- FIN DEL CÓDIGO DEL FORMULARIO -->    
+<!-- FIN DEL CÓDIGO DEL FORMULARIO -->  
 </body>
 </html>
