@@ -640,5 +640,121 @@
       return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
   </script>
+  <!-- MODAL DEL FORMULARIO DE DESVÍO (FO 03) -->
+<div id="modalDesvio" class="modal-desvio">
+    <div class="modal-content-desvio">
+        <span class="close-modal" onclick="cerrarModalDesvio()">&times;</span>
+        
+        <div id="contenidoFormularioDesvio">
+            <h2 style="text-align:center;">Formulario de Desvíos de Cadena de Frío (FO 03)</h2>
+            <p style="text-align:center; font-size:0.9em;">Coordinación de Logística - Secretaría de Acceso y Equidad en Salud</p>
+            <hr>
+            
+            <form id="formDesvioDigital">
+                <!-- Sección 1: Identificación -->
+                <fieldset>
+                    <legend>1. Identificación del Desvío</legend>
+                    <div class="form-group">
+                        <label>Nombre del Establecimiento:</label>
+                        <input type="text" id="desvio_establecimiento" class="campobase" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Localidad:</label>
+                            <input type="text" id="desvio_localidad" class="campobase">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha del Desvío:</label>
+                            <input type="date" id="desvio_fecha" class="campobase" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre y Cargo de quien lo identificó:</label>
+                        <input type="text" id="desvio_responsable" class="campobase" required>
+                    </div>
+                </fieldset>
+
+                <!-- Sección 2: Equipo -->
+                <fieldset>
+                    <legend>2. Equipo Frigorífico</legend>
+                    <div class="form-group">
+                        <label>Tipo de Equipo:</label>
+                        <select id="desvio_tipo_equipo" class="campobase">
+                            <option value="Heladera">Heladera</option>
+                            <option value="Freezer">Freezer</option>
+                            <option value="Ultra-freezer">Ultra-freezer</option>
+                            <option value="Termo/Caja">Termo/Caja térmica</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Marca y Modelo:</label>
+                        <input type="text" id="desvio_marca" class="campobase">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Temp. Observada (°C):</label>
+                            <input type="number" step="0.1" id="desvio_temp_obs" class="campobase">
+                        </div>
+                        <div class="form-group">
+                            <label>Hora del Evento:</label>
+                            <input type="time" id="desvio_hora" class="campobase">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Sección 3: Causa y Acciones -->
+                <fieldset>
+                    <legend>3. Causa y Acciones</legend>
+                    <div class="form-group">
+                        <label>Causa del Desvío:</label>
+                        <select id="desvio_causa" class="campobase">
+                            <option value="Corte de energía">Corte de energía</option>
+                            <option value="Falla en el equipo">Falla en el equipo</option>
+                            <option value="Temperatura fuera de rango">Equipos de frío con temperatura fuera de rango</option>
+                            <option value="Problemas en traslado">Problemas en el traslado</option>
+                            <option value="Preparación caja">Inconvenientes en la preparación de la caja térmica</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción del Desvío (Obligatorio):</label>
+                        <textarea id="desvio_descripcion" rows="3" class="campobase" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Acciones Correctivas/Preventivas:</label>
+                        <textarea id="desvio_acciones" rows="3" class="campobase"></textarea>
+                    </div>
+                </fieldset>
+
+                <!-- Sección 4: Dosis Afectadas (Simplificada para digital) -->
+                <fieldset>
+                    <legend>4. Dosis Afectadas (Resumen)</legend>
+                    <div class="form-group">
+                        <label>¿Hubo dosis afectadas?</label>
+                        <select id="desvio_dosis_afectadas" class="campobase" onchange="toggleDosis()">
+                            <option value="No">No</option>
+                            <option value="Si">Si</option>
+                        </select>
+                    </div>
+                    <div id="areaDosis" style="display:none;">
+                        <label>Detalle de Vacunas (Laboratorio, Lote, Cantidad):</label>
+                        <textarea id="desvio_detalle_dosis" rows="4" class="campobase" placeholder="Ej: Influenza - Lab X - Lote 123 - 50 dosis"></textarea>
+                    </div>
+                </fieldset>
+                
+                <div class="form-group">
+                    <label>Firma Responsable:</label>
+                    <input type="text" id="desvio_firma" class="campobase" placeholder="Nombre completo para firma digital">
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="cerrarModalDesvio()">Cancelar</button>
+            <button type="button" class="btn btn-success" onclick="generarPDFDesvio()">📥 Descargar Formulario (PDF)</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
