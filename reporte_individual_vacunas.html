@@ -227,8 +227,11 @@
         <input type="date" id="datePicker" />
         <button id="downloadBtn" onclick="downloadPDF()">📥 Generar informe oficial (PDF)</button>
         <button id="backBtn" onclick="window.close()">← Volver al listado</button>
+        <!-- NUEVO BOTÓN: Reportar Desvío -->
+<button id="btn-desvio" class="btn btn-warning" onclick="abrirModalDesvio()">
+    ⚠️ Reportar Desvío de Cadena de Frío
+</button>
       </div>
-
       <div class="chart-container">
         <canvas id="chart"></canvas>
       </div>
