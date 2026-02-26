@@ -1,522 +1,667 @@
-<!-- Botón para abrir el modal -->
-<button onclick="abrirModalDesvio()" style="background-color: #dc2626; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 16px 0;">
-    ⚠️ Reportar Desvío de Cadena de Frío
-</button>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Monitoreo de Cadena de Frío</title>
+    <!-- Librerías necesarias -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<!-- Modal del Formulario -->
-<div id="modalDesvio" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
-    <div style="background-color: white; margin: 2% auto; padding: 0; border-radius: 12px; width: 95%; max-width: 900px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-height: 95vh; overflow-y: auto;">
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f2f7 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -10px rgba(0,56,77,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #00384d 0%, #002835 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        /* Botón de reporte */
+        .btn-reporte {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 20px 0;
+            box-shadow: 0 10px 15px -3px rgba(220,38,38,0.3);
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
+            max-width: 400px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-reporte:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(220,38,38,0.4);
+        }
+
+        /* Tarjeta de ejemplo */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .card h2 {
+            color: #00384d;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistema de Monitoreo de Cadena de Frío</h1>
+            <p>Dirección de Control de Enfermedades Inmunoprevenibles - DICEI</p>
+        </div>
         
-        <!-- Encabezado del Modal -->
-        <div style="background-color: #00384d; color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h2 style="margin: 0; font-size: 20px;">Formulario de Desvíos de Cadena de Frío (FO 03)</h2>
-                <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;">Coordinación de Logística - Secretaría de Acceso y Equidad en Salud<br>Marzo 2023 - Versión 00 - Vigencia 2026</p>
+        <div class="content">
+            <!-- Botón para abrir el modal -->
+            <button onclick="abrirModalDesvio()" class="btn-reporte">
+                ⚠️ Reportar Desvío de Cadena de Frío
+            </button>
+
+            <!-- Tarjeta de ejemplo -->
+            <div class="card">
+                <h2>Monitoreo en Tiempo Real</h2>
+                <p>Los datos de temperatura se muestran aquí normalmente. Este es un ejemplo de cómo se vería el panel principal con los gráficos y tablas de monitoreo.</p>
             </div>
-            <button onclick="cerrarModalDesvio()" style="background: none; border: none; color: white; font-size: 28px; cursor: pointer; line-height: 1;">&times;</button>
-        </div>
-
-        <!-- Contenido del Formulario -->
-        <div id="contenidoFormularioDesvio" style="padding: 20px;">
-            
-            <!-- SECCIÓN 1: IDENTIFICACIÓN DEL DESVÍO -->
-            <div style="margin-bottom: 24px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px;">
-                <h3 style="margin: 0 0 16px 0; color: #00384d; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">1. IDENTIFICACIÓN DEL DESVÍO</h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Provincia:</label>
-                        <input type="text" id="desvio_provincia" value="Neuquén" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Fecha:</label>
-                        <input type="date" id="desvio_fecha" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Nombre del Establecimiento: <span style="color: #dc2626;">*</span></label>
-                    <input type="text" id="desvio_establecimiento" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Tipo de Establecimiento:</label>
-                        <select id="desvio_tipo_establecimiento" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                            <option value="">Seleccione...</option>
-                            <option value="Hospital">Hospital</option>
-                            <option value="Centro de Salud">Centro de Salud</option>
-                            <option value="Posta Sanitaria">Posta Sanitaria</option>
-                            <option value="Salita">Salita</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Localidad:</label>
-                        <input type="text" id="desvio_localidad" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Nombre y Cargo de quien lo identificó: <span style="color: #dc2626;">*</span></label>
-                    <input type="text" id="desvio_responsable" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                </div>
-            </div>
-
-            <!-- SECCIÓN 2: EQUIPO FRIGORÍFICO -->
-            <div style="margin-bottom: 24px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px;">
-                <h3 style="margin: 0 0 16px 0; color: #00384d; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">2. EQUIPO FRIGORÍFICO</h3>
-                
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px;">Tipo y características del equipo frigorífico (marcar con una X):</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="radio" name="desvio_tipo_equipo" value="Heladera" style="margin-right: 8px;"> Heladera
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="radio" name="desvio_tipo_equipo" value="Freezer" style="margin-right: 8px;"> Freezer
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="radio" name="desvio_tipo_equipo" value="Ultra-freezer" style="margin-right: 8px;"> Ultra-freezer
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="radio" name="desvio_tipo_equipo" value="Termo/Caja térmica" style="margin-right: 8px;"> Termo/Caja térmica
-                        </label>
-                    </div>
-                    <div style="margin-top: 8px;">
-                        <label style="font-size: 13px;">
-                            Otros: <input type="text" id="desvio_equipo_otros" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; width: 300px;">
-                        </label>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Marca:</label>
-                        <input type="text" id="desvio_marca" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Modelo:</label>
-                        <input type="text" id="desvio_modelo" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Otras características:</label>
-                    <textarea id="desvio_caracteristicas" rows="2" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;"></textarea>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px;">Inspección visual al momento del desvío (marcar con una X):</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" id="desvio_vacuna_congelada" style="margin-right: 8px;"> Vacuna Congelada
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" id="desvio_vacuna_descongelada" style="margin-right: 8px;"> Vacuna descongelada
-                        </label>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Temperatura del ambiente donde se encuentra el equipo (°C):</label>
-                    <input type="number" step="0.1" id="desvio_temp_ambiente" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                </div>
-
-                <h4 style="margin: 16px 0 12px 0; color: #1e40af; font-size: 14px;">Modalidad de monitoreo:</h4>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 13px;">
-                    <thead>
-                        <tr style="background-color: #f1f5f9;">
-                            <th style="border: 1px solid #cbd5e1; padding: 8px; text-align: left;">Tipo</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px; text-align: left;">Marca</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px; text-align: left;">Modelo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="border: 1px solid #cbd5e1; padding: 8px;">Sensor manual (Termómetro)</td>
-                            <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="text" id="desvio_sensor_manual_marca" style="width: 100%; padding: 4px; border: none; font-size: 13px;"></td>
-                            <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="text" id="desvio_sensor_manual_modelo" style="width: 100%; padding: 4px; border: none; font-size: 13px;"></td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #cbd5e1; padding: 8px;">Sensor digital (Data-logger)</td>
-                            <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="text" id="desvio_sensor_digital_marca" style="width: 100%; padding: 4px; border: none; font-size: 13px;"></td>
-                            <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="text" id="desvio_sensor_digital_modelo" style="width: 100%; padding: 4px; border: none; font-size: 13px;"></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Frecuencia del monitoreo:</label>
-                    <input type="text" id="desvio_frecuencia" placeholder="Ej: Cada 2 horas" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                </div>
-            </div>
-
-            <!-- SECCIÓN 3: DATOS DE TEMPERATURA -->
-            <div style="margin-bottom: 24px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px;">
-                <h3 style="margin: 0 0 16px 0; color: #00384d; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">3. DATOS DE TEMPERATURA</h3>
-                
-                <div id="heladeras_container">
-                    <!-- Heladera 1 -->
-                    <div style="margin-bottom: 16px; padding: 12px; background-color: #f8fafc; border-radius: 6px;">
-                        <h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 14px;">HELADERA N° 1</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Última Temp. registrada (°C):</label>
-                                <input type="number" step="0.1" class="temp-previa" data-heladera="1" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha:</label>
-                                <input type="date" class="fecha-previa" data-heladera="1" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora:</label>
-                                <input type="time" class="hora-previa" data-heladera="1" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Temp. observada (°C):</label>
-                                <input type="number" step="0.1" class="temp-observada" data-heladera="1" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; background-color: #fef2f2;">
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha del desvío:</label>
-                                <input type="date" class="fecha-desvio" data-heladera="1" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora del desvío:</label>
-                                <input type="time" class="hora-desvio" data-heladera="1" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Heladera 2 -->
-                    <div style="margin-bottom: 16px; padding: 12px; background-color: #f8fafc; border-radius: 6px;">
-                        <h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 14px;">HELADERA N° 2</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Última Temp. registrada (°C):</label>
-                                <input type="number" step="0.1" class="temp-previa" data-heladera="2" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha:</label>
-                                <input type="date" class="fecha-previa" data-heladera="2" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora:</label>
-                                <input type="time" class="hora-previa" data-heladera="2" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Temp. observada (°C):</label>
-                                <input type="number" step="0.1" class="temp-observada" data-heladera="2" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; background-color: #fef2f2;">
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha del desvío:</label>
-                                <input type="date" class="fecha-desvio" data-heladera="2" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora del desvío:</label>
-                                <input type="time" class="hora-desvio" data-heladera="2" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Heladera 3 -->
-                    <div style="margin-bottom: 16px; padding: 12px; background-color: #f8fafc; border-radius: 6px;">
-                        <h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 14px;">HELADERA N° 3</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Última Temp. registrada (°C):</label>
-                                <input type="number" step="0.1" class="temp-previa" data-heladera="3" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha:</label>
-                                <input type="date" class="fecha-previa" data-heladera="3" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora:</label>
-                                <input type="time" class="hora-previa" data-heladera="3" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Temp. observada (°C):</label>
-                                <input type="number" step="0.1" class="temp-observada" data-heladera="3" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; background-color: #fef2f2;">
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha del desvío:</label>
-                                <input type="date" class="fecha-desvio" data-heladera="3" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora del desvío:</label>
-                                <input type="time" class="hora-desvio" data-heladera="3" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 4: CAUSA DEL DESVÍO -->
-            <div style="margin-bottom: 24px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px;">
-                <h3 style="margin: 0 0 16px 0; color: #00384d; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">4. CAUSA DEL DESVÍO</h3>
-                
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px;">Causa del Desvío (Completar con una "X"):</label>
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 6px;">
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_causa" value="Corte de energía" style="margin-right: 8px;"> Corte de energía
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_causa" value="Falla en el equipo" style="margin-right: 8px;"> Falla en el equipo
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_causa" value="Equipos de frío con temperatura fuera de rango" style="margin-right: 8px;"> Equipos de frío con temperatura fuera de rango
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_causa" value="Problemas en el traslado" style="margin-right: 8px;"> Problemas en el traslado
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_causa" value="Inconvenientes en la preparación de la caja térmica" style="margin-right: 8px;"> Inconvenientes en la preparación de la caja térmica
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_causa" value="Otro" style="margin-right: 8px;"> Otro: 
-                            <input type="text" id="desvio_causa_otro" style="margin-left: 8px; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; width: 300px;">
-                        </label>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Realizar una breve descripción del desvío <span style="color: #dc2626;">*</span> (Obligatorio):</label>
-                    <textarea id="desvio_descripcion" rows="4" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;"></textarea>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 5: ACCIONES TOMADAS -->
-            <div style="margin-bottom: 24px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px;">
-                <h3 style="margin: 0 0 16px 0; color: #00384d; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">5. ACCIONES TOMADAS</h3>
-                
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px;">Acciones Tomadas (Completar con una "X"):</label>
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 6px;">
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_accion" value="Transporte a otro sitio de almacenamiento" style="margin-right: 8px;"> Transporte a otro sitio de almacenamiento
-                        </label>
-                        <div style="margin-left: 24px; margin-bottom: 8px;">
-                            <label style="font-size: 13px;">Nuevo Sitio de Almacenamiento: 
-                                <input type="text" id="desvio_nuevo_sitio" style="margin-left: 8px; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; width: 300px;">
-                            </label>
-                        </div>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_accion" value="Restablecimiento de energía de red eléctrica" style="margin-right: 8px;"> Restablecimiento de energía de red eléctrica
-                        </label>
-                        <div style="margin-left: 24px; margin-bottom: 8px;">
-                            <label style="font-size: 13px;">Horario de restablecimiento: 
-                                <input type="time" id="desvio_horario_restablecimiento" style="margin-left: 8px; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                            </label>
-                        </div>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_accion" value="Otro" style="margin-right: 8px;"> Otro: 
-                            <input type="text" id="desvio_accion_otro" style="margin-left: 8px; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; width: 300px;">
-                        </label>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Observaciones:</label>
-                    <textarea id="desvio_observaciones_acciones" rows="2" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;"></textarea>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 6: ACCIONES CORRECTIVAS/PREVENTIVAS -->
-            <div style="margin-bottom: 24px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px;">
-                <h3 style="margin: 0 0 16px 0; color: #00384d; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">6. ACCIONES CORRECTIVAS Y/O PREVENTIVAS PLANIFICADAS</h3>
-                
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px;">Acciones Correctivas/Preventivas (Completar con una "X"):</label>
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 6px;">
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_correctiva" value="Adquisición de grupo electrógeno" style="margin-right: 8px;"> Adquisición de grupo electrógeno
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_correctiva" value="Aplicación de plan de contingencia" style="margin-right: 8px;"> Aplicación de plan de contingencia (anexar plan de contingencia)
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_correctiva" value="Reformulación del plan de contingencia" style="margin-right: 8px;"> Reformulación del plan de contingencia (anexar plan de contingencia)
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_correctiva" value="Adquisición de nuevos equipos de frío" style="margin-right: 8px;"> Adquisición de nuevos equipos de frío
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 13px;">
-                            <input type="checkbox" name="desvio_correctiva" value="Entrenamiento de personal" style="margin-right: 8px;"> Entrenamiento de personal
-                        </label>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Observaciones:</label>
-                    <textarea id="desvio_observaciones_correctivas" rows="2" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;"></textarea>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 7: DOSIS AFECTADAS -->
-            <div style="margin-bottom: 24px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px;">
-                <h3 style="margin: 0 0 16px 0; color: #00384d; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">7. DOSIS AFECTADAS</h3>
-                
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px;">
-                    <thead>
-                        <tr style="background-color: #f1f5f9;">
-                            <th style="border: 1px solid #cbd5e1; padding: 8px; text-align: left;">VACUNA</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px; text-align: left;">LABORATORIO</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px; text-align: left;">LOTE</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px; text-align: left;">VENCIMIENTO</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px; text-align: left;">CANTIDAD (dosis)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dosis_afectadas_body">
-                        <!-- Filas dinámicas se agregarán aquí -->
-                    </tbody>
-                </table>
-                <button type="button" onclick="agregarFilaDosis()" style="background-color: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-bottom: 12px;">+ Agregar Vacuna</button>
-            </div>
-
-            <!-- FIRMA -->
-            <div style="margin-bottom: 24px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px;">
-                <h3 style="margin: 0 0 16px 0; color: #00384d; font-size: 16px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">COMPLETÓ EL FORMULARIO</h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Nombre:</label>
-                        <input type="text" id="desvio_firma_nombre" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Cargo:</label>
-                        <input type="text" id="desvio_firma_cargo" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN DICEI -->
-            <div style="margin-bottom: 24px; border: 2px solid #fbbf24; border-radius: 8px; padding: 16px; background-color: #fffbeb;">
-                <h3 style="margin: 0 0 16px 0; color: #92400e; font-size: 16px; border-bottom: 2px solid #fbbf24; padding-bottom: 8px;">A COMPLETAR POR LA DICEI</h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div style="border: 1px solid #fbbf24; border-radius: 6px; padding: 12px;">
-                        <h4 style="margin: 0 0 8px 0; color: #92400e; font-size: 14px;">N° de desvío CNV</h4>
-                        <input type="text" id="desvio_numero_cnv" style="width: 100%; padding: 8px; border: 1px solid #fbbf24; border-radius: 4px; font-size: 13px; margin-bottom: 8px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Recomendaciones a partir del Desvío:</label>
-                        <textarea id="desvio_recomendaciones_cnv" rows="3" style="width: 100%; padding: 8px; border: 1px solid #fbbf24; border-radius: 4px; font-size: 13px;"></textarea>
-                        <div style="margin-top: 8px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Fecha:</label>
-                            <input type="date" id="desvio_fecha_cnv" style="width: 100%; padding: 8px; border: 1px solid #fbbf24; border-radius: 4px; font-size: 13px;">
-                        </div>
-                        <div style="margin-top: 8px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Firma (Nombre y cargo):</label>
-                            <input type="text" id="desvio_firma_cnv" style="width: 100%; padding: 8px; border: 1px solid #fbbf24; border-radius: 4px; font-size: 13px;">
-                        </div>
-                    </div>
-                    
-                    <div style="border: 1px solid #fbbf24; border-radius: 6px; padding: 12px;">
-                        <h4 style="margin: 0 0 8px 0; color: #92400e; font-size: 14px;">N° de desvío COVID</h4>
-                        <input type="text" id="desvio_numero_covid" style="width: 100%; padding: 8px; border: 1px solid #fbbf24; border-radius: 4px; font-size: 13px; margin-bottom: 8px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Recomendaciones a partir del Desvío:</label>
-                        <textarea id="desvio_recomendaciones_covid" rows="3" style="width: 100%; padding: 8px; border: 1px solid #fbbf24; border-radius: 4px; font-size: 13px;"></textarea>
-                        <div style="margin-top: 8px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Fecha:</label>
-                            <input type="date" id="desvio_fecha_covid" style="width: 100%; padding: 8px; border: 1px solid #fbbf24; border-radius: 4px; font-size: 13px;">
-                        </div>
-                        <div style="margin-top: 8px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Firma (Nombre y cargo):</label>
-                            <input type="text" id="desvio_firma_covid" style="width: 100%; padding: 8px; border: 1px solid #fbbf24; border-radius: 4px; font-size: 13px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Botones del Modal -->
-        <div style="padding: 20px; border-top: 2px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; background-color: #f8fafc; border-radius: 0 0 12px 12px;">
-            <button onclick="cerrarModalDesvio()" style="background-color: #64748b; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancelar</button>
-            <button onclick="generarPDFDesvio()" style="background-color: #059669; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600;">📥 Descargar Formulario (PDF)</button>
         </div>
     </div>
-</div>
 
-<script>
-// Funciones de Control del Modal
-function abrirModalDesvio() {
-    document.getElementById("modalDesvio").style.display = "block";
-    document.getElementById("desvio_fecha").valueAsDate = new Date(); // Pre-cargar fecha hoy
-    document.body.style.overflow = "hidden"; // Prevenir scroll del body
-}
+    <!-- Modal del Formulario -->
+    <div id="modalDesvio" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px);">
+        <div style="background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%); margin: 2% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 1000px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 95vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.3);">
+            
+            <!-- Encabezado del Modal -->
+            <div style="background: linear-gradient(135deg, #00384d 0%, #002835 100%); color: white; padding: 25px 30px; border-radius: 24px 24px 0 0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
+                <div>
+                    <h2 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Formulario de Desvíos de Cadena de Frío</h2>
+                    <p style="margin: 8px 0 0 0; font-size: 13px; opacity: 0.9;">FO 03 - Coordinación de Logística - Secretaría de Acceso y Equidad en Salud</p>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; opacity: 0.7;">Marzo 2023 - Versión 00 - Vigencia 2026</p>
+                </div>
+                <button onclick="cerrarModalDesvio()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 32px; cursor: pointer; line-height: 1; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">&times;</button>
+            </div>
 
-function cerrarModalDesvio() {
-    document.getElementById("modalDesvio").style.display = "none";
-    document.body.style.overflow = "auto"; // Restaurar scroll del body
-}
+            <!-- Contenido del Formulario -->
+            <div id="contenidoFormularioDesvio" style="padding: 30px;">
+                
+                <!-- SECCIÓN 1: IDENTIFICACIÓN DEL DESVÍO -->
+                <div style="margin-bottom: 30px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #00384d; font-size: 18px; border-left: 6px solid #3b82f6; padding-left: 12px;">1. IDENTIFICACIÓN DEL DESVÍO</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Provincia:</label>
+                            <input type="text" id="desvio_provincia" value="Neuquén" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; transition: all 0.2s;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Fecha:</label>
+                            <input type="date" id="desvio_fecha" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                        </div>
+                    </div>
 
-// Función para agregar filas de dosis afectadas
-function agregarFilaDosis() {
-    const tbody = document.getElementById("dosis_afectadas_body");
-    const fila = document.createElement("tr");
-    fila.innerHTML = `
-        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="dosis_vacuna" style="width: 100%; padding: 4px; border: none; font-size: 12px;"></td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="dosis_laboratorio" style="width: 100%; padding: 4px; border: none; font-size: 12px;"></td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="dosis_lote" style="width: 100%; padding: 4px; border: none; font-size: 12px;"></td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="date" class="dosis_vencimiento" style="width: 100%; padding: 4px; border: none; font-size: 12px;"></td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="number" class="dosis_cantidad" style="width: 100%; padding: 4px; border: none; font-size: 12px;"></td>
-    `;
-    tbody.appendChild(fila);
-}
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">
+                            Nombre del Establecimiento: <span style="color: #dc2626;">*</span>
+                        </label>
+                        <input type="text" id="desvio_establecimiento" placeholder="Ingrese el nombre del establecimiento" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                    </div>
 
-// Función para Generar y Descargar PDF
-function generarPDFDesvio() {
-    // 1. Validación Pedagógica: Asegurar datos mínimos
-    var establecimiento = document.getElementById("desvio_establecimiento").value;
-    var responsable = document.getElementById("desvio_responsable").value;
-    var descripcion = document.getElementById("desvio_descripcion").value;
-    
-    if(establecimiento === "" || responsable === "" || descripcion === "") {
-        alert("⚠️ Por favor complete al menos:\n- Nombre del Establecimiento\n- Nombre y Cargo de quien lo identificó\n- Descripción del desvío\n\nEstos campos son obligatorios para validar el documento.");
-        return;
-    }
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Tipo de Establecimiento:</label>
+                            <select id="desvio_tipo_establecimiento" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background-color: white;">
+                                <option value="">Seleccione...</option>
+                                <option value="Hospital">Hospital</option>
+                                <option value="Centro de Salud">Centro de Salud</option>
+                                <option value="Posta Sanitaria">Posta Sanitaria</option>
+                                <option value="Salita">Salita</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Localidad:</label>
+                            <input type="text" id="desvio_localidad" placeholder="Ingrese la localidad" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                        </div>
+                    </div>
 
-    // 2. Elemento a convertir
-    var elemento = document.getElementById("contenidoFormularioDesvio");
-    
-    // 3. Configuración del PDF
-    var opt = {
-        margin:       10,
-        filename:     'Desvio_Cadena_Frio_' + document.getElementById("desvio_fecha").value + '.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">
+                            Nombre y Cargo de quien lo identificó: <span style="color: #dc2626;">*</span>
+                        </label>
+                        <input type="text" id="desvio_responsable" placeholder="Ej: Dr. Juan Pérez - Jefe de Vacunatorio" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                    </div>
+                </div>
 
-    // 4. Generar y Descargar
-    html2pdf().set(opt).from(elemento).save().then(function(){
-        alert("✅ Formulario generado correctamente.\n\nEl archivo se ha descargado en su carpeta de descargas.\n\nRecuerde:\n- Completar la sección DICEI si corresponde\n- Archivar el formulario según normativa vigente\n- Notificar a la autoridad sanitaria competente");
-        cerrarModalDesvio();
-    }).catch(function(err){
-        console.error("Error al generar PDF:", err);
-        alert("❌ Error al generar el PDF. Por favor intente nuevamente.");
-    });
-}
+                <!-- SECCIÓN 2: EQUIPO FRIGORÍFICO -->
+                <div style="margin-bottom: 30px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #00384d; font-size: 18px; border-left: 6px solid #3b82f6; padding-left: 12px;">2. EQUIPO FRIGORÍFICO</h3>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 12px; font-size: 14px; color: #1e293b;">Tipo y características del equipo frigorífico (marcar con una X):</label>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer;">
+                                <input type="radio" name="desvio_tipo_equipo" value="Heladera" style="margin-right: 10px; accent-color: #3b82f6;"> Heladera
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer;">
+                                <input type="radio" name="desvio_tipo_equipo" value="Freezer" style="margin-right: 10px; accent-color: #3b82f6;"> Freezer
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer;">
+                                <input type="radio" name="desvio_tipo_equipo" value="Ultra-freezer" style="margin-right: 10px; accent-color: #3b82f6;"> Ultra-freezer
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer;">
+                                <input type="radio" name="desvio_tipo_equipo" value="Termo/Caja térmica" style="margin-right: 10px; accent-color: #3b82f6;"> Termo/Caja térmica
+                            </label>
+                        </div>
+                        <div style="margin-top: 12px;">
+                            <label style="font-size: 14px; display: flex; align-items: center;">
+                                <input type="radio" name="desvio_tipo_equipo" value="Otro" style="margin-right: 10px; accent-color: #3b82f6;"> Otros: 
+                                <input type="text" id="desvio_equipo_otros" placeholder="Especificar..." style="margin-left: 8px; padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 13px; width: 300px;">
+                            </label>
+                        </div>
+                    </div>
 
-// Cerrar modal si se hace clic fuera del contenido
-window.onclick = function(event) {
-    var modal = document.getElementById("modalDesvio");
-    if (event.target == modal) {
-        cerrarModalDesvio();
-    }
-}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Marca:</label>
+                            <input type="text" id="desvio_marca" placeholder="Marca del equipo" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Modelo:</label>
+                            <input type="text" id="desvio_modelo" placeholder="Modelo del equipo" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                        </div>
+                    </div>
 
-// Prevenir cierre accidental del modal
-window.onbeforeunload = function() {
-    if(document.getElementById("modalDesvio").style.display === "block") {
-        return "¿Está seguro que desea salir? Los datos no guardados se perderán.";
-    }
-};
-</script>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Otras características:</label>
+                        <textarea id="desvio_caracteristicas" rows="2" placeholder="Describe otras características relevantes del equipo..." style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;"></textarea>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 12px; font-size: 13px; color: #1e293b;">Inspección visual al momento del desvío (marcar con una X):</label>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; padding: 8px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer;">
+                                <input type="checkbox" id="desvio_vacuna_congelada" style="margin-right: 8px; accent-color: #3b82f6;"> Vacuna Congelada
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer;">
+                                <input type="checkbox" id="desvio_vacuna_descongelada" style="margin-right: 8px; accent-color: #3b82f6;"> Vacuna descongelada
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Temperatura del ambiente donde se encuentra el equipo (°C):</label>
+                        <input type="number" step="0.1" id="desvio_temp_ambiente" placeholder="Ej: 22.5" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                    </div>
+
+                    <h4 style="margin: 24px 0 16px 0; color: #1e40af; font-size: 16px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px;">Modalidad de monitoreo:</h4>
+                    
+                    <table style="width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 16px;">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                                <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 13px;">Tipo</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 13px;">Marca</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 13px;">Modelo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e1; padding: 10px; background: white;">Sensor manual (Termómetro)</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 10px; background: white;"><input type="text" id="desvio_sensor_manual_marca" placeholder="Marca" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px;"></td>
+                                <td style="border: 1px solid #cbd5e1; padding: 10px; background: white;"><input type="text" id="desvio_sensor_manual_modelo" placeholder="Modelo" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e1; padding: 10px; background: white;">Sensor digital (Data-logger)</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 10px; background: white;"><input type="text" id="desvio_sensor_digital_marca" placeholder="Marca" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px;"></td>
+                                <td style="border: 1px solid #cbd5e1; padding: 10px; background: white;"><input type="text" id="desvio_sensor_digital_modelo" placeholder="Modelo" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Frecuencia del monitoreo:</label>
+                        <input type="text" id="desvio_frecuencia" placeholder="Ej: Cada 2 horas" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: DATOS DE TEMPERATURA -->
+                <div style="margin-bottom: 30px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #00384d; font-size: 18px; border-left: 6px solid #3b82f6; padding-left: 12px;">3. DATOS DE TEMPERATURA</h3>
+                    
+                    <div id="heladeras_container">
+                        <!-- Heladera 1 -->
+                        <div style="margin-bottom: 20px; padding: 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                            <h4 style="margin: 0 0 16px 0; color: #1e40af; font-size: 16px;">HELADERA N° 1</h4>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Última Temp. (°C):</label>
+                                    <input type="number" step="0.1" class="temp-previa" data-heladera="1" placeholder="Ej: 5.2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha:</label>
+                                    <input type="date" class="fecha-previa" data-heladera="1" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora:</label>
+                                    <input type="time" class="hora-previa" data-heladera="1" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Temp. observada (°C):</label>
+                                    <input type="number" step="0.1" class="temp-observada" data-heladera="1" placeholder="Ej: 12.5" style="width: 100%; padding: 8px; border: 1px solid #ef4444; border-radius: 8px; font-size: 13px; background-color: #fef2f2;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha del desvío:</label>
+                                    <input type="date" class="fecha-desvio" data-heladera="1" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora del desvío:</label>
+                                    <input type="time" class="hora-desvio" data-heladera="1" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heladera 2 -->
+                        <div style="margin-bottom: 20px; padding: 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                            <h4 style="margin: 0 0 16px 0; color: #1e40af; font-size: 16px;">HELADERA N° 2</h4>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Última Temp. (°C):</label>
+                                    <input type="number" step="0.1" class="temp-previa" data-heladera="2" placeholder="Ej: 5.2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha:</label>
+                                    <input type="date" class="fecha-previa" data-heladera="2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora:</label>
+                                    <input type="time" class="hora-previa" data-heladera="2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Temp. observada (°C):</label>
+                                    <input type="number" step="0.1" class="temp-observada" data-heladera="2" placeholder="Ej: 12.5" style="width: 100%; padding: 8px; border: 1px solid #ef4444; border-radius: 8px; font-size: 13px; background-color: #fef2f2;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha del desvío:</label>
+                                    <input type="date" class="fecha-desvio" data-heladera="2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora del desvío:</label>
+                                    <input type="time" class="hora-desvio" data-heladera="2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Heladera 3 -->
+                        <div style="padding: 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                            <h4 style="margin: 0 0 16px 0; color: #1e40af; font-size: 16px;">HELADERA N° 3</h4>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Última Temp. (°C):</label>
+                                    <input type="number" step="0.1" class="temp-previa" data-heladera="3" placeholder="Ej: 5.2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha:</label>
+                                    <input type="date" class="fecha-previa" data-heladera="3" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora:</label>
+                                    <input type="time" class="hora-previa" data-heladera="3" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Temp. observada (°C):</label>
+                                    <input type="number" step="0.1" class="temp-observada" data-heladera="3" placeholder="Ej: 12.5" style="width: 100%; padding: 8px; border: 1px solid #ef4444; border-radius: 8px; font-size: 13px; background-color: #fef2f2;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Fecha del desvío:</label>
+                                    <input type="date" class="fecha-desvio" data-heladera="3" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px;">Hora del desvío:</label>
+                                    <input type="time" class="hora-desvio" data-heladera="3" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: CAUSA DEL DESVÍO -->
+                <div style="margin-bottom: 30px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #00384d; font-size: 18px; border-left: 6px solid #3b82f6; padding-left: 12px;">4. CAUSA DEL DESVÍO</h3>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 12px; font-size: 14px; color: #1e293b;">Causa del Desvío (Completar con una "X"):</label>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_causa" value="Corte de energía" style="margin-right: 10px; accent-color: #3b82f6;"> Corte de energía
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_causa" value="Falla en el equipo" style="margin-right: 10px; accent-color: #3b82f6;"> Falla en el equipo
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_causa" value="Equipos de frío con temperatura fuera de rango" style="margin-right: 10px; accent-color: #3b82f6;"> Equipos de frío con temperatura fuera de rango
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_causa" value="Problemas en el traslado" style="margin-right: 10px; accent-color: #3b82f6;"> Problemas en el traslado
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_causa" value="Inconvenientes en la preparación de la caja térmica" style="margin-right: 10px; accent-color: #3b82f6;"> Inconvenientes en la preparación de la caja térmica
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px;">
+                                <input type="checkbox" name="desvio_causa" value="Otro" style="margin-right: 10px; accent-color: #3b82f6;"> Otro: 
+                                <input type="text" id="desvio_causa_otro" placeholder="Especificar..." style="margin-left: 8px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; width: 300px;">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #1e293b;">
+                            Realizar una breve descripción del desvío <span style="color: #dc2626;">*</span> (Obligatorio):
+                        </label>
+                        <textarea id="desvio_descripcion" rows="4" placeholder="Describa detalladamente lo ocurrido, incluyendo fechas, horarios y circunstancias del desvío..." style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;"></textarea>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 5: ACCIONES TOMADAS -->
+                <div style="margin-bottom: 30px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #00384d; font-size: 18px; border-left: 6px solid #3b82f6; padding-left: 12px;">5. ACCIONES TOMADAS</h3>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 12px; font-size: 14px; color: #1e293b;">Acciones Tomadas (Completar con una "X"):</label>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_accion" value="Transporte a otro sitio de almacenamiento" style="margin-right: 10px; accent-color: #3b82f6;"> Transporte a otro sitio de almacenamiento
+                            </label>
+                            <div style="margin-left: 30px; margin-bottom: 8px;">
+                                <label style="font-size: 13px;">Nuevo Sitio de Almacenamiento: 
+                                    <input type="text" id="desvio_nuevo_sitio" placeholder="Especificar nuevo sitio" style="margin-left: 8px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; width: 300px;">
+                                </label>
+                            </div>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_accion" value="Restablecimiento de energía de red eléctrica" style="margin-right: 10px; accent-color: #3b82f6;"> Restablecimiento de energía de red eléctrica
+                            </label>
+                            <div style="margin-left: 30px; margin-bottom: 8px;">
+                                <label style="font-size: 13px;">Horario de restablecimiento: 
+                                    <input type="time" id="desvio_horario_restablecimiento" style="margin-left: 8px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                                </label>
+                            </div>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px;">
+                                <input type="checkbox" name="desvio_accion" value="Otro" style="margin-right: 10px; accent-color: #3b82f6;"> Otro: 
+                                <input type="text" id="desvio_accion_otro" placeholder="Especificar acción" style="margin-left: 8px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; width: 300px;">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px; color: #1e293b;">Observaciones:</label>
+                        <textarea id="desvio_observaciones_acciones" rows="2" placeholder="Observaciones adicionales sobre las acciones tomadas..." style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;"></textarea>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 6: ACCIONES CORRECTIVAS -->
+                <div style="margin-bottom: 30px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #00384d; font-size: 18px; border-left: 6px solid #3b82f6; padding-left: 12px;">6. ACCIONES CORRECTIVAS Y/O PREVENTIVAS PLANIFICADAS</h3>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 12px; font-size: 14px; color: #1e293b;">Acciones Correctivas/Preventivas (Completar con una "X"):</label>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_correctiva" value="Adquisición de grupo electrógeno" style="margin-right: 10px; accent-color: #3b82f6;"> Adquisición de grupo electrógeno
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_correctiva" value="Aplicación de plan de contingencia" style="margin-right: 10px; accent-color: #3b82f6;"> Aplicación de plan de contingencia (anexar plan)
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_correctiva" value="Reformulación del plan de contingencia" style="margin-right: 10px; accent-color: #3b82f6;"> Reformulación del plan de contingencia (anexar plan)
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_correctiva" value="Adquisición de nuevos equipos de frío" style="margin-right: 10px; accent-color: #3b82f6;"> Adquisición de nuevos equipos de frío
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 8px; background: #f8fafc; border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="desvio_correctiva" value="Entrenamiento de personal" style="margin-right: 10px; accent-color: #3b82f6;"> Entrenamiento de personal
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px; color: #1e293b;">Observaciones:</label>
+                        <textarea id="desvio_observaciones_correctivas" rows="2" placeholder="Observaciones sobre las acciones correctivas planificadas..." style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;"></textarea>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 7: DOSIS AFECTADAS -->
+                <div style="margin-bottom: 30px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #00384d; font-size: 18px; border-left: 6px solid #3b82f6; padding-left: 12px;">7. DOSIS AFECTADAS</h3>
+                    
+                    <table style="width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 16px;">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                                <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 12px;">VACUNA</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 12px;">LABORATORIO</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 12px;">LOTE</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 12px;">VENCIMIENTO</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 12px;">CANTIDAD</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dosis_afectadas_body">
+                            <!-- Filas dinámicas se agregarán aquí -->
+                        </tbody>
+                    </table>
+                    <button type="button" onclick="agregarFilaDosis()" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(59,130,246,0.3);">+ Agregar Vacuna</button>
+                </div>
+
+                <!-- FIRMA -->
+                <div style="margin-bottom: 30px; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #00384d; font-size: 18px; border-left: 6px solid #3b82f6; padding-left: 12px;">COMPLETÓ EL FORMULARIO</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Nombre:</label>
+                            <input type="text" id="desvio_firma_nombre" placeholder="Nombre completo" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1e293b;">Cargo:</label>
+                            <input type="text" id="desvio_firma_cargo" placeholder="Cargo" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN DICEI -->
+                <div style="margin-bottom: 20px; background: #fffbeb; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(251,191,36,0.2); border: 2px solid #fbbf24;">
+                    <h3 style="margin: 0 0 20px 0; color: #92400e; font-size: 18px; border-left: 6px solid #fbbf24; padding-left: 12px;">A COMPLETAR POR LA DICEI</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #fbbf24;">
+                            <h4 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px;">N° de desvío CNV</h4>
+                            <input type="text" id="desvio_numero_cnv" placeholder="Ingresar número" style="width: 100%; padding: 10px; border: 2px solid #fbbf24; border-radius: 8px; font-size: 14px; margin-bottom: 12px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px;">Recomendaciones:</label>
+                            <textarea id="desvio_recomendaciones_cnv" rows="3" placeholder="Recomendaciones..." style="width: 100%; padding: 10px; border: 2px solid #fbbf24; border-radius: 8px; font-size: 14px; margin-bottom: 12px;"></textarea>
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px;">Fecha:</label>
+                                <input type="date" id="desvio_fecha_cnv" style="width: 100%; padding: 10px; border: 2px solid #fbbf24; border-radius: 8px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px;">Firma (Nombre y cargo):</label>
+                                <input type="text" id="desvio_firma_cnv" placeholder="Nombre y cargo" style="width: 100%; padding: 10px; border: 2px solid #fbbf24; border-radius: 8px; font-size: 14px;">
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #fbbf24;">
+                            <h4 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px;">N° de desvío COVID</h4>
+                            <input type="text" id="desvio_numero_covid" placeholder="Ingresar número" style="width: 100%; padding: 10px; border: 2px solid #fbbf24; border-radius: 8px; font-size: 14px; margin-bottom: 12px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px;">Recomendaciones:</label>
+                            <textarea id="desvio_recomendaciones_covid" rows="3" placeholder="Recomendaciones..." style="width: 100%; padding: 10px; border: 2px solid #fbbf24; border-radius: 8px; font-size: 14px; margin-bottom: 12px;"></textarea>
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px;">Fecha:</label>
+                                <input type="date" id="desvio_fecha_covid" style="width: 100%; padding: 10px; border: 2px solid #fbbf24; border-radius: 8px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px;">Firma (Nombre y cargo):</label>
+                                <input type="text" id="desvio_firma_covid" placeholder="Nombre y cargo" style="width: 100%; padding: 10px; border: 2px solid #fbbf24; border-radius: 8px; font-size: 14px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones del Modal -->
+            <div style="padding: 20px 30px; border-top: 2px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 16px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 0 0 24px 24px; position: sticky; bottom: 0; z-index: 10;">
+                <button onclick="cerrarModalDesvio()" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%); color: white; border: none; padding: 14px 28px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(100,116,139,0.3);">Cancelar</button>
+                <button onclick="generarPDFDesvio()" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: none; padding: 14px 28px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(5,150,105,0.3);">📥 Descargar Formulario (PDF)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables para contar heladeras
+        let contadorDosis = 0;
+
+        // Funciones de Control del Modal
+        function abrirModalDesvio() {
+            document.getElementById("modalDesvio").style.display = "block";
+            document.getElementById("desvio_fecha").valueAsDate = new Date(); // Pre-cargar fecha hoy
+            document.body.style.overflow = "hidden"; // Prevenir scroll del body
+        }
+
+        function cerrarModalDesvio() {
+            document.getElementById("modalDesvio").style.display = "none";
+            document.body.style.overflow = "auto"; // Restaurar scroll del body
+        }
+
+        // Función para agregar filas de dosis afectadas
+        function agregarFilaDosis() {
+            const tbody = document.getElementById("dosis_afectadas_body");
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="text" class="dosis_vacuna" placeholder="Nombre de la vacuna" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px;"></td>
+                <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="text" class="dosis_laboratorio" placeholder="Laboratorio" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px;"></td>
+                <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="text" class="dosis_lote" placeholder="Lote" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px;"></td>
+                <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="date" class="dosis_vencimiento" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px;"></td>
+                <td style="border: 1px solid #cbd5e1; padding: 8px;"><input type="number" class="dosis_cantidad" placeholder="Cantidad" style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px;"></td>
+            `;
+            tbody.appendChild(fila);
+            contadorDosis++;
+        }
+
+        // Función para obtener el estado de los checkboxes
+        function obtenerCheckboxesSeleccionados(nombre) {
+            let seleccionados = [];
+            let checkboxes = document.getElementsByName(nombre);
+            for (let checkbox of checkboxes) {
+                if (checkbox.checked) {
+                    seleccionados.push(checkbox.value);
+                }
+            }
+            return seleccionados.join(', ');
+        }
+
+        // Función para obtener el valor de los checkboxes individuales
+        function getCheckboxEstado(id) {
+            const checkbox = document.getElementById(id);
+            return checkbox && checkbox.checked ? '✓' : '✗';
+        }
+
+        // Función para Generar y Descargar PDF
+        function generarPDFDesvio() {
+            // 1. Validación Pedagógica: Asegurar datos mínimos
+            var establecimiento = document.getElementById("desvio_establecimiento").value;
+            var responsable = document.getElementById("desvio_responsable").value;
+            var descripcion = document.getElementById("desvio_descripcion").value;
+            
+            if(establecimiento === "" || responsable === "" || descripcion === "") {
+                alert("⚠️ Por favor complete al menos:\n- Nombre del Establecimiento\n- Nombre y Cargo de quien lo identificó\n- Descripción del desvío\n\nEstos campos son obligatorios para validar el documento.");
+                return;
+            }
+
+            // 2. Elemento a convertir
+            var elemento = document.getElementById("contenidoFormularioDesvio");
+            
+            // 3. Configuración del PDF
+            var opt = {
+                margin:       10,
+                filename:     'Desvio_Cadena_Frio_' + new Date().toISOString().slice(0,10) + '.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // 4. Generar y Descargar
+            html2pdf().set(opt).from(elemento).save().then(function(){
+                alert("✅ Formulario generado correctamente.\n\nEl archivo se ha descargado en su carpeta de descargas.\n\nRecuerde:\n- Completar la sección DICEI si corresponde\n- Archivar el formulario según normativa vigente\n- Notificar a la autoridad sanitaria competente");
+                cerrarModalDesvio();
+            }).catch(function(err){
+                console.error("Error al generar PDF:", err);
+                alert("❌ Error al generar el PDF. Por favor intente nuevamente.");
+            });
+        }
+
+        // Cerrar modal si se hace clic fuera del contenido
+        window.onclick = function(event) {
+            var modal = document.getElementById("modalDesvio");
+            if (event.target == modal) {
+                cerrarModalDesvio();
+            }
+        }
+
+        // Prevenir cierre accidental del modal
+        window.onbeforeunload = function() {
+            if(document.getElementById("modalDesvio").style.display === "block") {
+                return "¿Está seguro que desea salir? Los datos no guardados se perderán.";
+            }
+        };
+    </script>
+</body>
+</html>
