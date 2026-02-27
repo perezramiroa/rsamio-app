@@ -636,11 +636,14 @@
     }
   </script>
 <!-- =========================================== -->
-<!-- AGREGADO: BOTÓN Y FORMULARIO DE DESVÍO MEJORADO -->
-/* =========================================== */
+<!-- AGREGADO: BÓTÓN Y FORMULARIO DE DESVÍO MEJORADO -->
+<!-- =========================================== -->
+
+<!-- Librería necesaria para generar PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-    /* Estilos para el modal - Solo estos estilos son nuevos, no afectan al resto */
+    /* Estilos para el modal */
     .modal-desvio {
         display: none;
         position: fixed;
@@ -916,7 +919,7 @@
     }
 </style>
 
-<!-- Botón de Desvío - SOLO ESTO SE AGREGA A LA PÁGINA PRINCIPAL -->
+<!-- Botón de Desvío -->
 <div style="text-align: right; margin: 10px 0;">
     <button onclick="abrirModalDesvio()" class="btn-desvio">
         ⚠️ Reportar Desvío de Cadena de Frío
@@ -1073,7 +1076,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 6: ACCIONES CORRECTIVAS Y PREVENTIVAS (NUEVA) -->
+            <!-- SECCIÓN 6: ACCIONES CORRECTIVAS Y PREVENTIVAS -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">6. ACCIONES CORRECTIVAS Y/O PREVENTIVAS PLANIFICADAS</h3>
                 
@@ -1174,7 +1177,7 @@
         document.getElementById('desvio_fecha').valueAsDate = new Date();
         document.body.style.overflow = 'hidden';
         
-        // Agregar primer equipo por defecto
+        // Agregar primer equipo por defecto si no hay ninguno
         if (contadorEquipos === 0) agregarEquipo();
         if (contadorHeladeras === 0) agregarHeladera();
     }
@@ -1348,6 +1351,54 @@
         const responsable = document.getElementById('desvio_responsable').value;
         const descripcion = document.getElementById('desvio_descripcion').value;
 
-        if (!establecimiento || !responsable || !descrip
+        if (!establecimiento || !responsable || !descripcion) {
+            alert('⚠️ Complete los campos obligatorios:\n- Establecimiento\n- Responsable\n- Descripción del desvío');
+            return false;
+        }
+        return true;
+    }
+
+    // Función para generar PDF
+    function generarPDFDesvio() {
+        if (!validarFormulario()) return;
+
+        const elemento = document.getElementById('formularioDesvioPDF');
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: 'Desvio_Cadena_Frio_' + new Date().toISOString().slice(0,10) + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(elemento).save().then(() => {
+            alert('✅ Formulario generado correctamente');
+            cerrarModalDesvio();
+        }).catch(err => {
+            console.error('Error:', err);
+            alert('❌ Error al generar el PDF');
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalDesvio');
+        if (event.target === modal) {
+            cerrarModalDesvio();
+        }
+    };
+
+    // Confirmar cierre si hay datos
+    window.onbeforeunload = function() {
+        if (document.getElementById('modalDesvio').style.display === 'block') {
+            return '¿Está seguro que desea salir? Los datos no guardados se perderán.';
+        }
+    };
+</script>
+
+<!-- FIN DEL AGREGADO -->
+</body>
+</html>
 </body>
 </html>
