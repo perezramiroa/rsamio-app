@@ -636,14 +636,14 @@
     }
   </script>
 <!-- =========================================== -->
-<!-- AGREGADO: BOTÓN Y FORMULARIO DE DESVÍO MEJORADO - VERSIÓN FINAL CON ESTILOS -->
+<!-- AGREGADO: BOTÓN Y FORMULARIO DE DESVÍO MEJORADO -->
 <!-- =========================================== -->
 
 <!-- Librerías necesarias para generar PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-    /* Estilos para el modal - (Sin cambios, se mantienen igual) */
+    /* Estilos para el modal */
     .modal-desvio {
         display: none;
         position: fixed;
@@ -804,6 +804,7 @@
         background: #dc2626;
     }
 
+    /* Estilos del formulario */
     .form-desvio-section {
         margin-bottom: 30px;
         background: white;
@@ -914,6 +915,7 @@
         border: 1px solid #e2e8f0;
     }
 
+    /* Estilos para subir archivos */
     .file-upload-area {
         border: 2px dashed #cbd5e1;
         border-radius: 12px;
@@ -948,41 +950,6 @@
         font-size: 13px;
         color: #1e293b;
     }
-
-    .imagen-registro-preview {
-        max-width: 100%;
-        max-height: 200px;
-        margin-top: 15px;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 5px;
-    }
-
-    /* Estilos específicos para el PDF */
-    .pdf-container {
-        background-color: #ffffff;
-        padding: 20px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .pdf-container .form-desvio-section {
-        box-shadow: none;
-        border: 1px solid #e2e8f0;
-        page-break-inside: avoid;
-    }
-
-    .pdf-container .form-desvio-control {
-        border: none;
-        padding: 0;
-        font-weight: bold;
-        background: transparent;
-    }
-
-    .pdf-container .btn-agregar, 
-    .pdf-container .btn-eliminar,
-    .pdf-container .file-upload-area {
-        display: none;
-    }
 </style>
 
 <!-- Botón de Desvío -->
@@ -994,7 +961,8 @@
 
 <!-- Modal del Formulario de Desvío -->
 <div id="modalDesvio" class="modal-desvio">
-    <div class="modal-desvio-content">
+    <div class="modal-desvio-content" id="formularioDesvioPDF">
+        
         <!-- Header del Modal -->
         <div class="modal-desvio-header">
             <div>
@@ -1006,9 +974,11 @@
 
         <!-- Cuerpo del Modal - Formulario -->
         <div class="modal-desvio-body" id="contenidoFormulario">
+            
             <!-- SECCIÓN 1: IDENTIFICACIÓN -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">1. IDENTIFICACIÓN DEL DESVÍO</h3>
+                
                 <div class="form-desvio-grid">
                     <div class="form-desvio-group">
                         <label class="form-desvio-label">Provincia:</label>
@@ -1019,10 +989,12 @@
                         <input type="date" id="desvio_fecha" class="form-desvio-control">
                     </div>
                 </div>
+
                 <div class="form-desvio-group">
                     <label class="form-desvio-label">Nombre del Establecimiento: <span style="color: #dc2626;">*</span></label>
                     <input type="text" id="desvio_establecimiento" class="form-desvio-control" placeholder="Ingrese el nombre">
                 </div>
+
                 <div class="form-desvio-grid">
                     <div class="form-desvio-group">
                         <label class="form-desvio-label">Tipo de Establecimiento:</label>
@@ -1040,6 +1012,7 @@
                         <input type="text" id="desvio_localidad" class="form-desvio-control" placeholder="Localidad">
                     </div>
                 </div>
+
                 <div class="form-desvio-group">
                     <label class="form-desvio-label">Nombre y Cargo de quien lo identificó: <span style="color: #dc2626;">*</span></label>
                     <input type="text" id="desvio_responsable" class="form-desvio-control" placeholder="Ej: Dr. Juan Pérez - Jefe de Vacunatorio">
@@ -1049,21 +1022,34 @@
             <!-- SECCIÓN 2: EQUIPOS FRIGORÍFICOS (MÚLTIPLES) -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">2. EQUIPOS FRIGORÍFICOS</h3>
-                <div id="equipos-container"></div>
-                <button type="button" onclick="agregarEquipo()" class="btn-agregar">➕ Agregar Equipo Frigorífico</button>
+                
+                <div id="equipos-container">
+                    <!-- Los equipos se agregarán dinámicamente aquí -->
+                </div>
+                
+                <button type="button" onclick="agregarEquipo()" class="btn-agregar">
+                    ➕ Agregar Equipo Frigorífico
+                </button>
             </div>
 
             <!-- SECCIÓN 3: DATOS DE TEMPERATURA (MÚLTIPLES HELADERAS) -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">3. DATOS DE TEMPERATURA</h3>
                 <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Registre los datos de temperatura por cada heladera/equipo afectado</p>
-                <div id="temperaturas-container"></div>
-                <button type="button" onclick="agregarHeladera()" class="btn-agregar">➕ Agregar Heladera/Equipo</button>
+                
+                <div id="temperaturas-container">
+                    <!-- Las heladeras se agregarán dinámicamente aquí -->
+                </div>
+                
+                <button type="button" onclick="agregarHeladera()" class="btn-agregar">
+                    ➕ Agregar Heladera/Equipo
+                </button>
             </div>
 
             <!-- SECCIÓN 4: INSPECCIÓN VISUAL -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">4. INSPECCIÓN VISUAL AL MOMENTO DEL DESVÍO</h3>
+                
                 <div class="form-desvio-radio-group">
                     <label class="form-desvio-radio-label">
                         <input type="radio" name="inspeccion_visual" value="congelada"> ❄️ Vacuna Congelada
@@ -1072,6 +1058,7 @@
                         <input type="radio" name="inspeccion_visual" value="descongelada"> 💧 Vacuna Descongelada
                     </label>
                 </div>
+
                 <div class="form-desvio-group" style="margin-top: 20px;">
                     <label class="form-desvio-label">Temperatura del ambiente donde se encuentra el equipo (°C):</label>
                     <input type="number" step="0.1" id="temp_ambiente" class="form-desvio-control" placeholder="Ej: 22.5">
@@ -1081,6 +1068,7 @@
             <!-- SECCIÓN 5: MODALIDAD DE MONITOREO -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">5. MODALIDAD DE MONITOREO</h3>
+                
                 <div class="form-desvio-grid">
                     <div class="form-desvio-group">
                         <label class="form-desvio-label">Sensor Manual (Termómetro) - Marca:</label>
@@ -1091,6 +1079,7 @@
                         <input type="text" id="sensor_manual_modelo" class="form-desvio-control" placeholder="Modelo del termómetro">
                     </div>
                 </div>
+
                 <div class="form-desvio-grid">
                     <div class="form-desvio-group">
                         <label class="form-desvio-label">Sensor Digital (Data-logger) - Marca:</label>
@@ -1106,10 +1095,12 @@
             <!-- SECCIÓN 6: FRECUENCIA DEL MONITOREO -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">6. FRECUENCIA DEL MONITOREO</h3>
+                
                 <div class="form-desvio-group">
                     <label class="form-desvio-label">Frecuencia del monitoreo:</label>
                     <input type="text" id="frecuencia_monitoreo" class="form-desvio-control" placeholder="Ej: Cada 2 horas, cada 15 minutos, etc.">
                 </div>
+
                 <div class="form-desvio-group">
                     <label class="form-desvio-label">Adjuntar registro (imagen del registro):</label>
                     <div class="file-upload-area" onclick="document.getElementById('archivo_registro').click()">
@@ -1119,13 +1110,13 @@
                     </div>
                     <input type="file" id="archivo_registro" accept="image/*,.pdf" style="display: none;" onchange="mostrarNombreArchivo(this)">
                     <div id="info_archivo" class="file-info" style="display: none;"></div>
-                    <div id="preview_imagen" style="display: none;"></div>
                 </div>
             </div>
 
             <!-- SECCIÓN 7: CAUSA DEL DESVÍO -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">7. CAUSA DEL DESVÍO</h3>
+                
                 <div class="form-desvio-checkbox-group">
                     <label class="form-desvio-checkbox-label">
                         <input type="checkbox" name="causa" value="Corte de energía"> Corte de energía
@@ -1147,6 +1138,7 @@
                         <input type="text" id="causa_otro" style="margin-left: 8px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 250px;">
                     </label>
                 </div>
+
                 <div class="form-desvio-group" style="margin-top: 20px;">
                     <label class="form-desvio-label">Descripción del desvío: <span style="color: #dc2626;">*</span></label>
                     <textarea id="desvio_descripcion" rows="4" class="form-desvio-control" placeholder="Describa detalladamente lo ocurrido..."></textarea>
@@ -1156,6 +1148,7 @@
             <!-- SECCIÓN 8: ACCIONES TOMADAS -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">8. ACCIONES TOMADAS</h3>
+                
                 <div class="form-desvio-checkbox-group">
                     <label class="form-desvio-checkbox-label">
                         <input type="checkbox" name="accion" value="Transporte a otro sitio"> Transporte a otro sitio de almacenamiento
@@ -1176,6 +1169,7 @@
                         <input type="text" id="accion_otro" style="margin-left: 8px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 250px;">
                     </label>
                 </div>
+
                 <div class="form-desvio-group" style="margin-top: 20px;">
                     <label class="form-desvio-label">Observaciones:</label>
                     <textarea id="desvio_observaciones" rows="2" class="form-desvio-control"></textarea>
@@ -1185,6 +1179,7 @@
             <!-- SECCIÓN 9: ACCIONES CORRECTIVAS Y PREVENTIVAS -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">9. ACCIONES CORRECTIVAS Y/O PREVENTIVAS PLANIFICADAS</h3>
+                
                 <div class="form-desvio-checkbox-group">
                     <label class="form-desvio-checkbox-label">
                         <input type="checkbox" name="correctiva" value="Adquisición de grupo electrógeno"> Adquisición de grupo electrógeno
@@ -1202,6 +1197,7 @@
                         <input type="checkbox" name="correctiva" value="Entrenamiento de personal"> Entrenamiento de personal
                     </label>
                 </div>
+
                 <div class="form-desvio-group" style="margin-top: 20px;">
                     <label class="form-desvio-label">Observaciones:</label>
                     <textarea id="correctivas_observaciones" rows="2" class="form-desvio-control"></textarea>
@@ -1211,13 +1207,20 @@
             <!-- SECCIÓN 10: DOSIS AFECTADAS POR EQUIPO -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">10. DOSIS AFECTADAS POR EQUIPO</h3>
-                <div id="dosis-por-equipo-container"></div>
-                <button type="button" onclick="agregarDosisPorEquipo()" class="btn-agregar">➕ Agregar Dosis por Equipo</button>
+                
+                <div id="dosis-por-equipo-container">
+                    <!-- Las dosis por equipo se agregarán dinámicamente aquí -->
+                </div>
+                
+                <button type="button" onclick="agregarDosisPorEquipo()" class="btn-agregar">
+                    ➕ Agregar Dosis por Equipo
+                </button>
             </div>
 
             <!-- SECCIÓN 11: FIRMA -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">11. COMPLETÓ EL FORMULARIO</h3>
+                
                 <div class="form-desvio-grid">
                     <div class="form-desvio-group">
                         <label class="form-desvio-label">Nombre completo:</label>
@@ -1233,24 +1236,32 @@
             <!-- SECCIÓN 12: DICEI -->
             <div class="form-desvio-dicei">
                 <h3 style="margin: 0 0 20px 0; color: #92400e; font-size: 20px;">A COMPLETAR POR LA DICEI</h3>
+                
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
                     <div style="background: white; border-radius: 16px; padding: 20px;">
                         <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #92400e;">N° de desvío CNV</h4>
                         <input type="text" id="dicei_cnv" class="form-desvio-control" style="margin-bottom: 15px;" placeholder="Ingresar número">
+                        
                         <label class="form-desvio-label">Recomendaciones:</label>
                         <textarea id="dicei_recom_cnv" rows="3" class="form-desvio-control" style="margin-bottom: 15px;" placeholder="Recomendaciones..."></textarea>
+                        
                         <label class="form-desvio-label">Fecha:</label>
                         <input type="date" id="dicei_fecha_cnv" class="form-desvio-control" style="margin-bottom: 15px;">
+                        
                         <label class="form-desvio-label">Firma (Nombre y cargo):</label>
                         <input type="text" id="dicei_firma_cnv" class="form-desvio-control" placeholder="Nombre y cargo del firmante">
                     </div>
+                    
                     <div style="background: white; border-radius: 16px; padding: 20px;">
                         <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #92400e;">N° de desvío COVID</h4>
                         <input type="text" id="dicei_covid" class="form-desvio-control" style="margin-bottom: 15px;" placeholder="Ingresar número">
+                        
                         <label class="form-desvio-label">Recomendaciones:</label>
                         <textarea id="dicei_recom_covid" rows="3" class="form-desvio-control" style="margin-bottom: 15px;" placeholder="Recomendaciones..."></textarea>
+                        
                         <label class="form-desvio-label">Fecha:</label>
                         <input type="date" id="dicei_fecha_covid" class="form-desvio-control" style="margin-bottom: 15px;">
+                        
                         <label class="form-desvio-label">Firma (Nombre y cargo):</label>
                         <input type="text" id="dicei_firma_covid" class="form-desvio-control" placeholder="Nombre y cargo del firmante">
                     </div>
@@ -1271,39 +1282,18 @@
     let contadorEquipos = 0;
     let contadorHeladeras = 0;
     let contadorDosisPorEquipo = 0;
-    let imagenBase64 = null;
+    let archivoRegistro = null;
 
-    // Función para mostrar nombre del archivo y convertirlo a base64
+    // Función para mostrar nombre del archivo seleccionado
     function mostrarNombreArchivo(input) {
         const infoDiv = document.getElementById('info_archivo');
-        const previewDiv = document.getElementById('preview_imagen');
-        
         if (input.files && input.files[0]) {
-            const file = input.files[0];
-            
-            // Mostrar información del archivo
+            archivoRegistro = input.files[0];
             infoDiv.style.display = 'block';
-            infoDiv.innerHTML = `📎 Archivo seleccionado: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
-            
-            // Convertir a base64 si es imagen
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagenBase64 = e.target.result;
-                    
-                    // Mostrar preview
-                    previewDiv.style.display = 'block';
-                    previewDiv.innerHTML = `<img src="${imagenBase64}" class="imagen-registro-preview" alt="Vista previa">`;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                imagenBase64 = null;
-                previewDiv.style.display = 'none';
-            }
+            infoDiv.innerHTML = `📎 Archivo seleccionado: ${archivoRegistro.name} (${(archivoRegistro.size / 1024).toFixed(2)} KB)`;
         } else {
-            imagenBase64 = null;
+            archivoRegistro = null;
             infoDiv.style.display = 'none';
-            previewDiv.style.display = 'none';
         }
     }
 
@@ -1312,6 +1302,8 @@
         document.getElementById('modalDesvio').style.display = 'block';
         document.getElementById('desvio_fecha').valueAsDate = new Date();
         document.body.style.overflow = 'hidden';
+        
+        // Agregar primer equipo por defecto si no hay ninguno
         if (contadorEquipos === 0) agregarEquipo();
         if (contadorHeladeras === 0) agregarHeladera();
     }
@@ -1322,7 +1314,7 @@
         document.body.style.overflow = 'auto';
     }
 
-    // Funciones para agregar elementos (sin cambios)
+    // Función para agregar equipo frigorífico
     function agregarEquipo() {
         contadorEquipos++;
         const container = document.getElementById('equipos-container');
@@ -1362,11 +1354,13 @@
         container.appendChild(div);
     }
 
+    // Función para eliminar equipo
     function eliminarEquipo(id) {
         const elemento = document.getElementById(`equipo_${id}`);
         if (elemento) elemento.remove();
     }
 
+    // Función para agregar heladera/equipo de temperatura
     function agregarHeladera() {
         contadorHeladeras++;
         const container = document.getElementById('temperaturas-container');
@@ -1410,11 +1404,13 @@
         container.appendChild(div);
     }
 
+    // Función para eliminar heladera
     function eliminarHeladera(id) {
         const elemento = document.getElementById(`heladera_${id}`);
         if (elemento) elemento.remove();
     }
 
+    // Función para agregar dosis por equipo
     function agregarDosisPorEquipo() {
         contadorDosisPorEquipo++;
         const container = document.getElementById('dosis-por-equipo-container');
@@ -1455,11 +1451,13 @@
         container.appendChild(div);
     }
 
+    // Función para eliminar dosis por equipo
     function eliminarDosisPorEquipo(id) {
         const elemento = document.getElementById(`dosis_equipo_${id}`);
         if (elemento) elemento.remove();
     }
 
+    // Función para agregar fila de dosis dentro de un equipo específico
     function agregarFilaDosis(equipoId) {
         const tbody = document.getElementById(`dosis_body_${equipoId}`);
         const fila = document.createElement('tr');
@@ -1486,127 +1484,17 @@
         return true;
     }
 
-    // =================================================================
-    // FUNCIÓN PRINCIPAL PARA GENERAR EL PDF - VERSIÓN CORREGIDA
-    // =================================================================
+    // Función para generar PDF - VERSIÓN CORREGIDA
     function generarPDFDesvio() {
         if (!validarFormulario()) return;
 
-        // Crear un contenedor para el PDF con todos los estilos
-        const contenedorPDF = document.createElement('div');
-        contenedorPDF.className = 'pdf-container';
-        contenedorPDF.style.position = 'absolute';
-        contenedorPDF.style.left = '-9999px';
-        contenedorPDF.style.top = '0';
-        contenedorPDF.style.width = '100%';
-        contenedorPDF.style.backgroundColor = '#ffffff';
-        contenedorPDF.style.padding = '20px';
-        contenedorPDF.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-
-        // Clonar el contenido del formulario
-        const contenidoOriginal = document.getElementById('contenidoFormulario');
-        const clone = contenidoOriginal.cloneNode(true);
+        // Obtener el elemento a convertir
+        const elemento = document.getElementById('contenidoFormulario');
         
-        // Procesar el clon para el PDF
-        function procesarElementoParaPDF(elemento) {
-            if (!elemento) return;
-            
-            // Reemplazar inputs de texto, number, date, time, select y textarea por su valor
-            elemento.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="time"], select, textarea').forEach(el => {
-                const valor = el.value || '(no especificado)';
-                const parentDiv = el.closest('.form-desvio-group');
-                if (parentDiv) {
-                    const label = parentDiv.querySelector('.form-desvio-label');
-                    const nuevoDiv = document.createElement('div');
-                    nuevoDiv.className = 'form-desvio-group';
-                    if (label) {
-                        const nuevoLabel = label.cloneNode(true);
-                        nuevoDiv.appendChild(nuevoLabel);
-                    }
-                    const valorSpan = document.createElement('div');
-                    valorSpan.style.fontWeight = 'bold';
-                    valorSpan.style.marginTop = '5px';
-                    valorSpan.style.padding = '8px';
-                    valorSpan.style.backgroundColor = '#f8fafc';
-                    valorSpan.style.borderRadius = '8px';
-                    valorSpan.style.border = '1px solid #e2e8f0';
-                    valorSpan.textContent = valor;
-                    nuevoDiv.appendChild(valorSpan);
-                    parentDiv.parentNode.replaceChild(nuevoDiv, parentDiv);
-                }
-            });
-
-            // Procesar checkboxes
-            elemento.querySelectorAll('.form-desvio-checkbox-label').forEach(label => {
-                const checkbox = label.querySelector('input[type="checkbox"]');
-                if (checkbox) {
-                    const texto = label.innerText.replace(checkbox.value, '').trim();
-                    const nuevoDiv = document.createElement('div');
-                    nuevoDiv.style.margin = '5px 0';
-                    nuevoDiv.style.padding = '8px';
-                    nuevoDiv.style.backgroundColor = checkbox.checked ? '#f0fdf4' : '#f8fafc';
-                    nuevoDiv.style.borderRadius = '8px';
-                    nuevoDiv.style.border = '1px solid #e2e8f0';
-                    nuevoDiv.innerHTML = `${checkbox.checked ? '✅' : '⬜'} ${texto}`;
-                    label.parentNode.replaceChild(nuevoDiv, label);
-                }
-            });
-
-            // Procesar radios
-            elemento.querySelectorAll('.form-desvio-radio-group').forEach(grupo => {
-                const radios = grupo.querySelectorAll('.form-desvio-radio-label');
-                let seleccionado = null;
-                radios.forEach(label => {
-                    const radio = label.querySelector('input[type="radio"]');
-                    if (radio && radio.checked) {
-                        seleccionado = label.innerText.replace(radio.value, '').trim();
-                    }
-                });
-                if (seleccionado) {
-                    const nuevoDiv = document.createElement('div');
-                    nuevoDiv.style.margin = '5px 0';
-                    nuevoDiv.style.padding = '8px';
-                    nuevoDiv.style.backgroundColor = '#f8fafc';
-                    nuevoDiv.style.borderRadius = '8px';
-                    nuevoDiv.style.border = '1px solid #e2e8f0';
-                    nuevoDiv.innerHTML = `🔘 ${seleccionado}`;
-                    grupo.innerHTML = '';
-                    grupo.appendChild(nuevoDiv);
-                }
-            });
-
-            // Eliminar botones de agregar/eliminar
-            elemento.querySelectorAll('.btn-agregar, .btn-eliminar, .file-upload-area').forEach(btn => btn.remove());
-
-            // Agregar imagen si existe
-            if (imagenBase64) {
-                const secciones = elemento.querySelectorAll('.form-desvio-section');
-                if (secciones.length >= 6) {
-                    const seccionFrecuencia = secciones[5]; // Sección 6
-                    const imgContainer = document.createElement('div');
-                    imgContainer.style.marginTop = '20px';
-                    imgContainer.style.padding = '10px';
-                    imgContainer.style.backgroundColor = '#f8fafc';
-                    imgContainer.style.borderRadius = '8px';
-                    imgContainer.style.border = '1px solid #e2e8f0';
-                    
-                    const img = document.createElement('img');
-                    img.src = imagenBase64;
-                    img.style.maxWidth = '100%';
-                    img.style.maxHeight = '300px';
-                    img.style.borderRadius = '4px';
-                    
-                    imgContainer.appendChild(img);
-                    seccionFrecuencia.appendChild(imgContainer);
-                }
-            }
-        }
-
-        procesarElementoParaPDF(clone);
-        contenedorPDF.appendChild(clone);
-        document.body.appendChild(contenedorPDF);
-
-        // Configuración optimizada para html2pdf
+        // Crear una copia clonada para evitar problemas de estilos
+        const clon = elemento.cloneNode(true);
+        
+        // Configuración optimizada
         const opt = {
             margin: [15, 15, 15, 15],
             filename: 'Desvio_Cadena_Frio_' + new Date().toISOString().slice(0,10) + '.pdf',
@@ -1622,29 +1510,23 @@
                 unit: 'mm', 
                 format: 'a4', 
                 orientation: 'portrait' 
-            },
-            pagebreak: { mode: ['css', 'legacy'] }
+            }
         };
 
-        // Mostrar mensaje de espera y deshabilitar botón
+        // Mostrar mensaje de espera
         const btnDescargar = event.target;
         const textoOriginal = btnDescargar.innerHTML;
         btnDescargar.innerHTML = '⏳ Generando PDF...';
         btnDescargar.disabled = true;
 
-        // Generar el PDF
-        html2pdf().set(opt).from(contenedorPDF).save().then(() => {
-            // Limpiar
-            document.body.removeChild(contenedorPDF);
+        // Generar PDF
+        html2pdf().set(opt).from(clon).save().then(() => {
             btnDescargar.innerHTML = textoOriginal;
             btnDescargar.disabled = false;
             alert('✅ Formulario generado correctamente');
             cerrarModalDesvio();
         }).catch(err => {
             console.error('Error al generar PDF:', err);
-            if (document.body.contains(contenedorPDF)) {
-                document.body.removeChild(contenedorPDF);
-            }
             btnDescargar.innerHTML = textoOriginal;
             btnDescargar.disabled = false;
             alert('❌ Error al generar el PDF. Intente nuevamente.');
