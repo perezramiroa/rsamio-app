@@ -639,7 +639,7 @@
 <!-- AGREGADO: BOTÓN Y FORMULARIO DE DESVÍO MEJORADO -->
 <!-- =========================================== -->
 
-<!-- Librería necesaria para generar PDF -->
+<!-- Librerías necesarias para generar PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
@@ -1484,26 +1484,52 @@
         return true;
     }
 
-    // Función para generar PDF
+    // Función para generar PDF - VERSIÓN CORREGIDA
     function generarPDFDesvio() {
         if (!validarFormulario()) return;
 
-        const elemento = document.getElementById('formularioDesvioPDF');
+        // Obtener el elemento a convertir
+        const elemento = document.getElementById('contenidoFormulario');
+        
+        // Crear una copia clonada para evitar problemas de estilos
+        const clon = elemento.cloneNode(true);
+        
+        // Configuración optimizada
         const opt = {
             margin: [15, 15, 15, 15],
             filename: 'Desvio_Cadena_Frio_' + new Date().toISOString().slice(0,10) + '.pdf',
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'] }
+            html2canvas: { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                allowTaint: false,
+                backgroundColor: '#ffffff'
+            },
+            jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'portrait' 
+            }
         };
 
-        html2pdf().set(opt).from(elemento).save().then(() => {
+        // Mostrar mensaje de espera
+        const btnDescargar = event.target;
+        const textoOriginal = btnDescargar.innerHTML;
+        btnDescargar.innerHTML = '⏳ Generando PDF...';
+        btnDescargar.disabled = true;
+
+        // Generar PDF
+        html2pdf().set(opt).from(clon).save().then(() => {
+            btnDescargar.innerHTML = textoOriginal;
+            btnDescargar.disabled = false;
             alert('✅ Formulario generado correctamente');
             cerrarModalDesvio();
         }).catch(err => {
-            console.error('Error:', err);
-            alert('❌ Error al generar el PDF');
+            console.error('Error al generar PDF:', err);
+            btnDescargar.innerHTML = textoOriginal;
+            btnDescargar.disabled = false;
+            alert('❌ Error al generar el PDF. Intente nuevamente.');
         });
     }
 
