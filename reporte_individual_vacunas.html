@@ -636,7 +636,7 @@
     }
   </script>
 <!-- =========================================== -->
-<!-- AGREGADO: BOTÓN Y FORMULARIO DE DESVÍO -->
+<!-- AGREGADO: BOTÓN Y FORMULARIO DE DESVÍO MEJORADO -->
 /* =========================================== */
 
 <style>
@@ -660,7 +660,7 @@
         padding: 0;
         border-radius: 24px;
         width: 95%;
-        max-width: 1000px;
+        max-width: 1100px;
         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         max-height: 95vh;
         overflow-y: auto;
@@ -767,6 +767,39 @@
         box-shadow: 0 4px 6px -1px rgba(5,150,105,0.3);
     }
 
+    .btn-agregar {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        margin: 10px 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-agregar:hover {
+        background: #2563eb;
+    }
+
+    .btn-eliminar {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 11px;
+    }
+
+    .btn-eliminar:hover {
+        background: #dc2626;
+    }
+
     /* Estilos del formulario */
     .form-desvio-section {
         margin-bottom: 25px;
@@ -783,6 +816,13 @@
         font-size: 18px;
         border-left: 6px solid #3b82f6;
         padding-left: 12px;
+    }
+
+    .form-desvio-subtitle {
+        margin: 15px 0 10px 0;
+        color: #1e40af;
+        font-size: 16px;
+        font-weight: 600;
     }
 
     .form-desvio-grid {
@@ -810,6 +850,12 @@
         border: 2px solid #e2e8f0;
         border-radius: 8px;
         font-size: 13px;
+    }
+
+    .form-desvio-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
     }
 
     .form-desvio-checkbox-group {
@@ -843,6 +889,30 @@
         border-radius: 16px;
         padding: 20px;
         border: 2px solid #fbbf24;
+    }
+
+    .equipo-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .temperatura-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .dosis-por-equipo {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #3b82f6;
     }
 </style>
 
@@ -913,100 +983,34 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 2: EQUIPO FRIGORÍFICO -->
+            <!-- SECCIÓN 2: EQUIPOS FRIGORÍFICOS (MÚLTIPLES) -->
             <div class="form-desvio-section">
-                <h3 class="form-desvio-title">2. EQUIPO FRIGORÍFICO</h3>
+                <h3 class="form-desvio-title">2. EQUIPOS FRIGORÍFICOS</h3>
                 
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Tipo de equipo (marcar con X):</label>
-                    <div class="form-desvio-checkbox-group">
-                        <label class="form-desvio-checkbox-label">
-                            <input type="radio" name="tipo_equipo" value="Heladera"> Heladera
-                        </label>
-                        <label class="form-desvio-checkbox-label">
-                            <input type="radio" name="tipo_equipo" value="Freezer"> Freezer
-                        </label>
-                        <label class="form-desvio-checkbox-label">
-                            <input type="radio" name="tipo_equipo" value="Ultra-freezer"> Ultra-freezer
-                        </label>
-                        <label class="form-desvio-checkbox-label">
-                            <input type="radio" name="tipo_equipo" value="Termo"> Termo/Caja térmica
-                        </label>
-                        <label class="form-desvio-checkbox-label" style="grid-column: span 2;">
-                            <input type="radio" name="tipo_equipo" value="Otro"> Otros: 
-                            <input type="text" id="desvio_equipo_otros" style="margin-left: 8px; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; width: 200px;">
-                        </label>
-                    </div>
+                <div id="equipos-container">
+                    <!-- Los equipos se agregarán dinámicamente aquí -->
                 </div>
-
-                <div class="form-desvio-grid">
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Marca:</label>
-                        <input type="text" id="desvio_marca" class="form-desvio-control">
-                    </div>
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Modelo:</label>
-                        <input type="text" id="desvio_modelo" class="form-desvio-control">
-                    </div>
-                </div>
-
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Otras características:</label>
-                    <textarea id="desvio_caracteristicas" rows="2" class="form-desvio-control"></textarea>
-                </div>
-
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Inspección visual:</label>
-                    <div style="display: flex; gap: 20px; margin-top: 8px;">
-                        <label class="form-desvio-checkbox-label">
-                            <input type="checkbox" id="vacuna_congelada"> Vacuna Congelada
-                        </label>
-                        <label class="form-desvio-checkbox-label">
-                            <input type="checkbox" id="vacuna_descongelada"> Vacuna Descongelada
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Temperatura ambiente (°C):</label>
-                    <input type="number" step="0.1" id="desvio_temp_ambiente" class="form-desvio-control">
-                </div>
+                
+                <button type="button" onclick="agregarEquipo()" class="btn-agregar">
+                    ➕ Agregar Equipo Frigorífico
+                </button>
             </div>
 
-            <!-- SECCIÓN 3: DATOS HELADERA -->
+            <!-- SECCIÓN 3: DATOS DE TEMPERATURA (MÚLTIPLES HELADERAS) -->
             <div class="form-desvio-section">
-                <h3 class="form-desvio-title">3. DATOS DE TEMPERATURA - HELADERA N°1</h3>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-                    <div>
-                        <label class="form-desvio-label">Temp. previa (°C):</label>
-                        <input type="number" step="0.1" id="temp_previa_1" class="form-desvio-control">
-                    </div>
-                    <div>
-                        <label class="form-desvio-label">Fecha previa:</label>
-                        <input type="date" id="fecha_previa_1" class="form-desvio-control">
-                    </div>
-                    <div>
-                        <label class="form-desvio-label">Hora previa:</label>
-                        <input type="time" id="hora_previa_1" class="form-desvio-control">
-                    </div>
-                    <div>
-                        <label class="form-desvio-label">Temp. observada:</label>
-                        <input type="number" step="0.1" id="temp_observada_1" class="form-desvio-control" style="border-color: #ef4444;">
-                    </div>
+                <h3 class="form-desvio-title">3. DATOS DE TEMPERATURA</h3>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 15px;">Registre los datos de temperatura por cada heladera/equipo afectado</p>
+                
+                <div id="temperaturas-container">
+                    <!-- Las heladeras se agregarán dinámicamente aquí -->
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                    <div>
-                        <label class="form-desvio-label">Fecha del desvío:</label>
-                        <input type="date" id="fecha_desvio_1" class="form-desvio-control">
-                    </div>
-                    <div>
-                        <label class="form-desvio-label">Hora del desvío:</label>
-                        <input type="time" id="hora_desvio_1" class="form-desvio-control">
-                    </div>
-                </div>
+                
+                <button type="button" onclick="agregarHeladera()" class="btn-agregar">
+                    ➕ Agregar Heladera/Equipo
+                </button>
             </div>
 
-            <!-- SECCIÓN 4: CAUSA -->
+            <!-- SECCIÓN 4: CAUSA DEL DESVÍO -->
             <div class="form-desvio-section">
                 <h3 class="form-desvio-title">4. CAUSA DEL DESVÍO</h3>
                 
@@ -1018,13 +1022,13 @@
                         <input type="checkbox" name="causa" value="Falla en el equipo"> Falla en el equipo
                     </label>
                     <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="causa" value="Fuera de rango"> Equipos con temp. fuera de rango
+                        <input type="checkbox" name="causa" value="Equipos con temperatura fuera de rango"> Equipos con temp. fuera de rango
                     </label>
                     <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="causa" value="Problemas traslado"> Problemas en el traslado
+                        <input type="checkbox" name="causa" value="Problemas en el traslado"> Problemas en el traslado
                     </label>
                     <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="causa" value="Caja térmica"> Inconvenientes caja térmica
+                        <input type="checkbox" name="causa" value="Inconvenientes caja térmica"> Inconvenientes caja térmica
                     </label>
                     <label class="form-desvio-checkbox-label" style="grid-column: span 2;">
                         <input type="checkbox" name="causa" value="Otro"> Otros: 
@@ -1044,11 +1048,19 @@
                 
                 <div class="form-desvio-checkbox-group">
                     <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="accion" value="Transporte"> Transporte a otro sitio
+                        <input type="checkbox" name="accion" value="Transporte a otro sitio"> Transporte a otro sitio de almacenamiento
                     </label>
+                    <div style="margin-left: 25px; margin-bottom: 5px;">
+                        <label class="form-desvio-label">Nuevo Sitio:</label>
+                        <input type="text" id="nuevo_sitio" class="form-desvio-control" style="width: 300px;">
+                    </div>
                     <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="accion" value="Restablecimiento"> Restablecimiento de energía
+                        <input type="checkbox" name="accion" value="Restablecimiento energía"> Restablecimiento de energía
                     </label>
+                    <div style="margin-left: 25px; margin-bottom: 5px;">
+                        <label class="form-desvio-label">Horario:</label>
+                        <input type="time" id="horario_restablecimiento" class="form-desvio-control" style="width: 150px;">
+                    </div>
                     <label class="form-desvio-checkbox-label" style="grid-column: span 2;">
                         <input type="checkbox" name="accion" value="Otro"> Otros: 
                         <input type="text" id="accion_otro" style="margin-left: 8px; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; width: 200px;">
@@ -1061,36 +1073,50 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 6: DOSIS AFECTADAS -->
+            <!-- SECCIÓN 6: ACCIONES CORRECTIVAS Y PREVENTIVAS (NUEVA) -->
             <div class="form-desvio-section">
-                <h3 class="form-desvio-title">6. DOSIS AFECTADAS</h3>
+                <h3 class="form-desvio-title">6. ACCIONES CORRECTIVAS Y/O PREVENTIVAS PLANIFICADAS</h3>
                 
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px;">
-                    <thead>
-                        <tr style="background: #f8fafc;">
-                            <th style="border: 1px solid #cbd5e1; padding: 8px;">VACUNA</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px;">LABORATORIO</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px;">LOTE</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px;">VENCIMIENTO</th>
-                            <th style="border: 1px solid #cbd5e1; padding: 8px;">CANTIDAD</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dosis_body">
-                        <tr>
-                            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
-                            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
-                            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
-                            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="date" class="form-desvio-control" style="padding: 4px;"></td>
-                            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="number" class="form-desvio-control" style="padding: 4px;"></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button onclick="agregarFilaDosis()" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">+ Agregar Vacuna</button>
+                <div class="form-desvio-checkbox-group">
+                    <label class="form-desvio-checkbox-label">
+                        <input type="checkbox" name="correctiva" value="Adquisición de grupo electrógeno"> Adquisición de grupo electrógeno
+                    </label>
+                    <label class="form-desvio-checkbox-label">
+                        <input type="checkbox" name="correctiva" value="Aplicación de plan de contingencia"> Aplicación de plan de contingencia (anexar)
+                    </label>
+                    <label class="form-desvio-checkbox-label">
+                        <input type="checkbox" name="correctiva" value="Reformulación del plan de contingencia"> Reformulación del plan de contingencia (anexar)
+                    </label>
+                    <label class="form-desvio-checkbox-label">
+                        <input type="checkbox" name="correctiva" value="Adquisición de nuevos equipos de frío"> Adquisición de nuevos equipos de frío
+                    </label>
+                    <label class="form-desvio-checkbox-label">
+                        <input type="checkbox" name="correctiva" value="Entrenamiento de personal"> Entrenamiento de personal
+                    </label>
+                </div>
+
+                <div class="form-desvio-group" style="margin-top: 15px;">
+                    <label class="form-desvio-label">Observaciones:</label>
+                    <textarea id="correctivas_observaciones" rows="2" class="form-desvio-control"></textarea>
+                </div>
             </div>
 
-            <!-- SECCIÓN 7: FIRMA -->
+            <!-- SECCIÓN 7: DOSIS AFECTADAS POR EQUIPO -->
             <div class="form-desvio-section">
-                <h3 class="form-desvio-title">7. COMPLETÓ EL FORMULARIO</h3>
+                <h3 class="form-desvio-title">7. DOSIS AFECTADAS POR EQUIPO</h3>
+                
+                <div id="dosis-por-equipo-container">
+                    <!-- Las dosis por equipo se agregarán dinámicamente aquí -->
+                </div>
+                
+                <button type="button" onclick="agregarDosisPorEquipo()" class="btn-agregar">
+                    ➕ Agregar Dosis por Equipo
+                </button>
+            </div>
+
+            <!-- SECCIÓN 8: FIRMA -->
+            <div class="form-desvio-section">
+                <h3 class="form-desvio-title">8. COMPLETÓ EL FORMULARIO</h3>
                 
                 <div class="form-desvio-grid">
                     <div class="form-desvio-group">
@@ -1104,7 +1130,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 8: DICEI -->
+            <!-- SECCIÓN 9: DICEI -->
             <div class="form-desvio-dicei">
                 <h3 style="margin: 0 0 15px 0; color: #92400e;">A COMPLETAR POR LA DICEI</h3>
                 
@@ -1138,13 +1164,19 @@
 
 <script>
     // Variables globales
-    let contadorDosis = 0;
+    let contadorEquipos = 0;
+    let contadorHeladeras = 0;
+    let contadorDosisPorEquipo = 0;
 
     // Función para abrir el modal
     function abrirModalDesvio() {
         document.getElementById('modalDesvio').style.display = 'block';
         document.getElementById('desvio_fecha').valueAsDate = new Date();
         document.body.style.overflow = 'hidden';
+        
+        // Agregar primer equipo por defecto
+        if (contadorEquipos === 0) agregarEquipo();
+        if (contadorHeladeras === 0) agregarHeladera();
     }
 
     // Función para cerrar el modal
@@ -1153,19 +1185,161 @@
         document.body.style.overflow = 'auto';
     }
 
-    // Función para agregar fila de dosis
-    function agregarFilaDosis() {
-        const tbody = document.getElementById('dosis_body');
+    // Función para agregar equipo frigorífico
+    function agregarEquipo() {
+        contadorEquipos++;
+        const container = document.getElementById('equipos-container');
+        const div = document.createElement('div');
+        div.className = 'equipo-card';
+        div.id = `equipo_${contadorEquipos}`;
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 class="form-desvio-subtitle">Equipo Frigorífico N° ${contadorEquipos}</h4>
+                <button type="button" onclick="eliminarEquipo(${contadorEquipos})" class="btn-eliminar">✖ Eliminar</button>
+            </div>
+            <div class="form-desvio-grid">
+                <div class="form-desvio-group">
+                    <label class="form-desvio-label">Tipo de equipo:</label>
+                    <select class="form-desvio-control equipo-tipo" data-equipo="${contadorEquipos}">
+                        <option value="Heladera">Heladera</option>
+                        <option value="Freezer">Freezer</option>
+                        <option value="Ultra-freezer">Ultra-freezer</option>
+                        <option value="Termo">Termo/Caja térmica</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-desvio-group">
+                    <label class="form-desvio-label">Marca:</label>
+                    <input type="text" class="form-desvio-control equipo-marca" data-equipo="${contadorEquipos}">
+                </div>
+                <div class="form-desvio-group">
+                    <label class="form-desvio-label">Modelo:</label>
+                    <input type="text" class="form-desvio-control equipo-modelo" data-equipo="${contadorEquipos}">
+                </div>
+            </div>
+            <div class="form-desvio-group">
+                <label class="form-desvio-label">Características:</label>
+                <textarea rows="2" class="form-desvio-control equipo-caract" data-equipo="${contadorEquipos}"></textarea>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    // Función para eliminar equipo
+    function eliminarEquipo(id) {
+        const elemento = document.getElementById(`equipo_${id}`);
+        if (elemento) elemento.remove();
+    }
+
+    // Función para agregar heladera/equipo de temperatura
+    function agregarHeladera() {
+        contadorHeladeras++;
+        const container = document.getElementById('temperaturas-container');
+        const div = document.createElement('div');
+        div.className = 'temperatura-card';
+        div.id = `heladera_${contadorHeladeras}`;
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 class="form-desvio-subtitle">Heladera/Equipo N° ${contadorHeladeras}</h4>
+                <button type="button" onclick="eliminarHeladera(${contadorHeladeras})" class="btn-eliminar">✖ Eliminar</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                <div>
+                    <label class="form-desvio-label">Temp. previa (°C):</label>
+                    <input type="number" step="0.1" class="form-desvio-control temp-previa" data-heladera="${contadorHeladeras}">
+                </div>
+                <div>
+                    <label class="form-desvio-label">Fecha previa:</label>
+                    <input type="date" class="form-desvio-control fecha-previa" data-heladera="${contadorHeladeras}">
+                </div>
+                <div>
+                    <label class="form-desvio-label">Hora previa:</label>
+                    <input type="time" class="form-desvio-control hora-previa" data-heladera="${contadorHeladeras}">
+                </div>
+                <div>
+                    <label class="form-desvio-label">Temp. observada:</label>
+                    <input type="number" step="0.1" class="form-desvio-control temp-observada" data-heladera="${contadorHeladeras}" style="border-color: #ef4444;">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <div>
+                    <label class="form-desvio-label">Fecha del desvío:</label>
+                    <input type="date" class="form-desvio-control fecha-desvio" data-heladera="${contadorHeladeras}">
+                </div>
+                <div>
+                    <label class="form-desvio-label">Hora del desvío:</label>
+                    <input type="time" class="form-desvio-control hora-desvio" data-heladera="${contadorHeladeras}">
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    // Función para eliminar heladera
+    function eliminarHeladera(id) {
+        const elemento = document.getElementById(`heladera_${id}`);
+        if (elemento) elemento.remove();
+    }
+
+    // Función para agregar dosis por equipo
+    function agregarDosisPorEquipo() {
+        contadorDosisPorEquipo++;
+        const container = document.getElementById('dosis-por-equipo-container');
+        const div = document.createElement('div');
+        div.className = 'dosis-por-equipo';
+        div.id = `dosis_equipo_${contadorDosisPorEquipo}`;
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 class="form-desvio-subtitle">Dosis por Equipo N° ${contadorDosisPorEquipo}</h4>
+                <button type="button" onclick="eliminarDosisPorEquipo(${contadorDosisPorEquipo})" class="btn-eliminar">✖ Eliminar</button>
+            </div>
+            <div class="form-desvio-group">
+                <label class="form-desvio-label">Equipo/Heladera:</label>
+                <input type="text" class="form-desvio-control dosis-equipo-nombre" placeholder="Ej: Heladera N°1, Freezer N°2, etc.">
+            </div>
+            <table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px;">
+                <thead>
+                    <tr style="background: #e2e8f0;">
+                        <th style="border: 1px solid #cbd5e1; padding: 6px;">VACUNA</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 6px;">LABORATORIO</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 6px;">LOTE</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 6px;">VENCIMIENTO</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 6px;">CANTIDAD</th>
+                    </tr>
+                </thead>
+                <tbody id="dosis_body_${contadorDosisPorEquipo}">
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
+                        <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
+                        <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
+                        <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="date" class="form-desvio-control" style="padding: 4px;"></td>
+                        <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="number" class="form-desvio-control" style="padding: 4px;"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" onclick="agregarFilaDosis(${contadorDosisPorEquipo})" style="background: #3b82f6; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">+ Agregar fila</button>
+        `;
+        container.appendChild(div);
+    }
+
+    // Función para eliminar dosis por equipo
+    function eliminarDosisPorEquipo(id) {
+        const elemento = document.getElementById(`dosis_equipo_${id}`);
+        if (elemento) elemento.remove();
+    }
+
+    // Función para agregar fila de dosis dentro de un equipo específico
+    function agregarFilaDosis(equipoId) {
+        const tbody = document.getElementById(`dosis_body_${equipoId}`);
         const fila = document.createElement('tr');
         fila.innerHTML = `
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="date" class="form-desvio-control" style="padding: 4px;"></td>
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="number" class="form-desvio-control" style="padding: 4px;"></td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="text" class="form-desvio-control" style="padding: 4px;"></td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="date" class="form-desvio-control" style="padding: 4px;"></td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px;"><input type="number" class="form-desvio-control" style="padding: 4px;"></td>
         `;
         tbody.appendChild(fila);
-        contadorDosis++;
     }
 
     // Función para validar campos obligatorios
@@ -1174,52 +1348,6 @@
         const responsable = document.getElementById('desvio_responsable').value;
         const descripcion = document.getElementById('desvio_descripcion').value;
 
-        if (!establecimiento || !responsable || !descripcion) {
-            alert('⚠️ Complete los campos obligatorios:\n- Establecimiento\n- Responsable\n- Descripción del desvío');
-            return false;
-        }
-        return true;
-    }
-
-    // Función para generar PDF
-    function generarPDFDesvio() {
-        if (!validarFormulario()) return;
-
-        const elemento = document.getElementById('formularioDesvioPDF');
-        const opt = {
-            margin: [15, 15, 15, 15],
-            filename: 'Desvio_Cadena_Frio_' + new Date().toISOString().slice(0,10) + '.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'] }
-        };
-
-        html2pdf().set(opt).from(elemento).save().then(() => {
-            alert('✅ Formulario generado correctamente');
-            cerrarModalDesvio();
-        }).catch(err => {
-            console.error('Error:', err);
-            alert('❌ Error al generar el PDF');
-        });
-    }
-
-    // Cerrar modal al hacer clic fuera
-    window.onclick = function(event) {
-        const modal = document.getElementById('modalDesvio');
-        if (event.target === modal) {
-            cerrarModalDesvio();
-        }
-    };
-
-    // Confirmar cierre si hay datos
-    window.onbeforeunload = function() {
-        if (document.getElementById('modalDesvio').style.display === 'block') {
-            return '¿Está seguro que desea salir? Los datos no guardados se perderán.';
-        }
-    };
-</script>
-
-<!-- FIN DEL AGREGADO -->    
+        if (!establecimiento || !responsable || !descrip
 </body>
 </html>
