@@ -636,7 +636,7 @@
     }
   </script>
 <!-- =========================================== -->
-<!-- AGREGADO: BOTÓN Y FORMULARIO DE DESVÍO MEJORADO -->
+<!-- AGREGADO: BÓTÓN Y FORMULARIO DE DESVÍO MEJORADO -->
 <!-- =========================================== -->
 
 <!-- Librerías necesarias para generar PDF -->
@@ -812,6 +812,7 @@
         padding: 25px;
         box-shadow: 0 4px 10px -2px rgba(0,0,0,0.1);
         border: 1px solid #e2e8f0;
+        page-break-inside: avoid; /* Evita cortes dentro de las secciones */
     }
 
     .form-desvio-title {
@@ -905,6 +906,7 @@
         border-radius: 20px;
         padding: 25px;
         border: 2px solid #fbbf24;
+        page-break-inside: avoid;
     }
 
     .equipo-card, .temperatura-card, .dosis-por-equipo {
@@ -913,6 +915,7 @@
         padding: 20px;
         margin-bottom: 20px;
         border: 1px solid #e2e8f0;
+        page-break-inside: avoid;
     }
 
     /* Estilos para subir archivos */
@@ -949,6 +952,15 @@
         border-radius: 8px;
         font-size: 13px;
         color: #1e293b;
+    }
+
+    .imagen-registro-preview {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 15px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 5px;
     }
 </style>
 
@@ -1110,6 +1122,7 @@
                     </div>
                     <input type="file" id="archivo_registro" accept="image/*,.pdf" style="display: none;" onchange="mostrarNombreArchivo(this)">
                     <div id="info_archivo" class="file-info" style="display: none;"></div>
+                    <div id="preview_imagen" style="display: none;"></div>
                 </div>
             </div>
 
@@ -1282,18 +1295,39 @@
     let contadorEquipos = 0;
     let contadorHeladeras = 0;
     let contadorDosisPorEquipo = 0;
-    let archivoRegistro = null;
+    let imagenBase64 = null;
 
-    // Función para mostrar nombre del archivo seleccionado
+    // Función para mostrar nombre del archivo y convertirlo a base64
     function mostrarNombreArchivo(input) {
         const infoDiv = document.getElementById('info_archivo');
+        const previewDiv = document.getElementById('preview_imagen');
+        
         if (input.files && input.files[0]) {
-            archivoRegistro = input.files[0];
+            const file = input.files[0];
+            
+            // Mostrar información del archivo
             infoDiv.style.display = 'block';
-            infoDiv.innerHTML = `📎 Archivo seleccionado: ${archivoRegistro.name} (${(archivoRegistro.size / 1024).toFixed(2)} KB)`;
+            infoDiv.innerHTML = `📎 Archivo seleccionado: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+            
+            // Convertir a base64 si es imagen
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagenBase64 = e.target.result;
+                    
+                    // Mostrar preview
+                    previewDiv.style.display = 'block';
+                    previewDiv.innerHTML = `<img src="${imagenBase64}" class="imagen-registro-preview" alt="Vista previa">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagenBase64 = null;
+                previewDiv.style.display = 'none';
+            }
         } else {
-            archivoRegistro = null;
+            imagenBase64 = null;
             infoDiv.style.display = 'none';
+            previewDiv.style.display = 'none';
         }
     }
 
@@ -1488,13 +1522,9 @@
     function generarPDFDesvio() {
         if (!validarFormulario()) return;
 
-        // Obtener el elemento a convertir
         const elemento = document.getElementById('contenidoFormulario');
         
-        // Crear una copia clonada para evitar problemas de estilos
-        const clon = elemento.cloneNode(true);
-        
-        // Configuración optimizada
+        // Configuración optimizada para evitar páginas en blanco y cortes
         const opt = {
             margin: [15, 15, 15, 15],
             filename: 'Desvio_Cadena_Frio_' + new Date().toISOString().slice(0,10) + '.pdf',
@@ -1510,7 +1540,8 @@
                 unit: 'mm', 
                 format: 'a4', 
                 orientation: 'portrait' 
-            }
+            },
+            pagebreak: { mode: ['css', 'legacy'] } // Importante para saltos de página
         };
 
         // Mostrar mensaje de espera
@@ -1519,8 +1550,8 @@
         btnDescargar.innerHTML = '⏳ Generando PDF...';
         btnDescargar.disabled = true;
 
-        // Generar PDF
-        html2pdf().set(opt).from(clon).save().then(() => {
+        // Generar PDF directamente desde el elemento, sin clonar
+        html2pdf().set(opt).from(elemento).save().then(() => {
             btnDescargar.innerHTML = textoOriginal;
             btnDescargar.disabled = false;
             alert('✅ Formulario generado correctamente');
