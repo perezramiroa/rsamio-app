@@ -1124,9 +1124,9 @@
         };
 
         const b64_1 = getBase64Image('webLogo1');
-        const b64_2 = getBaseImage('webLogo2');
-        const b64_3 = getBaseImage('webLogo3');
-        const b64_footer = getBaseImage('webFooter');
+        const b64_2 = getBase64Image('webLogo2');
+        const b64_3 = getBase64Image('webLogo3');
+        const b64_footer = getBase64Image('webFooter');
 
         if (b64_1) doc.addImage(b64_1, 'JPEG', margin, yPos, 40, 20);
         if (b64_2) doc.addImage(b64_2, 'JPEG', (pageWidth/2)-20, yPos, 40, 20);
@@ -1196,9 +1196,9 @@
         };
 
         const b64_1 = getBase64Image('webLogo1');
-        const b64_2 = getBaseImage('webLogo2');
-        const b64_3 = getBaseImage('webLogo3');
-        const b64_footer = getBaseImage('webFooter');
+        const b64_2 = getBase64Image('webLogo2');
+        const b64_3 = getBase64Image('webLogo3');
+        const b64_footer = getBase64Image('webFooter');
 
         if (b64_1) doc.addImage(b64_1, 'JPEG', margin, yPos, 40, 20);
         if (b64_2) doc.addImage(b64_2, 'JPEG', (pageWidth/2)-20, yPos, 40, 20);
@@ -1253,18 +1253,294 @@
         dibujarCaratula(doc, margin, pageWidth);
 
         // --- PÁGINAS 2 a N: CONTENIDO DEL FORMULARIO (secciones 1 a 12) ---
-        // (Este es el código que ya teníamos, pero ahora empieza en una página nueva)
         doc.addPage();
         let yPos = 20;
 
-        // ... (A partir de aquí, copiar TODO el contenido de la función anterior 
-        // desde "--- 1. IDENTIFICACIÓN ---" hasta el final, justo antes de doc.save())
-        // Para no alargar el mensaje, te confirmo que aquí iría todo el bloque de generación 
-        // de secciones 1 a 12 que ya funcionaba perfectamente.
-        
-        // [CONTENIDO COMPLETO DE LAS SECCIONES 1 A 12]
-        // (Mismo código que en la respuesta anterior, desde "--- 1. IDENTIFICACIÓN ---" 
-        // hasta justo antes de doc.save())
+        // --- 1. IDENTIFICACIÓN ---
+        const establecimiento = document.getElementById('desvio_establecimiento').value || 'No especificado';
+        const fecha = document.getElementById('desvio_fecha').value || new Date().toLocaleDateString('es-AR');
+        const responsable = document.getElementById('desvio_responsable').value || 'No especificado';
+        const provincia = document.getElementById('desvio_provincia').value || 'Neuquén';
+        const tipoEst = document.getElementById('desvio_tipo_establecimiento').value || 'No especificado';
+        const localidad = document.getElementById('desvio_localidad').value || 'No especificado';
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 56, 77);
+        doc.text('1. IDENTIFICACIÓN DEL DESVÍO', margin, yPos);
+        yPos += 8;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(30, 41, 59);
+        doc.text(`Provincia: ${provincia}`, margin + 5, yPos); yPos += 6;
+        doc.text(`Fecha: ${fecha}`, margin + 5, yPos); yPos += 6;
+        doc.text(`Establecimiento: ${establecimiento}`, margin + 5, yPos); yPos += 6;
+        doc.text(`Tipo: ${tipoEst} - Localidad: ${localidad}`, margin + 5, yPos); yPos += 6;
+        doc.text(`Responsable: ${responsable}`, margin + 5, yPos); yPos += 15;
+
+        // --- 2. EQUIPOS (TABLA) ---
+        const equiposData = [];
+        document.querySelectorAll('.equipo-card').forEach(equipo => {
+            const tipo = equipo.querySelector('.equipo-tipo')?.value || '';
+            const marca = equipo.querySelector('.equipo-marca')?.value || '';
+            const modelo = equipo.querySelector('.equipo-modelo')?.value || '';
+            const caract = equipo.querySelector('.equipo-caract')?.value || '';
+            if (tipo || marca || modelo || caract) {
+                equiposData.push([tipo, marca, modelo, caract]);
+            }
+        });
+
+        if (equiposData.length > 0) {
+            doc.setFont('helvetica', 'bold');
+            doc.text('2. EQUIPOS FRIGORÍFICOS', margin, yPos);
+            yPos += 5;
+            doc.autoTable({
+                startY: yPos,
+                head: [['Tipo', 'Marca', 'Modelo', 'Características']],
+                body: equiposData,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 2 },
+                headStyles: { fillColor: [0, 56, 77], textColor: 255, fontStyle: 'bold' },
+                margin: { left: margin, right: margin },
+                didDrawPage: function(data) { yPos = data.cursor.y + 10; }
+            });
+            yPos = doc.lastAutoTable.finalY + 10;
+        } else {
+            doc.setFont('helvetica', 'normal');
+            doc.text('No se registraron equipos.', margin + 5, yPos);
+            yPos += 10;
+        }
+
+        // --- 3. TEMPERATURAS (TABLA) ---
+        const temperaturasData = [];
+        document.querySelectorAll('.temperatura-card').forEach(heladera => {
+            const tempPrevia = heladera.querySelector('.temp-previa')?.value || '';
+            const fechaPrevia = heladera.querySelector('.fecha-previa')?.value || '';
+            const horaPrevia = heladera.querySelector('.hora-previa')?.value || '';
+            const tempObs = heladera.querySelector('.temp-observada')?.value || '';
+            const fechaDesvio = heladera.querySelector('.fecha-desvio')?.value || '';
+            const horaDesvio = heladera.querySelector('.hora-desvio')?.value || '';
+            if (tempPrevia || tempObs) {
+                temperaturasData.push([`${fechaPrevia} ${horaPrevia}`, `${tempPrevia}°C`, `${fechaDesvio} ${horaDesvio}`, `${tempObs}°C`]);
+            }
+        });
+
+        if (temperaturasData.length > 0) {
+            if (yPos > 250) { doc.addPage(); yPos = 20; }
+            doc.setFont('helvetica', 'bold');
+            doc.text('3. DATOS DE TEMPERATURA', margin, yPos);
+            yPos += 5;
+            doc.autoTable({
+                startY: yPos,
+                head: [['Fecha/Hora Previa', 'Temp. Previa', 'Fecha/Hora Desvío', 'Temp. Observada']],
+                body: temperaturasData,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 2 },
+                headStyles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: 'bold' },
+                margin: { left: margin, right: margin }
+            });
+            yPos = doc.lastAutoTable.finalY + 10;
+        } else {
+            if (yPos > 250) { doc.addPage(); yPos = 20; }
+            doc.setFont('helvetica', 'normal');
+            doc.text('No se registraron datos de temperatura.', margin + 5, yPos);
+            yPos += 10;
+        }
+
+        // --- 4. INSPECCIÓN VISUAL ---
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.text('4. INSPECCIÓN VISUAL', margin, yPos);
+        yPos += 6;
+        doc.setFont('helvetica', 'normal');
+        const visualRadios = document.querySelectorAll('input[name="inspeccion_visual"]');
+        let visualSeleccionado = 'No especificado';
+        visualRadios.forEach(radio => { if (radio.checked) visualSeleccionado = radio.value; });
+        doc.text(`Estado de vacunas: ${visualSeleccionado}`, margin + 5, yPos); yPos += 6;
+
+        const tempAmbiente = document.getElementById('temp_ambiente').value || 'No registrada';
+        doc.text(`Temperatura ambiente: ${tempAmbiente} °C`, margin + 5, yPos); yPos += 15;
+
+        // --- 5. MODALIDAD DE MONITOREO ---
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.text('5. MODALIDAD DE MONITOREO', margin, yPos);
+        yPos += 6;
+        doc.setFont('helvetica', 'normal');
+        const sensorManualMarca = document.getElementById('sensor_manual_marca').value || 'No especificado';
+        const sensorManualModelo = document.getElementById('sensor_manual_modelo').value || 'No especificado';
+        const sensorDigitalMarca = document.getElementById('sensor_digital_marca').value || 'No especificado';
+        const sensorDigitalModelo = document.getElementById('sensor_digital_modelo').value || 'No especificado';
+        doc.text(`Sensor Manual: ${sensorManualMarca} ${sensorManualModelo}`, margin + 5, yPos); yPos += 6;
+        doc.text(`Sensor Digital: ${sensorDigitalMarca} ${sensorDigitalModelo}`, margin + 5, yPos); yPos += 15;
+
+        // --- 6. FRECUENCIA ---
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.text('6. FRECUENCIA DEL MONITOREO', margin, yPos);
+        yPos += 6;
+        doc.setFont('helvetica', 'normal');
+        const frecuencia = document.getElementById('frecuencia_monitoreo').value || 'No especificada';
+        doc.text(`Frecuencia: ${frecuencia}`, margin + 5, yPos); yPos += 15;
+
+        // --- 7. CAUSAS ---
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.text('7. CAUSA DEL DESVÍO', margin, yPos);
+        yPos += 6;
+        doc.setFont('helvetica', 'normal');
+        const causas = [];
+        document.querySelectorAll('input[name="causa"]:checked').forEach(cb => { causas.push(cb.value); });
+        const causaOtro = document.getElementById('causa_otro').value;
+        if (causaOtro) causas.push(`Otro: ${causaOtro}`);
+        if (causas.length > 0) {
+            causas.forEach(c => { doc.text(`• ${c}`, margin + 5, yPos); yPos += 5; });
+        } else {
+            doc.text('No se especificaron causas.', margin + 5, yPos); yPos += 5;
+        }
+        yPos += 5;
+
+        const descripcion = document.getElementById('desvio_descripcion').value || 'No especificada';
+        const descripcionLines = doc.splitTextToSize(`Descripción: ${descripcion}`, pageWidth - 2*margin - 10);
+        doc.text(descripcionLines, margin + 5, yPos);
+        yPos += (descripcionLines.length * 5) + 10;
+
+        // --- 8. ACCIONES TOMADAS ---
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.text('8. ACCIONES TOMADAS', margin, yPos);
+        yPos += 6;
+        doc.setFont('helvetica', 'normal');
+        const acciones = [];
+        document.querySelectorAll('input[name="accion"]:checked').forEach(cb => { acciones.push(cb.value); });
+        const accionOtro = document.getElementById('accion_otro').value;
+        if (accionOtro) acciones.push(`Otro: ${accionOtro}`);
+        const nuevoSitio = document.getElementById('nuevo_sitio').value;
+        if (nuevoSitio) acciones.push(`Nuevo Sitio: ${nuevoSitio}`);
+        const horarioRest = document.getElementById('horario_restablecimiento').value;
+        if (horarioRest) acciones.push(`Horario Restablecimiento: ${horarioRest}`);
+
+        if (acciones.length > 0) {
+            acciones.forEach(a => { doc.text(`• ${a}`, margin + 5, yPos); yPos += 5; });
+        } else {
+            doc.text('No se especificaron acciones.', margin + 5, yPos); yPos += 5;
+        }
+        yPos += 5;
+        const observaciones = document.getElementById('desvio_observaciones').value;
+        if (observaciones) {
+            const obsLines = doc.splitTextToSize(`Observaciones: ${observaciones}`, pageWidth - 2*margin - 10);
+            doc.text(obsLines, margin + 5, yPos);
+            yPos += (obsLines.length * 5) + 5;
+        }
+        yPos += 5;
+
+        // --- 9. ACCIONES CORRECTIVAS ---
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.text('9. ACCIONES CORRECTIVAS/PREVENTIVAS', margin, yPos);
+        yPos += 6;
+        doc.setFont('helvetica', 'normal');
+        const correctivas = [];
+        document.querySelectorAll('input[name="correctiva"]:checked').forEach(cb => { correctivas.push(cb.value); });
+        if (correctivas.length > 0) {
+            correctivas.forEach(c => { doc.text(`• ${c}`, margin + 5, yPos); yPos += 5; });
+        } else {
+            doc.text('No se especificaron acciones.', margin + 5, yPos); yPos += 5;
+        }
+        yPos += 5;
+        const obsCorrectivas = document.getElementById('correctivas_observaciones').value;
+        if (obsCorrectivas) {
+            const obsCorrLines = doc.splitTextToSize(`Observaciones: ${obsCorrectivas}`, pageWidth - 2*margin - 10);
+            doc.text(obsCorrLines, margin + 5, yPos);
+            yPos += (obsCorrLines.length * 5) + 5;
+        }
+        yPos += 5;
+
+        // --- 10. DOSIS AFECTADAS (TABLA) ---
+        const dosisData = [];
+        document.querySelectorAll('[id^="dosis_equipo_"]').forEach(equipo => {
+            const nombreEquipo = equipo.querySelector('.dosis-equipo-nombre')?.value || 'Sin especificar';
+            equipo.querySelectorAll('tbody tr').forEach(row => {
+                const celdas = row.querySelectorAll('input');
+                if (celdas.length >= 5) {
+                    const vacuna = celdas[0]?.value || '';
+                    const lab = celdas[1]?.value || '';
+                    const lote = celdas[2]?.value || '';
+                    const venc = celdas[3]?.value || '';
+                    const cant = celdas[4]?.value || '';
+                    if (vacuna || lab || lote || venc || cant) {
+                        dosisData.push([nombreEquipo, vacuna, lab, lote, venc, cant]);
+                    }
+                }
+            });
+        });
+
+        if (dosisData.length > 0) {
+            if (yPos > 250) { doc.addPage(); yPos = 20; }
+            doc.setFont('helvetica', 'bold');
+            doc.text('10. DOSIS AFECTADAS POR EQUIPO', margin, yPos);
+            yPos += 5;
+            doc.autoTable({
+                startY: yPos,
+                head: [['Equipo', 'Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Cantidad']],
+                body: dosisData,
+                theme: 'grid',
+                styles: { fontSize: 7, cellPadding: 1.5 },
+                headStyles: { fillColor: [5, 150, 105], textColor: 255, fontStyle: 'bold' },
+                margin: { left: margin, right: margin }
+            });
+            yPos = doc.lastAutoTable.finalY + 10;
+        } else {
+            if (yPos > 250) { doc.addPage(); yPos = 20; }
+            doc.setFont('helvetica', 'normal');
+            doc.text('No se registraron dosis afectadas.', margin + 5, yPos);
+            yPos += 10;
+        }
+
+        // --- 11. FIRMA ---
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.text('11. COMPLETÓ EL FORMULARIO', margin, yPos);
+        yPos += 8;
+        doc.setFont('helvetica', 'normal');
+        const firmaNombre = document.getElementById('firma_nombre').value || '_________________';
+        const firmaCargo = document.getElementById('firma_cargo').value || '_________________';
+        doc.text(`Nombre: ${firmaNombre}`, margin + 5, yPos); yPos += 6;
+        doc.text(`Cargo: ${firmaCargo}`, margin + 5, yPos); yPos += 6;
+        doc.text(`Fecha: ${new Date().toLocaleDateString('es-AR')}`, margin + 5, yPos); yPos += 15;
+
+        // --- 12. DICEI ---
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(146, 64, 14);
+        doc.text('12. A COMPLETAR POR LA DICEI', margin, yPos);
+        yPos += 10;
+        doc.setTextColor(30, 41, 59);
+
+        const diceiCnv = document.getElementById('dicei_cnv').value || 'No especificado';
+        const diceiRecomCnv = document.getElementById('dicei_recom_cnv').value || 'No especificado';
+        const diceiFechaCnv = document.getElementById('dicei_fecha_cnv').value || 'No especificada';
+        const diceiFirmaCnv = document.getElementById('dicei_firma_cnv').value || 'No especificada';
+
+        const diceiCovid = document.getElementById('dicei_covid').value || 'No especificado';
+        const diceiRecomCovid = document.getElementById('dicei_recom_covid').value || 'No especificado';
+        const diceiFechaCovid = document.getElementById('dicei_fecha_covid').value || 'No especificada';
+        const diceiFirmaCovid = document.getElementById('dicei_firma_covid').value || 'No especificada';
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Desvío CNV:', margin + 5, yPos); yPos += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.text(`N°: ${diceiCnv}`, margin + 10, yPos); yPos += 5;
+        doc.text(`Recomendaciones: ${diceiRecomCnv}`, margin + 10, yPos); yPos += 5;
+        doc.text(`Fecha: ${diceiFechaCnv} - Firma: ${diceiFirmaCnv}`, margin + 10, yPos); yPos += 10;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Desvío COVID:', margin + 5, yPos); yPos += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.text(`N°: ${diceiCovid}`, margin + 10, yPos); yPos += 5;
+        doc.text(`Recomendaciones: ${diceiRecomCovid}`, margin + 10, yPos); yPos += 5;
+        doc.text(`Fecha: ${diceiFechaCovid} - Firma: ${diceiFirmaCovid}`, margin + 10, yPos); yPos += 10;
 
         // --- PÁGINA FINAL: CONTRACARÁTULA ---
         dibujarContraCaratula(doc, margin, pageWidth);
