@@ -1560,6 +1560,31 @@
         
         // Crear una copia clonada para evitar problemas de estilos
         const clon = elemento.cloneNode(true);
+
+        // TRUCO PARA CANVAS: html2pdf a veces no captura bien los canvas dinámicos.
+        // Reemplazamos el canvas por una imagen estática en el clon.
+        const originalCanvas = document.getElementById('chart-temperatura-desvio');
+        const container = document.getElementById('chart-temperatura-desvio-container');
+        
+        if (originalCanvas && chartTemperaturaDesvio && container.classList.contains('visible')) {
+            const imgData = originalCanvas.toDataURL('image/png');
+            const imgElement = document.createElement('img');
+            imgElement.src = imgData;
+            imgElement.style.width = '100%';
+            imgElement.style.height = 'auto';
+            imgElement.style.display = 'block';
+            
+            // Buscar el contenedor y el canvas en el clon
+            const clonedContainer = clon.querySelector('#chart-temperatura-desvio-container');
+            const clonedCanvas = clon.querySelector('#chart-temperatura-desvio');
+            
+            if (clonedContainer) {
+                clonedContainer.style.display = 'block'; // Asegurar visibilidad en el clon
+                if (clonedCanvas) {
+                    clonedCanvas.parentNode.replaceChild(imgElement, clonedCanvas);
+                }
+            }
+        }
         
         // Configuración optimizada
         const opt = {
@@ -1570,7 +1595,7 @@
                 scale: 2, 
                 useCORS: true, 
                 logging: false,
-                allowTaint: false,
+                allowTaint: true, // Permitir taint para capturar el canvas convertido
                 backgroundColor: '#ffffff'
             },
             jsPDF: { 
