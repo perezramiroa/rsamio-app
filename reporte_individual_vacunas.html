@@ -188,6 +188,52 @@
       .logo-bar { flex-direction: column; gap: 10px; height: auto; }
       .logo-item { width: 100%; }
     }
+
+    /* ESTILOS PARA PDF - Evitar cortes de página */
+    @media print {
+      .form-desvio-section {
+        page-break-inside: avoid;
+        orphans: 3;
+        widows: 3;
+      }
+      .equipo-card, .temperatura-card, .dosis-por-equipo {
+        page-break-inside: avoid;
+      }
+    }
+
+    /* Estilos para la gráfica de temperatura en punto 6 */
+    #chart-temperatura-desvio-container {
+        display: none;
+        margin-top: 20px;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+    }
+
+    #chart-temperatura-desvio-container.visible {
+        display: block;
+    }
+
+    #chart-temperatura-desvio {
+        height: 300px;
+        width: 100%;
+    }
+
+    .chart-loading {
+        text-align: center;
+        padding: 20px;
+        color: #64748b;
+    }
+
+    .chart-error {
+        text-align: center;
+        padding: 20px;
+        color: #ef4444;
+        background: #fee2e2;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -812,6 +858,7 @@
         padding: 25px;
         box-shadow: 0 4px 10px -2px rgba(0,0,0,0.1);
         border: 1px solid #e2e8f0;
+        page-break-inside: avoid;
     }
 
     .form-desvio-title {
@@ -905,6 +952,7 @@
         border-radius: 20px;
         padding: 25px;
         border: 2px solid #fbbf24;
+        page-break-inside: avoid;
     }
 
     .equipo-card, .temperatura-card, .dosis-por-equipo {
@@ -913,6 +961,7 @@
         padding: 20px;
         margin-bottom: 20px;
         border: 1px solid #e2e8f0;
+        page-break-inside: avoid;
     }
 
     /* Estilos para subir archivos */
@@ -1092,9 +1141,18 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 6: FRECUENCIA DEL MONITOREO -->
+            <!-- SECCIÓN 6: GRÁFICA DE TEMPERATURA DEL DESVÍO -->
             <div class="form-desvio-section">
-                <h3 class="form-desvio-title">6. FRECUENCIA DEL MONITOREO</h3>
+                <h3 class="form-desvio-title">6. GRÁFICA DE TEMPERATURA DEL DESVÍO</h3>
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">La gráfica se mostrará automáticamente cuando complete la fecha del desvío en la sección 3</p>
+                
+                <div id="chart-temperatura-desvio-container">
+                    <div class="chart-loading" id="chart-loading-msg" style="display: none;">
+                        ⏳ Cargando gráfica de temperatura...
+                    </div>
+                    <canvas id="chart-temperatura-desvio"></canvas>
+                    <div class="chart-error" id="chart-error-msg" style="display: none;"></div>
+                </div>
                 
                 <div class="form-desvio-group">
                     <label class="form-desvio-label">Frecuencia del monitoreo:</label>
@@ -1283,6 +1341,12 @@
     let contadorHeladeras = 0;
     let contadorDosisPorEquipo = 0;
     let archivoRegistro = null;
+    let chartTemperaturaDesvio = null;
+    
+    // Configuración de ThingSpeak (obtener desde el contexto global si está disponible)
+    let THINGSPEAK_ID = null;
+    let THINGSPEAK_KEY = null;
+    let THINGSPEAK_FIELD = null;
 
     // Función para mostrar nombre del archivo seleccionado
     function mostrarNombreArchivo(input) {
@@ -1306,6 +1370,9 @@
         // Agregar primer equipo por defecto si no hay ninguno
         if (contadorEquipos === 0) agregarEquipo();
         if (contadorHeladeras === 0) agregarHeladera();
+        
+        // Configurar detector de cambios en fecha del desvío
+        configurarDetectorFechaDesvio();
     }
 
     // Función para cerrar el modal
@@ -1533,6 +1600,156 @@
         });
     }
 
+    // Detectar cambios en la fecha del desvío y cargar gráfica
+    function configurarDetectorFechaDesvio() {
+        // Usar MutationObserver para detectar cuando se agregan nuevas heladeras
+        const observer = new MutationObserver(() => {
+            const inputsFechaDesvio = document.querySelectorAll('.fecha-desvio');
+            inputsFechaDesvio.forEach(input => {
+                if (!input.dataset.listenerConfigured) {
+                    input.addEventListener('change', manejarCambioFechaDesvio);
+                    input.dataset.listenerConfigured = 'true';
+                }
+            });
+        });
+        
+        const container = document.getElementById('temperaturas-container');
+        if (container) {
+            observer.observe(container, { childList: true, subtree: true });
+        }
+    }
+    
+    function manejarCambioFechaDesvio(event) {
+        const fechaDesvio = event.target.value;
+        if (fechaDesvio) {
+            cargarGraficaTemperaturaDesvio(fechaDesvio);
+        }
+    }
+    
+    async function cargarGraficaTemperaturaDesvio(fecha) {
+        const container = document.getElementById('chart-temperatura-desvio-container');
+        const loadingMsg = document.getElementById('chart-loading-msg');
+        const errorMsg = document.getElementById('chart-error-msg');
+        
+        // Mostrar estado de carga
+        container.classList.add('visible');
+        loadingMsg.style.display = 'block';
+        errorMsg.style.display = 'none';
+        
+        try {
+            // Obtener ID y KEY del contexto global (si está disponible)
+            if (!THINGSPEAK_ID) {
+                // Intentar obtener del contexto global del script
+                if (typeof ID !== 'undefined') THINGSPEAK_ID = ID;
+                if (typeof KEY !== 'undefined') THINGSPEAK_KEY = KEY;
+                if (typeof FIELD !== 'undefined') THINGSPEAK_FIELD = FIELD;
+            }
+            
+            if (!THINGSPEAK_ID || !THINGSPEAK_KEY || !THINGSPEAK_FIELD) {
+                throw new Error('No hay datos de configuración de ThingSpeak disponibles');
+            }
+            
+            // Construir URL para obtener datos de la fecha especificada
+            const url = `https://api.thingspeak.com/channels/${THINGSPEAK_ID}/feeds.json?api_key=${THINGSPEAK_KEY}&start=${fecha}T00:00:00Z&end=${fecha}T23:59:59Z`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (!data.feeds || data.feeds.length === 0) {
+                throw new Error(`No hay datos de temperatura disponibles para la fecha ${fecha}`);
+            }
+            
+            // Procesar datos
+            const feeds = data.feeds.filter(f => parseFloat(f[`field${THINGSPEAK_FIELD}`]) !== -127);
+            
+            if (feeds.length === 0) {
+                throw new Error('No hay lecturas válidas para esta fecha');
+            }
+            
+            // Formatear datos para la gráfica
+            const labels = feeds.map(f => {
+                const date = new Date(f.created_at);
+                return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            });
+            
+            const values = feeds.map(f => parseFloat(f[`field${THINGSPEAK_FIELD}`]));
+            
+            // Dibujar gráfica
+            dibujarGraficaTemperaturaDesvio(labels, values, fecha);
+            
+            loadingMsg.style.display = 'none';
+        } catch (error) {
+            console.error('Error al cargar gráfica:', error);
+            loadingMsg.style.display = 'none';
+            errorMsg.style.display = 'block';
+            errorMsg.textContent = `⚠️ Error: ${error.message}`;
+        }
+    }
+    
+    function dibujarGraficaTemperaturaDesvio(labels, values, fecha) {
+        const canvas = document.getElementById('chart-temperatura-desvio');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Destruir gráfica anterior si existe
+        if (chartTemperaturaDesvio) {
+            chartTemperaturaDesvio.destroy();
+        }
+        
+        // Crear nueva gráfica
+        chartTemperaturaDesvio = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `Temperatura - ${fecha}`,
+                    data: values,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#ef4444',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: `Variación de Temperatura - Fecha del Desvío: ${fecha}`
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Temperatura (°C)'
+                        },
+                        min: 0,
+                        max: 15
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Hora del día'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
     // Cerrar modal al hacer clic fuera
     window.onclick = function(event) {
         const modal = document.getElementById('modalDesvio');
