@@ -1103,7 +1103,7 @@
         return true;
     }
 
-    // Función profesional para generar PDF del formulario de desvío
+    // Función profesional para generar PDF del formulario de desvío (CORREGIDA)
     function generarPDFDesvioProfesional() {
         if (!validarFormulario()) return;
 
@@ -1381,76 +1381,80 @@
         doc.text(`Fecha: ${new Date().toLocaleDateString('es-AR')}`, margin + 5, yPos); yPos += 15;
 
         // ============================================================
-        // 12. A COMPLETAR POR LA DICEI (NUEVA HOJA, CAMPOS MÁS GRANDES)
+        // 12. A COMPLETAR POR LA DICEI (DISEÑO OPTIMIZADO)
         // ============================================================
-        doc.addPage(); // <--- FORZAR NUEVA HOJA
-        yPos = 20;     // Reiniciar posición Y
+        if (yPos > 230) { doc.addPage(); yPos = 20; }
 
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(146, 64, 14);
         doc.text('12. A COMPLETAR POR LA DICEI', margin, yPos);
-        yPos += 15;
+        yPos += 12;
         doc.setFontSize(10);
         doc.setTextColor(30, 41, 59);
 
         const col1X = margin;
         const col2X = margin + fieldWidth + 10;
 
-        // --- Columna 1: CNV ---
+        // --- Columna 1: CNV (AJUSTADA) ---
         doc.setFont('helvetica', 'bold');
         doc.text('N° de desvío CNV', col1X, yPos);
         yPos += 5;
         doc.setFont('helvetica', 'normal');
         doc.roundedRect(col1X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
-        yPos += 15; // Aumenté espacio después del campo
+        yPos += 12; // Espacio reducido
 
         doc.setFont('helvetica', 'bold');
         doc.text('Recomendaciones:', col1X, yPos);
         yPos += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 40, 1, 1, 'S'); // MÁS ESPACIO (40mm)
-        yPos += 50; // Aumenté espacio después de recomendaciones
+        doc.roundedRect(col1X, yPos, fieldWidth - 5, 30, 1, 1, 'S'); // 30mm de altura (más espacio)
+        yPos += 35; // Espacio después de recomendaciones
 
         doc.setFont('helvetica', 'bold');
         doc.text('Fecha:', col1X, yPos);
         yPos += 5;
         doc.setFont('helvetica', 'normal');
         doc.roundedRect(col1X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
-        yPos += 15;
+        yPos += 12;
 
         doc.setFont('helvetica', 'bold');
         doc.text('Firma (Nombre y cargo):', col1X, yPos);
         yPos += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 15, 1, 1, 'S'); // MÁS ESPACIO (15mm)
-        yPos += 25;
+        doc.roundedRect(col1X, yPos, fieldWidth - 5, 12, 1, 1, 'S'); // 12mm de altura (ampliado)
+        yPos += 17;
 
-        // Reiniciar yPos para la segunda columna (alinear con el inicio de la columna 1)
-        // Volvemos a la altura inicial de la columna 1 (antes de CNV)
-        let tempY = 20 + 15; // Altura del título + separación
-        const col2StartY = tempY;
+        // Reiniciar yPos para segunda columna (debe coincidir con el inicio de la primera)
+        let col2Y = yPos - (12 + 35 + 12 + 17); // Volver al inicio de la columna 2
 
-        // --- Columna 2: COVID ---
+        // --- Columna 2: COVID (AJUSTADA) ---
         doc.setFont('helvetica', 'bold');
-        doc.text('N° de desvío COVID', col2X, col2StartY);
+        doc.text('N° de desvío COVID', col2X, col2Y);
+        col2Y += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2StartY + 5, fieldWidth - 5, 8, 1, 1, 'S');
-
-        doc.setFont('helvetica', 'bold');
-        doc.text('Recomendaciones:', col2X, col2StartY + 20);
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2StartY + 25, fieldWidth - 5, 40, 1, 1, 'S');
+        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 8, 1, 1, 'S');
+        col2Y += 12;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Fecha:', col2X, col2StartY + 80);
+        doc.text('Recomendaciones:', col2X, col2Y);
+        col2Y += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2StartY + 85, fieldWidth - 5, 8, 1, 1, 'S');
+        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 30, 1, 1, 'S'); // 30mm de altura
+        col2Y += 35;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Firma (Nombre y cargo):', col2X, col2StartY + 100);
+        doc.text('Fecha:', col2X, col2Y);
+        col2Y += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2StartY + 105, fieldWidth - 5, 15, 1, 1, 'S');
+        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 8, 1, 1, 'S');
+        col2Y += 12;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Firma (Nombre y cargo):', col2X, col2Y);
+        col2Y += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 12, 1, 1, 'S'); // 12mm de altura
 
         // Guardar PDF
         doc.save(`Desvio_Profesional_${new Date().toISOString().slice(0,10)}.pdf`);
