@@ -998,11 +998,13 @@
     let chartInstance = null;
     let currentFeeds = [];
 
+    // Almacenamiento temporal de observaciones
+    let observacionesAlmacenadas = {};
+
     // ============================================================
     // FUNCIONES PARA TRAZABILIDAD
     // ============================================================
     function generarCodigoUnico(prefijo = 'IT') {
-        // Obtener fecha actual
         const ahora = new Date();
         const año = ahora.getFullYear();
         const mes = String(ahora.getMonth() + 1).padStart(2, '0');
@@ -1011,11 +1013,9 @@
         const minuto = String(ahora.getMinutes()).padStart(2, '0');
         const segundo = String(ahora.getSeconds()).padStart(2, '0');
         
-        // Obtener identificador del sensor
         const sensorId = document.getElementById('sensorName')?.innerText?.replace(/[^a-zA-Z0-9]/g, '') || 'SENSOR';
         const sensorShort = sensorId.substring(0, 8).toUpperCase();
         
-        // Generar hash corto (4 caracteres aleatorios)
         const randomHash = Math.random().toString(36).substring(2, 6).toUpperCase();
         
         return `${prefijo}-${año}${mes}${dia}-${hora}${minuto}${segundo}-${sensorShort}-${randomHash}`;
@@ -1032,11 +1032,11 @@
     }
 
     // ============================================================
-    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES
+    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES (SIN EMOJIS)
     // ============================================================
     function generarAnalisisEventos(eventos) {
         if (!eventos || eventos.length === 0) {
-            return "✅ No se registraron desvíos significativos en el período analizado.";
+            return "No se registraron desvíos significativos en el período analizado.";
         }
         
         let totalDuracion = 0;
@@ -1054,32 +1054,31 @@
         });
         
         if (totalDuracion < 30) {
-            return "📊 Se detectaron eventos breves sin impacto crítico en la cadena de frío.";
+            return "Se detectaron eventos breves sin impacto crítico en la cadena de frío.";
         } else if (totalDuracion < 120) {
-            return "⚠️ Se registraron desvíos de moderada duración que requieren seguimiento.";
+            return "Se registraron desvíos de moderada duración que requieren seguimiento.";
         } else {
-            return "🔴 Se registraron desvíos prolongados que requieren evaluación técnica inmediata.";
+            return "Se registraron desvíos prolongados que requieren evaluación técnica inmediata.";
         }
     }
 
     function generarRecomendaciones(eventos) {
         const recomendaciones = [
-            "• Verificar el cierre hermético de puertas y burletes.",
-            "• Controlar la calibración del sensor de temperatura.",
-            "• Documentar todas las aperturas programadas del equipo.",
-            "• Evaluar la necesidad de respaldo eléctrico (grupo electrógeno).",
-            "• Aplicar protocolo establecido ante corte prolongado de energía."
+            "Verificar el cierre hermético de puertas y burletes.",
+            "Controlar la calibración del sensor de temperatura.",
+            "Documentar todas las aperturas programadas del equipo.",
+            "Evaluar la necesidad de respaldo eléctrico (grupo electrógeno).",
+            "Aplicar protocolo establecido ante corte prolongado de energía."
         ];
         
-        let texto = "📋 Recomendaciones técnicas:\n\n";
+        let texto = "RECOMENDACIONES:\n\n";
         texto += recomendaciones.join('\n');
         
-        // Agregar recomendación específica si hay cortes eléctricos
         const tieneCortesElectricos = eventos.some(e => e.tipo && e.tipo.includes('Energía'));
         if (tieneCortesElectricos) {
-            texto += "\n\n🔧 Dado que se detectaron cortes de energía con impacto térmico, se recomienda:\n";
-            texto += "• Instalar sistema de monitoreo con respaldo de batería.\n";
-            texto += "• Revisar el estado del estabilizador de tensión.";
+            texto += "\n\nDado que se detectaron cortes de energía con impacto térmico, se recomienda:\n";
+            texto += "- Instalar sistema de monitoreo con respaldo de batería.\n";
+            texto += "- Revisar el estado del estabilizador de tensión.";
         }
         
         return texto;
@@ -1139,17 +1138,14 @@
                 return;
             }
             
-            // Actualizar campos de trazabilidad
             const codigoUnico = generarCodigoUnico('PDCF');
             document.getElementById('codigoUnicoDisplay').innerText = codigoUnico;
             document.getElementById('fechaEmisionDisplay').innerText = new Date().toLocaleDateString('es-AR');
             document.getElementById('fechaEventoDisplay').innerText = new Date(fechaDesvioSeleccionada).toLocaleDateString('es-AR');
             document.getElementById('sensorDisplay').innerText = document.getElementById('sensorName')?.innerText || 'No especificado';
             
-            // Configurar fecha en el formulario
             document.getElementById('desvio_fecha').value = fechaDesvioSeleccionada;
             
-            // Abrir el modal del formulario
             abrirModalDesvio();
             
         } catch (e) {
@@ -1391,7 +1387,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: titulo || `Monitoreo de Temperatura`
+                        text: titulo || 'Monitoreo de Temperatura'
                     },
                     legend: { display: false }
                 },
@@ -1439,7 +1435,7 @@
                 doc.setFontSize(16);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(0, 56, 77);
-                doc.text('CARÁTULA', 105, 150, { align: 'center' });
+                doc.text('CARATULA', 105, 150, { align: 'center' });
                 doc.setFontSize(10);
                 doc.setTextColor(100);
                 doc.text(codigoUnico, 105, 160, { align: 'center' });
@@ -1448,7 +1444,7 @@
             doc.setFontSize(16);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
-            doc.text('CARÁTULA', 105, 150, { align: 'center' });
+            doc.text('CARATULA', 105, 150, { align: 'center' });
             doc.setFontSize(10);
             doc.setTextColor(100);
             doc.text(codigoUnico, 105, 160, { align: 'center' });
@@ -1467,11 +1463,11 @@
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 56, 77);
-        doc.text(`CÓDIGO ÚNICO: ${codigoUnico}`, margin, yPos);
+        doc.text(`CODIGO UNICO: ${codigoUnico}`, margin, yPos);
         yPos += 5;
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100);
-        doc.text(`Emisión: ${fechaEmision} | Evento: ${fechaEvento} | Vigencia: 30 días`, margin, yPos);
+        doc.text(`Emision: ${fechaEmision} | Evento: ${fechaEvento} | Vigencia: 30 dias`, margin, yPos);
         yPos += 5;
         doc.text(`Establecimiento: ${establecimiento} | Sensor: ${sensorInfo}`, margin, yPos);
         yPos += 5;
@@ -1485,24 +1481,24 @@
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 56, 77);
-        doc.text('FORMULARIO DE DESVÍOS DE CADENA DE FRÍO', margin, yPos);
+        doc.text('FORMULARIO DE DESVIOS DE CADENA DE FRIO', margin, yPos);
         yPos += 8;
 
         doc.setFontSize(10);
         doc.setTextColor(100);
-        doc.text('FO 03 - Coordinación de Logística - DICEI', margin, yPos);
+        doc.text('FO 03 - Coordinacion de Logistica - DICEI', margin, yPos);
         yPos += 15;
 
         // --- 1. IDENTIFICACIÓN ---
         const fecha = document.getElementById('desvio_fecha').value || new Date().toLocaleDateString('es-AR');
-        const provincia = document.getElementById('desvio_provincia').value || 'Neuquén';
+        const provincia = document.getElementById('desvio_provincia').value || 'Neuquen';
         const tipoEst = document.getElementById('desvio_tipo_establecimiento').value || 'No especificado';
         const localidad = document.getElementById('desvio_localidad').value || 'No especificado';
 
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 56, 77);
-        doc.text('1. IDENTIFICACIÓN DEL DESVÍO', margin, yPos);
+        doc.text('1. IDENTIFICACION DEL DESVIO', margin, yPos);
         yPos += 8;
 
         doc.setFontSize(10);
@@ -1521,7 +1517,7 @@
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
             doc.setTextColor(0, 56, 77);
-            doc.text('GRÁFICA DE TEMPERATURA DEL DÍA', margin, yPos);
+            doc.text('GRAFICA DE TEMPERATURA DEL DIA', margin, yPos);
             yPos += 5;
             
             const tempCanvas = generarGraficaTemporal('graficaDesvioTemp', datosDesvioFecha, FIELD, 
@@ -1553,11 +1549,11 @@
         if (equiposData.length > 0) {
             if (yPos > 250) { doc.addPage(); yPos = 20; }
             doc.setFont('helvetica', 'bold');
-            doc.text('2. EQUIPOS FRIGORÍFICOS', margin, yPos);
+            doc.text('2. EQUIPOS FRIGORIFICOS', margin, yPos);
             yPos += 5;
             doc.autoTable({
                 startY: yPos,
-                head: [['Tipo', 'Marca', 'Modelo', 'Características']],
+                head: [['Tipo', 'Marca', 'Modelo', 'Caracteristicas']],
                 body: equiposData,
                 theme: 'grid',
                 styles: { fontSize: 8, cellPadding: 2 },
@@ -1594,7 +1590,7 @@
             yPos += 5;
             doc.autoTable({
                 startY: yPos,
-                head: [['Fecha/Hora Previa', 'Temp. Previa', 'Fecha/Hora Desvío', 'Temp. Observada']],
+                head: [['Fecha/Hora Previa', 'Temp. Previa', 'Fecha/Hora Desvio', 'Temp. Observada']],
                 body: temperaturasData,
                 theme: 'grid',
                 styles: { fontSize: 8, cellPadding: 2 },
@@ -1612,7 +1608,7 @@
         // --- 4. INSPECCIÓN VISUAL ---
         if (yPos > 250) { doc.addPage(); yPos = 20; }
         doc.setFont('helvetica', 'bold');
-        doc.text('4. INSPECCIÓN VISUAL', margin, yPos);
+        doc.text('4. INSPECCION VISUAL', margin, yPos);
         yPos += 6;
         doc.setFont('helvetica', 'normal');
         const visualRadios = document.querySelectorAll('input[name="inspeccion_visual"]');
@@ -1642,11 +1638,11 @@
         doc.text('6. FRECUENCIA DEL MONITOREO', margin, yPos);
         yPos += 6;
         doc.setFont('helvetica', 'normal');
-        doc.text('La frecuencia de monitoreo es automática cada 1 minuto mediante sistema digital continuo.', margin + 5, yPos);
+        doc.text('La frecuencia de monitoreo es automatica cada 1 minuto mediante sistema digital continuo.', margin + 5, yPos);
         yPos += 6;
         doc.setFontSize(8);
         doc.setTextColor(100);
-        doc.text('(Registro automático del sistema - no editable)', margin + 5, yPos);
+        doc.text('(Registro automatico del sistema - no editable)', margin + 5, yPos);
         yPos += 10;
         doc.setTextColor(30, 41, 59);
         doc.setFontSize(10);
@@ -1654,7 +1650,7 @@
         // --- 7. CAUSAS ---
         if (yPos > 250) { doc.addPage(); yPos = 20; }
         doc.setFont('helvetica', 'bold');
-        doc.text('7. CAUSA DEL DESVÍO', margin, yPos);
+        doc.text('7. CAUSA DEL DESVIO', margin, yPos);
         yPos += 6;
         doc.setFont('helvetica', 'normal');
         const causas = [];
@@ -1669,7 +1665,7 @@
         yPos += 5;
 
         const descripcion = document.getElementById('desvio_descripcion').value || 'No especificada';
-        const descripcionLines = doc.splitTextToSize(`Descripción: ${descripcion}`, pageWidth - 2*margin - 10);
+        const descripcionLines = doc.splitTextToSize(`Descripcion: ${descripcion}`, pageWidth - 2*margin - 10);
         doc.text(descripcionLines, margin + 5, yPos);
         yPos += (descripcionLines.length * 5) + 10;
 
@@ -1768,7 +1764,7 @@
         // --- 11. FIRMA ---
         if (yPos > 250) { doc.addPage(); yPos = 20; }
         doc.setFont('helvetica', 'bold');
-        doc.text('11. COMPLETÓ EL FORMULARIO', margin, yPos);
+        doc.text('11. COMPLETO EL FORMULARIO', margin, yPos);
         yPos += 8;
         doc.setFont('helvetica', 'normal');
         const firmaNombre = document.getElementById('firma_nombre').value || '_________________';
@@ -1793,7 +1789,7 @@
 
         // --- Columna 1: CNV ---
         doc.setFont('helvetica', 'bold');
-        doc.text('N° de desvío CNV', col1X, yPos);
+        doc.text('N° de desvio CNV', col1X, yPos);
         yPos += 5;
         doc.setFont('helvetica', 'normal');
         doc.roundedRect(col1X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
@@ -1824,7 +1820,7 @@
 
         // --- Columna 2: COVID ---
         doc.setFont('helvetica', 'bold');
-        doc.text('N° de desvío COVID', col2X, col2Y);
+        doc.text('N° de desvio COVID', col2X, col2Y);
         col2Y += 5;
         doc.setFont('helvetica', 'normal');
         doc.roundedRect(col2X, col2Y, fieldWidth - 5, 8, 1, 1, 'S');
@@ -1860,11 +1856,11 @@
             try {
                 doc.addImage(contracaratulaRuta, 'JPEG', 0, 0, 210, 297);
             } catch (e) {
-                console.warn("Error al cargar contracarátula, se usa página en blanco:", e);
+                console.warn("Error al cargar contracaratula, se usa pagina en blanco:", e);
                 doc.setFontSize(16);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(0, 56, 77);
-                doc.text('CONTRACARÁTULA', 105, 150, { align: 'center' });
+                doc.text('CONTRACARATULA', 105, 150, { align: 'center' });
                 doc.setFontSize(10);
                 doc.setTextColor(100);
                 doc.text(codigoUnico, 105, 160, { align: 'center' });
@@ -1873,7 +1869,7 @@
             doc.setFontSize(16);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
-            doc.text('CONTRACARÁTULA', 105, 150, { align: 'center' });
+            doc.text('CONTRACARATULA', 105, 150, { align: 'center' });
             doc.setFontSize(10);
             doc.setTextColor(100);
             doc.text(codigoUnico, 105, 160, { align: 'center' });
@@ -1887,6 +1883,13 @@
     }
 
     // ============================================================
+    // FUNCIÓN PARA GUARDAR OBSERVACIONES
+    // ============================================================
+    function guardarObservacion(input, id) {
+        observacionesAlmacenadas[id] = input.value;
+    }
+
+    // ============================================================
     // FUNCIONES DEL INFORME TÉCNICO (MODIFICADAS)
     // ============================================================
     function fillAlerts(feeds, field) {
@@ -1895,8 +1898,9 @@
         let startTime = null;
         let rows = '';
         let eventos = [];
+        let index = 0;
         
-        feeds.forEach((f, index) => {
+        feeds.forEach((f, i) => {
             const val = parseFloat(f[field]);
             if (isNaN(val)) return;
             const state = (val > MAX) ? 'high' : (val < MIN) ? 'low' : 'normal';
@@ -1904,13 +1908,14 @@
             if (state !== lastState) {
                 if (state !== 'normal') {
                     startTime = f.created_at;
-                    const label = state === 'high' ? '🔥 Alta (riesgo de pérdida)' : '❄️ Baja (riesgo de congelación)';
+                    const label = state === 'high' ? 'Alta (riesgo de perdida)' : 'Baja (riesgo de congelacion)';
                     rows += `<tr class="row-alert" data-index="${index}">`;
                     rows += `<td>${formatDateTime(f.created_at)}</td>`;
                     rows += `<td>${val.toFixed(1)}</td>`;
                     rows += `<td>${label}</td>`;
                     rows += `<td>--</td>`;
-                    rows += `<td><input type="text" class="observacion-input" placeholder="Ej: Mantenimiento..." onchange="guardarObservacion(this, 'alerta_${index}')"></td>`;
+                    // OBSERVACIÓN: Solo visible en recuperación, no en alerta
+                    rows += `<td></td>`;
                     rows += `</tr>`;
                 } else if (startTime) {
                     const dur = (new Date(f.created_at) - new Date(startTime)) / 60000;
@@ -1918,9 +1923,12 @@
                         rows += `<tr data-index="${index}">`;
                         rows += `<td>${formatDateTime(f.created_at)}</td>`;
                         rows += `<td>${val.toFixed(1)}</td>`;
-                        rows += `<td>✅ Recuperación</td>`;
+                        rows += `<td>Recuperacion</td>`;
                         rows += `<td>${formatDurationFull(dur)}</td>`;
-                        rows += `<td><input type="text" class="observacion-input" placeholder="Ej: Normalizado..." onchange="guardarObservacion(this, 'recuperacion_${index}')"></td>`;
+                        // OBSERVACIÓN: Solo en recuperación
+                        const obsId = `recuperacion_${i}`;
+                        const valorGuardado = observacionesAlmacenadas[obsId] || '';
+                        rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Normalizado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
                         rows += `</tr>`;
                         
                         eventos.push({
@@ -1931,21 +1939,21 @@
                     }
                 }
                 lastState = state;
+                index++;
             }
         });
         
-        tbody.innerHTML = rows || '<tr><td colspan="5" class="empty">✅ Sin eventos fuera de rango.</td></tr>';
+        tbody.innerHTML = rows || '<tr><td colspan="5" class="empty">Sin eventos fuera de rango.</td></tr>';
         
-        // Generar análisis y recomendaciones
         const analisisDiv = document.getElementById('analisisAlertas');
         const recomDiv = document.getElementById('recomendacionesAlertas');
         
         if (eventos.length === 0) {
-            analisisDiv.innerHTML = '<strong>📊 Análisis:</strong> No se registraron desvíos significativos en el período analizado.';
-            recomDiv.innerHTML = '<strong>📋 Recomendaciones:</strong> Continuar con el monitoreo habitual y mantener registros actualizados.';
+            analisisDiv.innerHTML = '<strong>ANALISIS:</strong> No se registraron desvios significativos en el periodo analizado.';
+            recomDiv.innerHTML = '<strong>RECOMENDACIONES:</strong> Continuar con el monitoreo habitual y mantener registros actualizados.';
         } else {
-            analisisDiv.innerHTML = `<strong>📊 Análisis:</strong> ${generarAnalisisEventos(eventos)}`;
-            recomDiv.innerHTML = `<strong>📋 Recomendaciones:</strong><br>${generarRecomendaciones(eventos)}`;
+            analisisDiv.innerHTML = `<strong>ANALISIS:</strong> ${generarAnalisisEventos(eventos)}`;
+            recomDiv.innerHTML = `<strong>RECOMENDACIONES:</strong><br>${generarRecomendaciones(eventos).replace(/\n/g, '<br>')}`;
         }
     }
 
@@ -1962,13 +1970,12 @@
                 const fueraRangoAntes = tempAntes > MAX || tempAntes < MIN;
                 const fueraRangoDespues = tempDespues > MAX || tempDespues < MIN;
                 
-                // Calcular impacto térmico
                 const impactoTermico = Math.abs(tempDespues - tempAntes);
                 const hayImpactoSignificativo = impactoTermico > 3.0 && (fueraRangoAntes || fueraRangoDespues);
                 
-                let tipoCorte = '📶 Corte de WiFi';
+                let tipoCorte = 'Corte de WiFi';
                 if (hayImpactoSignificativo) {
-                    tipoCorte = '⚡ Corte de Energía (con impacto térmico)';
+                    tipoCorte = 'Corte de Energia (con impacto termico)';
                 }
                 
                 rows += `<tr data-index="${i}">`;
@@ -1978,7 +1985,10 @@
                 rows += `<td>${feeds[i-1][field]}°C</td>`;
                 rows += `<td>${feeds[i][field]}°C</td>`;
                 rows += `<td>${formatDurationFull(diff)}</td>`;
-                rows += `<td><input type="text" class="observacion-input" placeholder="Ej: Corte programado..." onchange="guardarObservacion(this, 'evento_${i}')"></td>`;
+                // OBSERVACIÓN: Para eventos de conectividad
+                const obsId = `evento_${i}`;
+                const valorGuardado = observacionesAlmacenadas[obsId] || '';
+                rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Corte programado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
                 rows += `</tr>`;
                 
                 eventos.push({
@@ -1990,29 +2000,22 @@
             }
         }
         
-        tbody.innerHTML = rows || '<tr><td colspan="7" class="empty">✅ Sin interrupciones >30 min.</td></tr>';
+        tbody.innerHTML = rows || '<tr><td colspan="7" class="empty">Sin interrupciones >30 min.</td></tr>';
         
-        // Generar análisis y recomendaciones
         const analisisDiv = document.getElementById('analisisEventos');
         const recomDiv = document.getElementById('recomendacionesEventos');
         
         if (eventos.length === 0) {
-            analisisDiv.innerHTML = '<strong>📊 Análisis:</strong> No se detectaron interrupciones significativas en la conectividad.';
-            recomDiv.innerHTML = '<strong>📋 Recomendaciones:</strong> Verificar periódicamente el estado de la red y conexiones.';
+            analisisDiv.innerHTML = '<strong>ANALISIS:</strong> No se detectaron interrupciones significativas en la conectividad.';
+            recomDiv.innerHTML = '<strong>RECOMENDACIONES:</strong> Verificar periodicamente el estado de la red y conexiones.';
         } else {
-            analisisDiv.innerHTML = `<strong>📊 Análisis:</strong> ${generarAnalisisEventos(eventos)}`;
-            recomDiv.innerHTML = `<strong>📋 Recomendaciones:</strong><br>${generarRecomendaciones(eventos)}`;
+            analisisDiv.innerHTML = `<strong>ANALISIS:</strong> ${generarAnalisisEventos(eventos)}`;
+            recomDiv.innerHTML = `<strong>RECOMENDACIONES:</strong><br>${generarRecomendaciones(eventos).replace(/\n/g, '<br>')}`;
         }
     }
 
-    // Función para guardar observaciones (se puede implementar localStorage si es necesario)
-    function guardarObservacion(input, id) {
-        console.log(`Observación guardada para ${id}: ${input.value}`);
-        // Aquí se podría implementar almacenamiento temporal
-    }
-
     // ============================================================
-    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO
+    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO (CORREGIDA)
     // ============================================================
     async function generarInformeTecnico() {
         try {
@@ -2020,6 +2023,7 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
+            const marginBottom = 30; // Espacio para footer
 
             // Generar código único para informe técnico
             const codigoUnico = generarCodigoUnico('IT');
@@ -2075,15 +2079,15 @@
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
-            doc.text(`CÓDIGO ÚNICO: ${codigoUnico}`, margin, yPos);
+            doc.text(`CODIGO UNICO: ${codigoUnico}`, margin, yPos);
             yPos += 5;
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100);
-            doc.text(`Emisión: ${fechaEmision} | Vigencia: 30 días`, margin, yPos);
+            doc.text(`Emision: ${fechaEmision} | Vigencia: 30 dias`, margin, yPos);
             yPos += 5;
-            doc.text(`Dispositivo: ${sensorName} | Ubicación: ${teamName}`, margin, yPos);
+            doc.text(`Dispositivo: ${sensorName} | Ubicacion: ${teamName}`, margin, yPos);
             yPos += 5;
-            doc.text(`Versión: IT-01 v2.1 | Documento autogenerado por sistema digital de monitoreo continuo`, margin, yPos);
+            doc.text(`Version: IT-01 v2.1 | Documento autogenerado por sistema digital de monitoreo continuo`, margin, yPos);
             yPos += 10;
 
             doc.setDrawColor(0, 56, 77);
@@ -2106,15 +2110,28 @@
             doc.text("Segun Ley 27.491 y Manual de Almacenamiento de Vacunas (DiCEI)", margin, yPos);
             yPos += 12;
 
+            // Verificar espacio para gráfica
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            
             const canvas = document.getElementById('chart');
             if (canvas) {
                 const imgData = canvas.toDataURL('image/png');
                 const imgWidth = pageWidth - 2 * margin;
                 const imgHeight = (imgWidth * canvas.height) / canvas.width;
+                
+                // Verificar si la gráfica entra en la página actual
+                if (yPos + imgHeight + 10 > 272 - marginBottom) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
                 doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
                 yPos += imgHeight + 10;
             }
 
+            // ============================================================
+            // TABLA DE ALERTAS Y RECUPERACIONES
+            // ============================================================
             if (yPos > 250) { doc.addPage(); yPos = 45; }
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
@@ -2123,20 +2140,35 @@
             yPos += 10;
 
             const alertRows = [];
-            const alertStyles = {};
+            const alertObs = [];
             document.querySelectorAll('#alertTable tbody tr').forEach((tr, idx) => {
-                const cells = Array.from(tr.cells).map(td => cleanTextForPDF(td.innerText));
+                const cells = Array.from(tr.cells).map(td => {
+                    // Limpiar emojis y caracteres especiales
+                    return td.innerText.replace(/[^\x20-\x7EáéíóúÁÉÍÓÚñÑ]/g, '').trim();
+                });
                 if (cells.length >= 4 && !cells[0].toLowerCase().includes('sin eventos')) {
-                    alertRows.push(cells.slice(0, 4)); // Solo datos, sin observaciones
-                    if (tr.classList.contains('row-alert')) {
-                        alertStyles[idx] = { textColor: [239, 68, 68] };
-                    } else if (cells[2].toLowerCase().includes('recuperacion')) {
-                        alertStyles[idx] = { textColor: [16, 185, 129] };
+                    // Solo tomar las primeras 4 columnas (sin observaciones para la tabla principal)
+                    alertRows.push(cells.slice(0, 4));
+                    
+                    // Capturar observación si existe (solo en recuperación)
+                    const obsInput = tr.querySelector('input');
+                    if (obsInput && cells[2].toLowerCase().includes('recuperacion')) {
+                        alertObs.push({
+                            fecha: cells[0],
+                            observacion: obsInput.value || ''
+                        });
                     }
                 }
             });
 
             if (alertRows.length > 0) {
+                // Verificar espacio para la tabla
+                const tableHeight = alertRows.length * 8 + 20;
+                if (yPos + tableHeight > 272 - marginBottom) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
                 doc.autoTable({
                     startY: yPos,
                     head: [['Fecha y Hora', 'Valor', 'Estado', 'Duracion']],
@@ -2144,11 +2176,9 @@
                     theme: 'grid',
                     styles: { fontSize: 9, cellPadding: 2 },
                     headStyles: { fillColor: [241, 245, 249], textColor: [30, 41, 59], fontStyle: 'bold' },
-                    margin: { top: 40, bottom: 30, left: margin, right: margin },
-                    didParseCell: function(data) {
-                        if (data.section === 'body' && alertStyles[data.row.index]) {
-                            data.cell.styles.textColor = alertStyles[data.row.index].textColor;
-                        }
+                    margin: { left: margin, right: margin },
+                    didDrawPage: function(data) {
+                        yPos = data.cursor.y + 10;
                     }
                 });
                 yPos = doc.lastAutoTable.finalY + 10;
@@ -2159,41 +2189,92 @@
                 yPos += 8;
             }
 
+            // Agregar observaciones de recuperación si existen
+            if (alertObs.length > 0) {
+                if (yPos > 250) { doc.addPage(); yPos = 45; }
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 56, 77);
+                doc.text('OBSERVACIONES DE RECUPERACION:', margin, yPos);
+                yPos += 6;
+                
+                alertObs.forEach(obs => {
+                    if (obs.observacion) {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(30, 41, 59);
+                        const obsLine = `${obs.fecha}: ${obs.observacion}`;
+                        const splitObs = doc.splitTextToSize(obsLine, pageWidth - 2*margin - 10);
+                        doc.text(splitObs, margin + 5, yPos);
+                        yPos += splitObs.length * 5 + 2;
+                    }
+                });
+                yPos += 10;
+            }
+
             // Agregar análisis y recomendaciones de alertas al PDF
-            const analisisAlertas = document.getElementById('analisisAlertas').innerText || 'Sin análisis disponible.';
+            const analisisAlertas = document.getElementById('analisisAlertas').innerText || 'Sin analisis disponible.';
             const recomAlertas = document.getElementById('recomendacionesAlertas').innerText || 'Sin recomendaciones.';
             
-            if (yPos > 230) { doc.addPage(); yPos = 20; }
+            if (yPos > 230) { doc.addPage(); yPos = 45; }
             doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('ANALISIS DE EVENTOS:', margin, yPos);
+            yPos += 6;
+            
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const analisisLines = doc.splitTextToSize(analisisAlertas, pageWidth - 2*margin);
-            doc.text(analisisLines, margin, yPos);
-            yPos += (analisisLines.length * 5) + 5;
+            const analisisLines = doc.splitTextToSize(analisisAlertas.replace('ANALISIS:', '').trim(), pageWidth - 2*margin - 10);
+            doc.text(analisisLines, margin + 5, yPos);
+            yPos += (analisisLines.length * 5) + 10;
             
-            const recomLines = doc.splitTextToSize(recomAlertas, pageWidth - 2*margin);
-            doc.text(recomLines, margin, yPos);
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('RECOMENDACIONES:', margin, yPos);
+            yPos += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(30, 41, 59);
+            const recomLines = doc.splitTextToSize(recomAlertas.replace('RECOMENDACIONES:', '').trim(), pageWidth - 2*margin - 10);
+            doc.text(recomLines, margin + 5, yPos);
             yPos += (recomLines.length * 5) + 15;
 
-            if (yPos > 250) { doc.addPage(); yPos = 20; }
+            // ============================================================
+            // TABLA DE EVENTOS DETECTADOS
+            // ============================================================
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('Eventos detectados (>30 min sin datos)', margin, yPos);
             yPos += 10;
 
             const wifiRows = [];
-            const wifiStyles = {};
+            const wifiObs = [];
             document.querySelectorAll('#wifiTable tbody tr').forEach((tr, idx) => {
-                const cells = Array.from(tr.cells).map(td => cleanTextForPDF(td.innerText));
+                const cells = Array.from(tr.cells).map(td => {
+                    return td.innerText.replace(/[^\x20-\x7EáéíóúÁÉÍÓÚñÑ]/g, '').trim();
+                });
                 if (cells.length >= 6 && !cells[0].toLowerCase().includes('sin interrupciones')) {
-                    wifiRows.push(cells.slice(0, 6)); // Solo datos, sin observaciones
-                    if (cells[2].toLowerCase().includes('energía')) {
-                        wifiStyles[idx] = { textColor: [220, 38, 38] };
+                    wifiRows.push(cells.slice(0, 6));
+                    
+                    const obsInput = tr.querySelector('input');
+                    if (obsInput) {
+                        wifiObs.push({
+                            fecha: cells[0],
+                            observacion: obsInput.value || ''
+                        });
                     }
                 }
             });
 
             if (wifiRows.length > 0) {
+                const tableHeight = wifiRows.length * 8 + 20;
+                if (yPos + tableHeight > 272 - marginBottom) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
                 doc.autoTable({
                     startY: yPos,
                     head: [['Inicio', 'Fin', 'Tipo de Corte', 'Temp. Antes', 'Temp. Despues', 'Duracion']],
@@ -2201,11 +2282,9 @@
                     theme: 'grid',
                     styles: { fontSize: 8, cellPadding: 2 },
                     headStyles: { fillColor: [241, 245, 249], textColor: [30, 41, 59], fontStyle: 'bold' },
-                    margin: { top: 40, bottom: 30, left: margin, right: margin },
-                    didParseCell: function(data) {
-                        if (data.section === 'body' && wifiStyles[data.row.index]) {
-                            data.cell.styles.textColor = wifiStyles[data.row.index].textColor;
-                        }
+                    margin: { left: margin, right: margin },
+                    didDrawPage: function(data) {
+                        yPos = data.cursor.y + 10;
                     }
                 });
                 yPos = doc.lastAutoTable.finalY + 10;
@@ -2216,20 +2295,54 @@
                 yPos += 8;
             }
 
+            // Agregar observaciones de eventos
+            if (wifiObs.length > 0) {
+                if (yPos > 250) { doc.addPage(); yPos = 45; }
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 56, 77);
+                doc.text('OBSERVACIONES DE EVENTOS:', margin, yPos);
+                yPos += 6;
+                
+                wifiObs.forEach(obs => {
+                    if (obs.observacion) {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(30, 41, 59);
+                        const obsLine = `${obs.fecha}: ${obs.observacion}`;
+                        const splitObs = doc.splitTextToSize(obsLine, pageWidth - 2*margin - 10);
+                        doc.text(splitObs, margin + 5, yPos);
+                        yPos += splitObs.length * 5 + 2;
+                    }
+                });
+                yPos += 10;
+            }
+
             // Agregar análisis y recomendaciones de eventos al PDF
-            const analisisEventos = document.getElementById('analisisEventos').innerText || 'Sin análisis disponible.';
+            const analisisEventos = document.getElementById('analisisEventos').innerText || 'Sin analisis disponible.';
             const recomEventos = document.getElementById('recomendacionesEventos').innerText || 'Sin recomendaciones.';
             
-            if (yPos > 230) { doc.addPage(); yPos = 20; }
-            doc.setFontSize(10);
+            if (yPos > 230) { doc.addPage(); yPos = 45; }
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('ANALISIS DE CONECTIVIDAD:', margin, yPos);
+            yPos += 6;
+            
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const analisisEventosLines = doc.splitTextToSize(analisisEventos, pageWidth - 2*margin);
-            doc.text(analisisEventosLines, margin, yPos);
-            yPos += (analisisEventosLines.length * 5) + 5;
+            const analisisEventosLines = doc.splitTextToSize(analisisEventos.replace('ANALISIS:', '').trim(), pageWidth - 2*margin - 10);
+            doc.text(analisisEventosLines, margin + 5, yPos);
+            yPos += (analisisEventosLines.length * 5) + 10;
             
-            const recomEventosLines = doc.splitTextToSize(recomEventos, pageWidth - 2*margin);
-            doc.text(recomEventosLines, margin, yPos);
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('RECOMENDACIONES DE CONECTIVIDAD:', margin, yPos);
+            yPos += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(30, 41, 59);
+            const recomEventosLines = doc.splitTextToSize(recomEventos.replace('RECOMENDACIONES:', '').trim(), pageWidth - 2*margin - 10);
+            doc.text(recomEventosLines, margin + 5, yPos);
             yPos += (recomEventosLines.length * 5) + 15;
 
             drawHeaderFooter(doc);
@@ -2246,7 +2359,7 @@
     // ============================================================
     window.onload = () => {
         if (!ID || !KEY) {
-            document.getElementById('status').innerText = "Error: Faltan parámetros ID o KEY.";
+            document.getElementById('status').innerText = "Error: Faltan parametros ID o KEY.";
             return;
         }
         document.getElementById('issueDate').innerText = new Date().toLocaleDateString('es-AR');
@@ -2257,11 +2370,8 @@
 
     function cleanTextForPDF(text) {
         if (!text) return "";
-        return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}]/gu, '')
-                   .replace(/[💉💊⚠️❄️🔥✅⚡📶📡🛠️ℹ️📥←]/gu, '')
-                   .replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u')
-                   .replace(/Á/g, 'A').replace(/É/g, 'E').replace(/Í/g, 'I').replace(/Ó/g, 'O').replace(/Ú/g, 'U')
-                   .replace(/ñ/g, 'n').replace(/Ñ/g, 'N')
+        return text.replace(/[^\x20-\x7EáéíóúÁÉÍÓÚñÑ]/g, '')
+                   .replace(/[⚠️❄️🔥✅⚡📶📡]/g, '')
                    .trim();
     }
 
@@ -2321,7 +2431,7 @@
             }
             document.getElementById('sensorName').innerText = data.channel[FIELD] || "Sensor";
             const teamNameEl = document.getElementById('teamName');
-            teamNameEl.innerHTML = `Vacunas 💉: ${data.channel.name || "Sin nombre"}`;
+            teamNameEl.innerHTML = `Vacunas: ${data.channel.name || "Sin nombre"}`;
             teamNameEl.className = "tag vacunas-tag";
             
             currentFeeds = data.feeds.filter(f => parseFloat(f[FIELD]) !== -127);
@@ -2395,7 +2505,7 @@
     window.onbeforeunload = function() {
         if (document.getElementById('modalDesvio').style.display === 'block' || 
             document.getElementById('modalFechaDesvio').style.display === 'block') {
-            return '¿Está seguro que desea salir? Los datos no guardados se perderán.';
+            return '¿Esta seguro que desea salir? Los datos no guardados se perderan.';
         }
     };
   </script>
