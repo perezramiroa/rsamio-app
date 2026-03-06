@@ -1,2295 +1,1125 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RSAMIO - Informe de Inmunización Zona 1</title>
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#00384d">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="/css/pwa-styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --fg: #1e293b;
-      --primary: #3b82f6;
-      --success: #10b981;
-      --danger: #ef4444;
-      --border: #e2e8f0;
-      --header-bg: #00384d;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background-color: var(--bg);
-      color: var(--fg);
-      padding: 20px;
-      line-height: 1.5;
-    }
-    .header {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .logo-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      margin-bottom: 16px;
-      padding: 0 10px;
-    }
-    .logo-item {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 150px;
-    }
-    .logo-item img {
-      max-height: 100%;
-      max-width: 100%;
-      object-fit: contain;
-      margin: 0 5px;
-    }
-    .container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      padding: 24px;
-      border-left: 5px solid var(--success);
-      margin-bottom: 24px;
-    }
-    h1, h2, h3 {
-      margin: 0 0 16px 0;
-      color: var(--fg);
-    }
-    h1 {
-      font-size: 1.8rem;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    .tag {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .vacunas-tag { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-    .controls {
-      margin: 16px 0 24px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .btn-day {
-      padding: 6px 14px;
-      background: #e2e8f0;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .btn-day.active {
-      background: var(--primary);
-      color: white;
-    }
-    #downloadBtn, #backBtn, #reportarDesvioBtn {
-      padding: 6px 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    #downloadBtn {
-      background: var(--success);
-      color: white;
-    }
-    #backBtn {
-      background: #64748b;
-      color: white;
-    }
-    #reportarDesvioBtn {
-        background: #dc2626;
-        color: white;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-    #downloadBtn:hover { background: #059669; }
-    #backBtn:hover { background: #475569; }
-    #reportarDesvioBtn:hover { background: #b91c1c; }
-    .chart-container {
-      height: 360px;
-      margin: 20px 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 16px;
-      font-size: 0.9rem;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    th {
-      background: #f1f5f9;
-      font-weight: 600;
-    }
-    .row-alert {
-      background: #fff1f2;
-      color: var(--danger);
-    }
-    .empty {
-      text-align: center;
-      color: #94a3b8;
-      padding: 20px;
-    }
-    .loading {
-      text-align: center;
-      padding: 40px;
-    }
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #e2e8f0;
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 16px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .section {
-      margin-top: 32px;
-    }
-    .error-msg {
-      color: var(--danger);
-      background: #fee2e2;
-      padding: 12px;
-      border-radius: 8px;
-      margin: 16px 0;
-    }
-    .metadata-bar {
-      background: #f8fafc;
-      border-left: 4px solid #0ea5e9;
-      padding: 12px;
-      margin: 16px 0;
-      font-size: 0.95rem;
-      color: #1e293b;
-    }
-    
-    /* Estilos para análisis y recomendaciones */
-    .analisis-section, .recomendaciones-section {
-      margin-top: 15px;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-    .analisis-section {
-      background: #f8fafc;
-      border-left: 4px solid #3b82f6;
-    }
-    .recomendaciones-section {
-      background: #f0f9ff;
-      border-left: 4px solid #0ea5e9;
-    }
-    .analisis-section strong, .recomendaciones-section strong {
-      color: #0f172a;
-      display: block;
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-    .recomendaciones-section ul {
-      margin: 8px 0 0 20px;
-      color: #1e293b;
-    }
-    .recomendaciones-section li {
-      margin-bottom: 4px;
-    }
-
-    @media (max-width: 600px) {
-      .header { flex-direction: column; }
-      .logo-bar { flex-direction: column; gap: 10px; height: auto; }
-      .logo-item { width: 100%; }
-      .controls { flex-direction: column; align-items: stretch; }
-    }
-
-    /* Estilos para el modal */
-    .modal-desvio {
-        display: none;
-        position: fixed;
-        z-index: 10000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.6);
-        backdrop-filter: blur(5px);
-    }
-
-    .modal-desvio-content {
-        background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
-        margin: 2% auto;
-        padding: 0;
-        border-radius: 24px;
-        width: 95%;
-        max-width: 1200px;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-        max-height: 95vh;
-        overflow-y: auto;
-        border: 1px solid rgba(255,255,255,0.3);
-    }
-
-    .modal-desvio-header {
-        background: linear-gradient(135deg, #00384d 0%, #002835 100%);
-        color: white;
-        padding: 20px 25px;
-        border-radius: 24px 24px 0 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-
-    .modal-desvio-header h2 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 600;
-    }
-
-    .modal-desvio-close {
-        background: rgba(255,255,255,0.2);
-        border: none;
-        color: white;
-        font-size: 32px;
-        cursor: pointer;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s;
-    }
-
-    .modal-desvio-close:hover {
-        background: rgba(255,255,255,0.3);
-        transform: rotate(90deg);
-    }
-
-    .modal-desvio-body {
-        padding: 30px;
-        background: #f8fafc;
-    }
-
-    .modal-desvio-footer {
-        padding: 20px 30px;
-        border-top: 2px solid #e2e8f0;
-        display: flex;
-        justify-content: flex-end;
-        gap: 16px;
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border-radius: 0 0 24px 24px;
-        position: sticky;
-        bottom: 0;
-        z-index: 10;
-    }
-
-    .btn-desvio {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        color: white;
-        border: none;
-        padding: 14px 28px;
-        border-radius: 50px;
-        cursor: pointer;
-        font-weight: 700;
-        font-size: 16px;
-        margin: 20px 0;
-        box-shadow: 0 10px 15px -3px rgba(220,38,38,0.3);
-        transition: all 0.3s;
-        border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .btn-desvio:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 25px -5px rgba(220,38,38,0.4);
-    }
-
-    .btn-desvio-secondary {
-        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-        color: white;
-        border: none;
-        padding: 14px 28px;
-        border-radius: 50px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 15px;
-        box-shadow: 0 4px 6px -1px rgba(100,116,139,0.3);
-    }
-
-    .btn-desvio-primary {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        color: white;
-        border: none;
-        padding: 14px 28px;
-        border-radius: 50px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 15px;
-        box-shadow: 0 4px 6px -1px rgba(5,150,105,0.3);
-    }
-
-    .btn-agregar {
-        background: #3b82f6;
-        color: white;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        margin: 10px 0;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .btn-agregar:hover {
-        background: #2563eb;
-    }
-
-    .btn-eliminar {
-        background: #ef4444;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 12px;
-    }
-
-    .btn-eliminar:hover {
-        background: #dc2626;
-    }
-
-    /* Estilos del formulario */
-    .form-desvio-section {
-        margin-bottom: 30px;
-        background: white;
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 4px 10px -2px rgba(0,0,0,0.1);
-        border: 1px solid #e2e8f0;
-    }
-
-    .form-desvio-title {
-        margin: 0 0 20px 0;
-        color: #00384d;
-        font-size: 20px;
-        font-weight: 700;
-        border-left: 6px solid #3b82f6;
-        padding-left: 16px;
-    }
-
-    .form-desvio-subtitle {
-        margin: 20px 0 15px 0;
-        color: #1e40af;
-        font-size: 18px;
-        font-weight: 600;
-        border-bottom: 1px dashed #cbd5e1;
-        padding-bottom: 8px;
-    }
-
-    .form-desvio-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .form-desvio-group {
-        margin-bottom: 20px;
-    }
-
-    .form-desvio-label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 8px;
-        font-size: 14px;
-        color: #1e293b;
-    }
-
-    .form-desvio-control {
-        width: 100%;
-        padding: 10px 14px;
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        font-size: 14px;
-        transition: all 0.2s;
-    }
-
-    .form-desvio-control:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-    }
-
-    .form-desvio-checkbox-group, .form-desvio-radio-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 12px;
-        background: #f8fafc;
-        padding: 20px;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
-    }
-
-    .form-desvio-checkbox-label, .form-desvio-radio-label {
-        display: flex;
-        align-items: center;
-        padding: 8px 12px;
-        background: white;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        cursor: pointer;
-        font-size: 14px;
-        transition: all 0.2s;
-    }
-
-    .form-desvio-checkbox-label:hover, .form-desvio-radio-label:hover {
-        background: #f1f5f9;
-        border-color: #94a3b8;
-    }
-
-    .form-desvio-checkbox-label input, .form-desvio-radio-label input {
-        margin-right: 10px;
-        accent-color: #3b82f6;
-        width: 18px;
-        height: 18px;
-    }
-
-    .form-desvio-dicei {
-        background: #fffbeb;
-        border-radius: 20px;
-        padding: 25px;
-        border: 2px solid #fbbf24;
-    }
-
-    .equipo-card, .temperatura-card, .dosis-por-equipo {
-        background: #f8fafc;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 20px;
-        border: 1px solid #e2e8f0;
-    }
-
-    /* Estilos para subir archivos */
-    .file-upload-area {
-        border: 2px dashed #cbd5e1;
-        border-radius: 12px;
-        padding: 25px;
-        text-align: center;
-        background: #f8fafc;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .file-upload-area:hover {
-        border-color: #3b82f6;
-        background: #eff6ff;
-    }
-
-    .file-upload-area i {
-        font-size: 40px;
-        color: #94a3b8;
-        margin-bottom: 10px;
-    }
-
-    .file-upload-area p {
-        color: #475569;
-        margin: 5px 0;
-    }
-
-    .file-info {
-        margin-top: 10px;
-        padding: 8px 12px;
-        background: #e2e8f0;
-        border-radius: 8px;
-        font-size: 13px;
-        color: #1e293b;
-    }
-
-    /* Estilo para el selector de fecha en el modal */
-    .fecha-desvio-obligatorio {
-        border: 2px solid var(--danger) !important;
-        background: #fff1f2;
-    }
-    .fecha-desvio-obligatorio:focus {
-        outline: none;
-        border-color: var(--danger) !important;
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-    }
-
-    /* Estilos para observaciones */
-    .observacion-input {
-        width: 200px;
-        padding: 4px 8px;
-        border: 1px solid #cbd5e1;
-        border-radius: 4px;
-        font-size: 12px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Monitor Dataloggers – Inmunización Zona 1</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#00384d">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="/css/pwa-styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+--bg: #f8fafc;
+--fg: #1e293b;
+--primary: #3b82f6;
+--success: #10b981;
+--danger: #ef4444;
+--border: #e2e8f0;
+--card-bg: #ffffff;
+--green-border: #10b981;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+font-family: 'Segoe UI', system-ui, sans-serif;
+background-color: var(--bg);
+color: var(--fg);
+padding: 20px;
+line-height: 1.5;
+}
+.header {
+background: var(--card-bg);
+padding: 20px;
+border-radius: 12px;
+margin-bottom: 24px;
+box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+align-items: center;
+justify-content: space-between;
+}
+.logo-bar {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 20px;
+flex-wrap: wrap;
+}
+.logo-item {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 80px;
+}
+.logo-item img {
+max-height: 100%;
+max-width: 100%;
+object-fit: contain;
+margin: 0 5px;
+}
+.title-section {
+text-align: center;
+margin: 0 20px;
+}
+.title-section h1 {
+font-size: 1.6rem;
+font-weight: 600;
+color: var(--fg);
+margin: 0;
+}
+.title-section p {
+font-size: 0.9rem;
+color: #64748b;
+margin: 4px 0 0;
+}
+.controls {
+display: flex;
+gap: 12px;
+align-items: center;
+margin-top: 12px;
+}
+.btn-normativa {
+padding: 8px 16px;
+background: #64748b;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-weight: 600;
+}
+.btn-normativa:hover {
+background: #475569;
+}
+.btn-estadistica {
+padding: 8px 16px;
+background: #8b5cf6;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-weight: 600;
+}
+.btn-estadistica:hover {
+background: #7c3aed;
+}
+.device-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 16px;
+margin-top: 16px;
+}
+.device-card {
+background: var(--card-bg);
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+border-left: 5px solid var(--green-border);
+transition: transform 0.2s, box-shadow 0.2s;
+position: relative;
+}
+.device-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.device-card.alert {
+border-left-color: var(--danger);
+}
+.device-card.power-outage {
+border: 2px solid var(--danger);
+animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+.device-header {
+padding: 16px;
+background: #f8fafc;
+font-weight: 600;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.device-name {
+font-size: 1.1rem;
+font-weight: 600;
+color: var(--fg);
+}
+.type-badge {
+margin-left: 8px;
+font-size: 0.75rem;
+padding: 2px 8px;
+border-radius: 20px;
+font-weight: 600;
+display: inline-flex;
+align-items: center;
+gap: 4px;
+}
+.vacunas { background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.sensor-cards {
+display: flex;
+gap: 12px;
+padding: 16px;
+background: #f1f5f9;
+border-top: 1px solid var(--border);
+flex-wrap: wrap;
+}
+.sensor-card {
+background: white;
+border-radius: 10px;
+padding: 16px;
+text-align: center;
+box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+border: 1px solid var(--border);
+flex: 1;
+min-width: 120px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all 0.2s;
+}
+.sensor-card:hover {
+transform: scale(1.03);
+}
+.sensor-card.danger {
+border-color: var(--danger);
+}
+.sensor-card .label {
+font-size: 0.9rem;
+color: #64748b;
+margin-bottom: 8px;
+text-align: center;
+font-weight: 600;
+}
+.sensor-card .value {
+font-size: 1.8rem;
+font-weight: 700;
+color: var(--fg);
+margin-bottom: 12px;
+}
+.sensor-card .value.danger {
+color: var(--danger);
+}
+.sensor-card .btn-hist {
+padding: 8px 16px;
+background: var(--primary);
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-size: 0.85rem;
+font-weight: 600;
+width: 100%;
+}
+.sensor-card .btn-hist:hover {
+background: #2563eb;
+}
+.panel-estadisticas {
+background: white;
+border-radius: 16px;
+padding: 24px;
+margin-bottom: 24px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+border-left: 5px solid #8b5cf6;
+}
+.panel-estadisticas h2 {
+color: #4c1d95;
+margin-bottom: 20px;
+font-size: 1.5rem;
+}
+.estadisticas-opciones {
+display: flex;
+gap: 30px;
+justify-content: center;
+margin: 30px 0;
+flex-wrap: wrap;
+}
+.opcion-card {
+background: linear-gradient(145deg, #ffffff, #f5f3ff);
+border: 2px solid #e0e7ff;
+border-radius: 16px;
+padding: 30px;
+width: 280px;
+text-align: center;
+cursor: pointer;
+transition: all 0.3s;
+}
+.opcion-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2);
+border-color: #8b5cf6;
+}
+.opcion-icono {
+font-size: 48px;
+margin-bottom: 15px;
+}
+.opcion-titulo {
+font-size: 1.4rem;
+font-weight: 700;
+color: #4c1d95;
+margin-bottom: 10px;
+}
+.opcion-descripcion {
+color: #6b7280;
+font-size: 0.9rem;
+}
+.dashboard-container {
+background: white;
+border-radius: 16px;
+padding: 24px;
+margin-top: 20px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.dashboard-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
+.dashboard-header h2 {
+color: #4c1d95;
+font-size: 1.5rem;
+}
+.dashboard-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 20px;
+margin-top: 20px;
+}
+.dashboard-card {
+background: #f8fafc;
+border-radius: 12px;
+padding: 20px;
+border: 1px solid #e2e8f0;
+}
+.dashboard-card h3 {
+color: #1e293b;
+border-bottom: 2px solid #e2e8f0;
+padding-bottom: 8px;
+margin-bottom: 15px;
+}
+.gallery-container {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 20px;
+margin-top: 20px;
+}
+.gallery-item {
+text-align: center;
+background: white;
+border-radius: 12px;
+padding: 15px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.gallery-item img {
+width: 100%;
+height: 200px;
+object-fit: contain;
+border-radius: 8px;
+background: #f8fafc;
+margin-bottom: 10px;
+border: 1px solid #e2e8f0;
+}
+.gallery-item p {
+font-weight: 600;
+color: #00384d;
+}
+.btn-volver {
+padding: 8px 20px;
+background: #64748b;
+color: white;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-weight: 600;
+}
+.btn-volver:hover {
+background: #475569;
+}
+.stock-container {
+background: white;
+border-radius: 16px;
+padding: 24px;
+margin-top: 20px;
+}
+.stock-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
+.stock-header h2 {
+color: #059669;
+font-size: 1.5rem;
+}
+.stock-table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 20px;
+}
+.stock-table th {
+background: #d1fae5;
+padding: 12px;
+text-align: left;
+font-weight: 600;
+color: #065f46;
+}
+.stock-table td {
+padding: 10px 12px;
+border-bottom: 1px solid #e5e7eb;
+}
+.stock-table tr:hover {
+background: #f9fafb;
+}
+.stock-low {
+background-color: #fee2e2;
+color: #b91c1c;
+font-weight: 600;
+}
+.egreso-form {
+background: #f3f4f6;
+padding: 20px;
+border-radius: 12px;
+margin-top: 20px;
+}
+.egreso-form h3 {
+color: #1f2937;
+margin-bottom: 15px;
+}
+.egreso-form input, .egreso-form select, .egreso-form button {
+padding: 10px;
+margin: 5px;
+border-radius: 8px;
+border: 1px solid #d1d5db;
+}
+.egreso-form button {
+background: #059669;
+color: white;
+border: none;
+cursor: pointer;
+font-weight: 600;
+}
+.egreso-form button:hover {
+background: #047857;
+}
+.modal-sensores {
+display: none;
+position: fixed;
+z-index: 10000;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0,0,0,0.5);
+backdrop-filter: blur(5px);
+}
+.modal-content {
+background: white;
+margin: 10% auto;
+padding: 25px;
+border-radius: 20px;
+max-width: 500px;
+box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+.modal-content h3 {
+color: #00384d;
+margin-bottom: 20px;
+}
+.modal-content select {
+width: 100%;
+padding: 12px;
+border: 2px solid #e2e8f0;
+border-radius: 10px;
+font-size: 14px;
+margin-bottom: 20px;
+}
+.modal-botones {
+display: flex;
+gap: 10px;
+justify-content: flex-end;
+}
+@media (max-width: 600px) {
+.header { flex-direction: column; }
+.logo-bar { gap: 10px; }
+.device-grid { grid-template-columns: 1fr; }
+.sensor-card { min-width: 100%; }
+.estadisticas-opciones { flex-direction: column; align-items: center; }
+}
+</style>
 </head>
-<body>
-
-  <div class="header">
-    <div class="logo-bar">
-      <!-- =========================================================== -->
-      <!-- INSTRUCCIONES PARA COLOCAR TUS IMÁGENES                    -->
-      /* Reemplaza las rutas en los src con las URLs de tus imágenes. */
-      /* Ejemplo: <img id="webLogo1" src="/img/logo_empresa1.png">    */
-      <!-- =========================================================== -->
-      <div class="logo-item"><img id="webLogo1" src="RUTA_DE_TU_IMAGEN_1" alt="Logo 1"></div>
-      <div class="logo-item"><img id="webLogo2" src="RUTA_DE_TU_IMAGEN_2" alt="RIH"></div>
-      <div class="logo-item"><img id="webLogo3" src="RUTA_DE_TU_IMAGEN_3" alt="HNB"></div>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="metadata-bar">
-      <strong>Código del informe:</strong> <span id="reportId">INF-CF-v2.1</span>  
-      <span style="margin-left:20px;"><strong>Vigencia:</strong> Válido por 30 días desde su emisión</span>
-      <span style="margin-left:20px; display:inline-block;"><strong>Fecha de emisión:</strong> <span id="issueDate"></span></span>
-    </div>
-
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <div id="status">Cargando historial...</div>
-    </div>
-
-    <div id="content" style="display:none">
-      <h1>
-        <span id="sensorName">Sensor</span>
-        <span class="tag" id="teamName">Equipo</span>
-      </h1>
-      <div class="controls" id="daySelector">
-        <button class="btn-day" data-days="1">1 día</button>
-        <button class="btn-day" data-days="3">3 días</button>
-        <button class="btn-day" data-days="7">7 días</button>
-        <label for="datePicker" style="margin:0 8px;font-weight:600;">Fecha:</label>
-        <input type="date" id="datePicker" />
-        <button id="downloadBtn" onclick="generarInformeTecnico()">📥 Generar informe oficial (PDF)</button>
-        <button id="reportarDesvioBtn" onclick="iniciarReporteDesvio()">⚠️ Reportar desvío de cadena de frío</button>
-        <button id="backBtn" onclick="window.close()">← Volver al listado</button>
-      </div>
-
-      <div class="chart-container">
-        <canvas id="chart"></canvas>
-      </div>
-
-      <div id="errorContainer" class="error-msg" style="display:none;"></div>
-
-      <div class="section">
-        <h2>⚠️ Alertas y Recuperaciones (Fuera de rango: 2°C – 8°C)</h2>
-        <div style="max-height:250px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
-          <table id="alertTable">
-            <thead>
-              <tr>
-                <th>Fecha y Hora</th>
-                <th>Valor</th>
-                <th>Estado</th>
-                <th>Duración</th>
-                <th>Observaciones</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <!-- ESTADÍSTICAS DE ALERTAS -->
-        <div id="analisisAlertas" class="analisis-section" style="margin-top: 15px; padding: 15px; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 8px;">
-          <strong>📊 ANÁLISIS DE ALERTAS:</strong>
-          <div id="analisisAlertasContenido">Cargando análisis...</div>
-        </div>
-        <div id="recomendacionesAlertas" class="recomendaciones-section" style="margin-top: 10px; padding: 15px; background: #f0f9ff; border-left: 4px solid #0ea5e9; border-radius: 8px;">
-          <strong>✅ RECOMENDACIONES:</strong>
-          <div id="recomendacionesAlertasContenido">Cargando recomendaciones...</div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>📡 Eventos detectados (>30 min sin datos)</h2>
-        <table id="wifiTable">
-          <thead>
-            <tr>
-              <th>Inicio</th>
-              <th>Fin</th>
-              <th>Tipo de Corte</th>
-              <th>Temp. Antes</th>
-              <th>Temp. Después</th>
-              <th>Duración del Corte</th>
-              <th>Observaciones</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <!-- ESTADÍSTICAS DE EVENTOS -->
-        <div id="analisisEventos" class="analisis-section" style="margin-top: 15px; padding: 15px; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 8px;">
-          <strong>📊 ANÁLISIS DE CONECTIVIDAD:</strong>
-          <div id="analisisEventosContenido">Cargando análisis...</div>
-        </div>
-        <div id="recomendacionesEventos" class="recomendaciones-section" style="margin-top: 10px; padding: 15px; background: #f0f9ff; border-left: 4px solid #0ea5e9; border-radius: 8px;">
-          <strong>✅ RECOMENDACIONES:</strong>
-          <div id="recomendacionesEventosContenido">Cargando recomendaciones...</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div style="margin-top: 32px; text-align: center;">
-    <div style="background-color: #00384d; padding: 12px; border-radius: 8px;">
-      <!-- =========================================================== -->
-      /* Instrucción para la imagen del footer.                         */
-      /* Reemplaza la ruta en el src con la URL de tu imagen de footer.*/
-      <!-- =========================================================== -->
-      <img id="webFooter" src="RUTA_DE_TU_IMAGEN_FOOTER" alt="HNB" style="max-width: 100%; height: auto;">
-    </div>
-  </div>
-
-<!-- =========================================== -->
-<!-- MODAL PARA SELECCIONAR FECHA DEL DESVÍO -->
-<!-- =========================================== -->
-<div id="modalFechaDesvio" class="modal-desvio" style="display: none;">
-    <div class="modal-desvio-content" style="max-width: 500px;">
-        <div class="modal-desvio-header">
-            <h2>Seleccionar fecha del desvío</h2>
-            <button onclick="cerrarModalFecha()" class="modal-desvio-close">&times;</button>
-        </div>
-        <div class="modal-desvio-body" style="text-align: center;">
-            <p style="margin-bottom: 20px;">Por favor, seleccione la fecha del evento para generar el reporte de desvío:</p>
-            <input type="date" id="fechaDesvioSelector" class="form-desvio-control fecha-desvio-obligatorio" style="margin-bottom: 20px; width: 100%;">
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <button onclick="cerrarModalFecha()" class="btn-desvio-secondary">Cancelar</button>
-                <button onclick="procesarFechaDesvio()" class="btn-desvio-primary">Continuar</button>
-            </div>
-        </div>
-    </div>
+<body onload="init()">
+<div class="header">
+<div class="logo-bar">
+<div class="logo-item"><img src="logos/logo_hnb_oscuro.jpg" alt="HNB"></div>
+<div class="logo-item"><img src="logos/logo_rih.jpg" alt="RIH"></div>
+<div class="logo-item"><img src="logos/logo_hnb_blanco.jpg" alt="HNB"></div>
+</div>
+<div class="title-section">
+<h1>Inmunización Zona 1</h1>
+<p>Monitoreo de Sistema de cadena de Frío</p>
+</div>
+<div class="controls">
+<button class="btn-normativa" onclick="toggleNormativa()">Normativa</button>
+<button class="btn-estadistica" onclick="mostrarPanelEstadisticas()">📊 Estadística</button>
+</div>
 </div>
 
-<!-- =========================================== -->
-<!-- BOTÓN Y FORMULARIO DE DESVÍO -->
-<!-- =========================================== -->
-<!-- Modal del Formulario de Desvío -->
-<div id="modalDesvio" class="modal-desvio">
-    <div class="modal-desvio-content" id="formularioDesvioPDF">
-        
-        <!-- Header del Modal -->
-        <div class="modal-desvio-header">
-            <div>
-                <h2>Formulario de Desvíos de Cadena de Frío</h2>
-                <p style="margin: 8px 0 0 0; font-size: 13px; opacity: 0.9;">FO 03 - Coordinación de Logística - DICEI</p>
-            </div>
-            <button onclick="cerrarModalDesvio()" class="modal-desvio-close">&times;</button>
-        </div>
-
-        <!-- Cuerpo del Modal - Formulario -->
-        <div class="modal-desvio-body" id="contenidoFormulario">
-            
-            <!-- Información de trazabilidad (se generará automáticamente en el PDF) -->
-            <div class="form-desvio-section" style="background: #e8f0fe; border-left: 4px solid #0ea5e9;">
-                <h3 class="form-desvio-title">DATOS DE TRAZABILIDAD DEL DOCUMENTO</h3>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-                    <div><strong>Código único:</strong> <span id="codigoUnicoDisplay">[Se generará automáticamente]</span></div>
-                    <div><strong>Fecha de emisión:</strong> <span id="fechaEmisionDisplay"></span></div>
-                    <div><strong>Fecha del evento:</strong> <span id="fechaEventoDisplay"></span></div>
-                    <div><strong>Vigencia:</strong> 30 días</div>
-                    <div><strong>Versión formulario:</strong> FO-03 v2.1</div>
-                    <div><strong>Establecimiento:</strong> <span id="establecimientoDisplay">[Completar abajo]</span></div>
-                    <div><strong>Sensor/Equipo:</strong> <span id="sensorDisplay"></span></div>
-                    <div><strong>Usuario responsable:</strong> <span id="usuarioDisplay">[Completar abajo]</span></div>
-                </div>
-                <p style="margin-top: 15px; font-style: italic; color: #475569;">Documento autogenerado por sistema digital de monitoreo continuo</p>
-            </div>
-            
-            <!-- SECCIÓN 1: IDENTIFICACIÓN -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">1. IDENTIFICACIÓN DEL DESVÍO</h3>
-                
-                <div class="form-desvio-grid">
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Provincia:</label>
-                        <input type="text" id="desvio_provincia" value="Neuquén" class="form-desvio-control">
-                    </div>
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Fecha:</label>
-                        <input type="date" id="desvio_fecha" class="form-desvio-control" readonly>
-                    </div>
-                </div>
-
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Nombre del Establecimiento: <span style="color: #dc2626;">*</span></label>
-                    <input type="text" id="desvio_establecimiento" class="form-desvio-control" placeholder="Ingrese el nombre">
-                </div>
-
-                <div class="form-desvio-grid">
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Tipo de Establecimiento:</label>
-                        <select id="desvio_tipo_establecimiento" class="form-desvio-control">
-                            <option value="">Seleccione...</option>
-                            <option value="Hospital">Hospital</option>
-                            <option value="Centro de Salud">Centro de Salud</option>
-                            <option value="Posta Sanitaria">Posta Sanitaria</option>
-                            <option value="Salita">Salita</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Localidad:</label>
-                        <input type="text" id="desvio_localidad" class="form-desvio-control" placeholder="Localidad">
-                    </div>
-                </div>
-
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Nombre y Cargo de quien lo identificó: <span style="color: #dc2626;">*</span></label>
-                    <input type="text" id="desvio_responsable" class="form-desvio-control" placeholder="Ej: Dr. Juan Pérez - Jefe de Vacunatorio">
-                </div>
-            </div>
-
-            <!-- SECCIÓN 2: EQUIPOS FRIGORÍFICOS (MÚLTIPLES) -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">2. EQUIPOS FRIGORÍFICOS</h3>
-                
-                <div id="equipos-container">
-                    <!-- Los equipos se agregarán dinámicamente aquí -->
-                </div>
-                
-                <button type="button" onclick="agregarEquipo()" class="btn-agregar">
-                    ➕ Agregar Equipo Frigorífico
-                </button>
-            </div>
-
-            <!-- SECCIÓN 3: DATOS DE TEMPERATURA (MÚLTIPLES HELADERAS) -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">3. DATOS DE TEMPERATURA</h3>
-                <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Registre los datos de temperatura por cada heladera/equipo afectado</p>
-                
-                <div id="temperaturas-container">
-                    <!-- Las heladeras se agregarán dinámicamente aquí -->
-                </div>
-                
-                <button type="button" onclick="agregarHeladera()" class="btn-agregar">
-                    ➕ Agregar Heladera/Equipo
-                </button>
-            </div>
-
-            <!-- SECCIÓN 4: INSPECCIÓN VISUAL -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">4. INSPECCIÓN VISUAL AL MOMENTO DEL DESVÍO</h3>
-                
-                <div class="form-desvio-radio-group">
-                    <label class="form-desvio-radio-label">
-                        <input type="radio" name="inspeccion_visual" value="congelada"> ❄️ Vacuna Congelada
-                    </label>
-                    <label class="form-desvio-radio-label">
-                        <input type="radio" name="inspeccion_visual" value="descongelada"> 💧 Vacuna Descongelada
-                    </label>
-                </div>
-
-                <div class="form-desvio-group" style="margin-top: 20px;">
-                    <label class="form-desvio-label">Temperatura del ambiente donde se encuentra el equipo (°C):</label>
-                    <input type="number" step="0.1" id="temp_ambiente" class="form-desvio-control" placeholder="Ej: 22.5">
-                </div>
-            </div>
-
-            <!-- SECCIÓN 5: MODALIDAD DE MONITOREO -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">5. MODALIDAD DE MONITOREO</h3>
-                
-                <div class="form-desvio-grid">
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Sensor Manual (Termómetro) - Marca:</label>
-                        <input type="text" id="sensor_manual_marca" class="form-desvio-control" placeholder="Marca del termómetro">
-                    </div>
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Modelo:</label>
-                        <input type="text" id="sensor_manual_modelo" class="form-desvio-control" placeholder="Modelo del termómetro">
-                    </div>
-                </div>
-
-                <div class="form-desvio-grid">
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Sensor Digital (Data-logger) - Marca:</label>
-                        <input type="text" id="sensor_digital_marca" class="form-desvio-control" placeholder="Marca del data-logger">
-                    </div>
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Modelo:</label>
-                        <input type="text" id="sensor_digital_modelo" class="form-desvio-control" placeholder="Modelo del data-logger">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 6: FRECUENCIA DEL MONITOREO (TEXTO FIJO) -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">6. FRECUENCIA DEL MONITOREO</h3>
-                <div style="background: #f1f5f9; padding: 20px; border-radius: 12px; border-left: 4px solid #3b82f6;">
-                    <p style="margin: 0; font-size: 15px; color: #1e293b;">
-                        <strong>La frecuencia de monitoreo es automática cada 1 minuto mediante sistema digital continuo.</strong>
-                    </p>
-                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #475569;">(Registro automático del sistema - no editable)</p>
-                </div>
-                <!-- Campo oculto para mantener compatibilidad con el PDF -->
-                <input type="hidden" id="frecuencia_monitoreo" value="automática cada 1 minuto">
-            </div>
-
-            <!-- SECCIÓN 7: CAUSA DEL DESVÍO -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">7. CAUSA DEL DESVÍO</h3>
-                
-                <div class="form-desvio-checkbox-group">
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="causa" value="Corte de energía"> Corte de energía
-                    </label>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="causa" value="Falla en el equipo"> Falla en el equipo
-                    </label>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="causa" value="Equipos con temperatura fuera de rango"> Equipos con temp. fuera de rango
-                    </label>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="causa" value="Problemas en el traslado"> Problemas en el traslado
-                    </label>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="causa" value="Inconvenientes caja térmica"> Inconvenientes caja térmica
-                    </label>
-                    <label class="form-desvio-checkbox-label" style="grid-column: span 2;">
-                        <input type="checkbox" name="causa" value="Otro"> Otros: 
-                        <input type="text" id="causa_otro" style="margin-left: 8px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 250px;">
-                    </label>
-                </div>
-
-                <div class="form-desvio-group" style="margin-top: 20px;">
-                    <label class="form-desvio-label">Descripción del desvío: <span style="color: #dc2626;">*</span></label>
-                    <textarea id="desvio_descripcion" rows="4" class="form-desvio-control" placeholder="Describa detalladamente lo ocurrido..."></textarea>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 8: ACCIONES TOMADAS -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">8. ACCIONES TOMADAS</h3>
-                
-                <div class="form-desvio-checkbox-group">
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="accion" value="Transporte a otro sitio"> Transporte a otro sitio de almacenamiento
-                    </label>
-                    <div style="margin-left: 30px; margin-bottom: 10px;">
-                        <label class="form-desvio-label">Nuevo Sitio:</label>
-                        <input type="text" id="nuevo_sitio" class="form-desvio-control" style="width: 300px;">
-                    </div>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="accion" value="Restablecimiento energía"> Restablecimiento de energía
-                    </label>
-                    <div style="margin-left: 30px; margin-bottom: 10px;">
-                        <label class="form-desvio-label">Horario:</label>
-                        <input type="time" id="horario_restablecimiento" class="form-desvio-control" style="width: 150px;">
-                    </div>
-                    <label class="form-desvio-checkbox-label" style="grid-column: span 2;">
-                        <input type="checkbox" name="accion" value="Otro"> Otros: 
-                        <input type="text" id="accion_otro" style="margin-left: 8px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 250px;">
-                    </label>
-                </div>
-
-                <div class="form-desvio-group" style="margin-top: 20px;">
-                    <label class="form-desvio-label">Observaciones:</label>
-                    <textarea id="desvio_observaciones" rows="2" class="form-desvio-control"></textarea>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 9: ACCIONES CORRECTIVAS Y PREVENTIVAS -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">9. ACCIONES CORRECTIVAS Y/O PREVENTIVAS PLANIFICADAS</h3>
-                
-                <div class="form-desvio-checkbox-group">
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="correctiva" value="Adquisición de grupo electrógeno"> Adquisición de grupo electrógeno
-                    </label>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="correctiva" value="Aplicación de plan de contingencia"> Aplicación de plan de contingencia (anexar)
-                    </label>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="correctiva" value="Reformulación del plan de contingencia"> Reformulación del plan de contingencia (anexar)
-                    </label>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="correctiva" value="Adquisición de nuevos equipos de frío"> Adquisición de nuevos equipos de frío
-                    </label>
-                    <label class="form-desvio-checkbox-label">
-                        <input type="checkbox" name="correctiva" value="Entrenamiento de personal"> Entrenamiento de personal
-                    </label>
-                </div>
-
-                <div class="form-desvio-group" style="margin-top: 20px;">
-                    <label class="form-desvio-label">Observaciones:</label>
-                    <textarea id="correctivas_observaciones" rows="2" class="form-desvio-control"></textarea>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 10: DOSIS AFECTADAS POR EQUIPO -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">10. DOSIS AFECTADAS POR EQUIPO</h3>
-                
-                <div id="dosis-por-equipo-container">
-                    <!-- Las dosis por equipo se agregarán dinámicamente aquí -->
-                </div>
-                
-                <button type="button" onclick="agregarDosisPorEquipo()" class="btn-agregar">
-                    ➕ Agregar Dosis por Equipo
-                </button>
-            </div>
-
-            <!-- SECCIÓN 11: FIRMA -->
-            <div class="form-desvio-section">
-                <h3 class="form-desvio-title">11. COMPLETÓ EL FORMULARIO</h3>
-                
-                <div class="form-desvio-grid">
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Nombre completo:</label>
-                        <input type="text" id="firma_nombre" class="form-desvio-control" placeholder="Nombre y apellido">
-                    </div>
-                    <div class="form-desvio-group">
-                        <label class="form-desvio-label">Cargo:</label>
-                        <input type="text" id="firma_cargo" class="form-desvio-control" placeholder="Cargo que ocupa">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 12: DICEI -->
-            <div class="form-desvio-dicei">
-                <h3 style="margin: 0 0 20px 0; color: #92400e; font-size: 20px;">A COMPLETAR POR LA DICEI</h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-                    <div style="background: white; border-radius: 16px; padding: 20px;">
-                        <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #92400e;">N° de desvío CNV</h4>
-                        <input type="text" id="dicei_cnv" class="form-desvio-control" style="margin-bottom: 15px;" placeholder="Ingresar número">
-                        
-                        <label class="form-desvio-label">Recomendaciones:</label>
-                        <textarea id="dicei_recom_cnv" rows="3" class="form-desvio-control" style="margin-bottom: 15px;" placeholder="Recomendaciones..."></textarea>
-                        
-                        <label class="form-desvio-label">Fecha:</label>
-                        <input type="date" id="dicei_fecha_cnv" class="form-desvio-control" style="margin-bottom: 15px;">
-                        
-                        <label class="form-desvio-label">Firma (Nombre y cargo):</label>
-                        <input type="text" id="dicei_firma_cnv" class="form-desvio-control" placeholder="Nombre y cargo del firmante">
-                    </div>
-                    
-                    <div style="background: white; border-radius: 16px; padding: 20px;">
-                        <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #92400e;">N° de desvío COVID</h4>
-                        <input type="text" id="dicei_covid" class="form-desvio-control" style="margin-bottom: 15px;" placeholder="Ingresar número">
-                        
-                        <label class="form-desvio-label">Recomendaciones:</label>
-                        <textarea id="dicei_recom_covid" rows="3" class="form-desvio-control" style="margin-bottom: 15px;" placeholder="Recomendaciones..."></textarea>
-                        
-                        <label class="form-desvio-label">Fecha:</label>
-                        <input type="date" id="dicei_fecha_covid" class="form-desvio-control" style="margin-bottom: 15px;">
-                        
-                        <label class="form-desvio-label">Firma (Nombre y cargo):</label>
-                        <input type="text" id="dicei_firma_covid" class="form-desvio-control" placeholder="Nombre y cargo del firmante">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer del Modal -->
-        <div class="modal-desvio-footer">
-            <button onclick="cerrarModalDesvio()" class="btn-desvio-secondary">Cancelar</button>
-            <button onclick="generarPDFDesvioProfesional()" class="btn-desvio-primary">📥 Descargar Formulario (PDF)</button>
-        </div>
-    </div>
+<!-- Panel de Estadísticas -->
+<div id="panelEstadisticas" class="panel-estadisticas" style="display: none;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+<h2>📊 Panel de Estadísticas</h2>
+<button onclick="ocultarPanelEstadisticas()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+</div>
+<div class="estadisticas-opciones">
+<div class="opcion-card" onclick="mostrarStock()">
+<div class="opcion-icono">💊</div>
+<div class="opcion-titulo">Stock de Dosis</div>
+<div class="opcion-descripcion">Gestión y control de inventario de vacunas</div>
+</div>
+<div class="opcion-card" onclick="mostrarSelectorSensores()">
+<div class="opcion-icono">🌡️</div>
+<div class="opcion-titulo">Sensores</div>
+<div class="opcion-descripcion">Dashboard de decisiones y monitoreo avanzado</div>
+</div>
+</div>
 </div>
 
-  <script>
-    // ============================================================
-    // INSTRUCCIONES PARA IMÁGENES:
-    // ============================================================
-    // Reemplaza las siguientes rutas con las URLs de tus imágenes:
-    // - RUTA_DE_TU_IMAGEN_1, RUTA_DE_TU_IMAGEN_2, RUTA_DE_TU_IMAGEN_3
-    // - RUTA_DE_TU_IMAGEN_FOOTER
-    // - RUTA_DE_TU_IMAGEN_CARATULA (dentro de la función generarPDFDesvioProfesional)
-    // - RUTA_DE_TU_IMAGEN_CONTRACARATULA (dentro de la función generarPDFDesvioProfesional)
-    // ============================================================
-
-    // Variables globales
-    let contadorEquipos = 0;
-    let contadorHeladeras = 0;
-    let contadorDosisPorEquipo = 0;
-    let archivoRegistro = null;
-    let fechaDesvioSeleccionada = null;
-    let datosDesvioFecha = [];
-
-    // Variables existentes del informe
-    const params = new URLSearchParams(window.location.search);
-    const ID = params.get('id');
-    const KEY = params.get('key');
-    const FIELD = params.get('field') || 'field1';
-    const TYPE = params.get('type') || 'vacunas';
-    let DAYS = parseInt(params.get('days')) || 7;
-    let SELECTED_DATE = null;
-
-    const MAX = 8.0, MIN = 2.0;
-    const EVENTO_CORTE_MINUTOS = 30;
-    let chartInstance = null;
-    let currentFeeds = [];
-
-    // Almacenamiento temporal de observaciones
-    let observacionesAlmacenadas = {};
-
-    // ============================================================
-    // FUNCIONES PARA TRAZABILIDAD
-    // ============================================================
-    function generarCodigoUnico(prefijo = 'IT') {
-        const ahora = new Date();
-        const año = ahora.getFullYear();
-        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-        const dia = String(ahora.getDate()).padStart(2, '0');
-        const hora = String(ahora.getHours()).padStart(2, '0');
-        const minuto = String(ahora.getMinutes()).padStart(2, '0');
-        const segundo = String(ahora.getSeconds()).padStart(2, '0');
-        
-        const sensorId = document.getElementById('sensorName')?.innerText?.replace(/[^a-zA-Z0-9]/g, '') || 'SENSOR';
-        const sensorShort = sensorId.substring(0, 8).toUpperCase();
-        
-        const randomHash = Math.random().toString(36).substring(2, 6).toUpperCase();
-        
-        return `${prefijo}-${año}${mes}${dia}-${hora}${minuto}${segundo}-${sensorShort}-${randomHash}`;
-    }
-
-    // ============================================================
-    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES
-    // ============================================================
-    function generarAnalisisAlertas(eventos) {
-        if (!eventos || eventos.length === 0) {
-            return "✅ No se registraron desvíos de temperatura en el período analizado. El equipo se mantuvo dentro del rango óptimo (2°C - 8°C).";
-        }
-        
-        let totalDuracion = 0;
-        let alertasAltas = 0;
-        let alertasBajas = 0;
-        
-        eventos.forEach(evento => {
-            const duracion = parseFloat(evento.duracion) || 0;
-            totalDuracion += duracion;
-            if (evento.severidad === 'alta') alertasAltas++;
-            else if (evento.severidad === 'baja') alertasBajas++;
-        });
-        
-        let analisis = `📊 Se detectaron ${eventos.length} evento(s) de temperatura fuera de rango.\n`;
-        analisis += `   • Alertas por temperatura alta: ${alertasAltas}\n`;
-        analisis += `   • Alertas por temperatura baja: ${alertasBajas}\n`;
-        analisis += `   • Tiempo total acumulado fuera de rango: ${formatDurationFull(totalDuracion)}\n\n`;
-        
-        if (totalDuracion < 30) {
-            analisis += "✅ Los desvíos fueron breves y no representan un riesgo crítico para la cadena de frío. Se recomienda monitorear de cerca las próximas horas.";
-        } else if (totalDuracion < 120) {
-            analisis += "⚠️ Se registraron desvíos de moderada duración. Es posible que algunos lotes hayan sido afectados. Se requiere revisión de protocolos y posible reubicación de vacunas.";
-        } else {
-            analisis += "❌ Los desvíos fueron prolongados y representan un riesgo significativo para la integridad de las vacunas. Se requiere evaluación técnica inmediata y posible descarte de lotes afectados.";
-        }
-        
-        return analisis;
-    }
-
-    function generarRecomendacionesAlertas(eventos) {
-        if (!eventos || eventos.length === 0) {
-            return "• Continuar con el monitoreo habitual cada 1 minuto.\n• Mantener registro actualizado de temperaturas.\n• Realizar mantenimiento preventivo según calendario.";
-        }
-        
-        let recomendaciones = [];
-        
-        // Recomendaciones generales
-        recomendaciones.push("• Verificar el cierre hermético de puertas y burletes de los equipos.");
-        recomendaciones.push("• Controlar la calibración del sensor de temperatura contra un termómetro patrón.");
-        recomendaciones.push("• Documentar todas las aperturas programadas del equipo en el período afectado.");
-        recomendaciones.push("• Evaluar la necesidad de respaldo eléctrico (grupo electrógeno o UPS).");
-        recomendaciones.push("• Aplicar protocolo establecido ante corte prolongado de energía (anexar al informe).");
-        
-        // Recomendaciones específicas según el tipo de alerta
-        const tieneAlertasAltas = eventos.some(e => e.severidad === 'alta');
-        const tieneAlertasBajas = eventos.some(e => e.severidad === 'baja');
-        
-        if (tieneAlertasAltas) {
-            recomendaciones.push("• Dado que se detectaron temperaturas ALTAS: verificar el funcionamiento del sistema de refrigeración y la carga de refrigerante.");
-        }
-        
-        if (tieneAlertasBajas) {
-            recomendaciones.push("• Dado que se detectaron temperaturas BAJAS: revisar la configuración del termostato y evitar la acumulación de hielo en evaporadores.");
-        }
-        
-        return recomendaciones.join('\n');
-    }
-
-    function generarAnalisisEventos(eventos) {
-        if (!eventos || eventos.length === 0) {
-            return "✅ No se detectaron interrupciones de conectividad >30 minutos. La transmisión de datos fue continua.";
-        }
-        
-        let totalDuracion = 0;
-        let cortesElectricos = 0;
-        let cortesWiFi = 0;
-        
-        eventos.forEach(evento => {
-            const duracion = parseFloat(evento.duracion) || 0;
-            totalDuracion += duracion;
-            if (evento.tipo && evento.tipo.includes('Energía')) {
-                cortesElectricos++;
-            } else if (evento.tipo && evento.tipo.includes('WiFi')) {
-                cortesWiFi++;
-            }
-        });
-        
-        let analisis = `📊 Se detectaron ${eventos.length} evento(s) de interrupción.\n`;
-        analisis += `   • Cortes de energía con impacto térmico: ${cortesElectricos}\n`;
-        analisis += `   • Cortes de WiFi sin impacto térmico: ${cortesWiFi}\n`;
-        analisis += `   • Tiempo total sin datos: ${formatDurationFull(totalDuracion)}\n\n`;
-        
-        if (totalDuracion < 30) {
-            analisis += "✅ Los cortes fueron breves y no afectaron el registro de temperatura.";
-        } else if (totalDuracion < 120) {
-            analisis += "⚠️ Los cortes fueron prolongados. Se recomienda revisar la conectividad y el estado del router.";
-        } else {
-            analisis += "❌ Los cortes fueron muy prolongados. Se requiere evaluación técnica de la infraestructura de red y posible instalación de respaldo.";
-        }
-        
-        return analisis;
-    }
-
-    function generarRecomendacionesEventos(eventos) {
-        if (!eventos || eventos.length === 0) {
-            return "• Verificar periódicamente el estado de la red WiFi.\n• Mantener actualizado el firmware del sensor.\n• Revisar la distancia entre el sensor y el router.";
-        }
-        
-        let recomendaciones = [
-            "• Verificar el estado del router y la conexión a internet.",
-            "• Revisar la distancia entre el sensor y el punto de acceso WiFi.",
-            "• Considerar instalar un repetidor de señal si la distancia es mayor a 30 metros.",
-            "• Mantener actualizado el firmware del sensor y del gateway."
-        ];
-        
-        const tieneCortesElectricos = eventos.some(e => e.tipo && e.tipo.includes('Energía'));
-        if (tieneCortesElectricos) {
-            recomendaciones.push("• Dado que se detectaron cortes de energía con impacto térmico, se recomienda:");
-            recomendaciones.push("  - Instalar sistema de monitoreo con respaldo de batería.");
-            recomendaciones.push("  - Revisar el estado del estabilizador de tensión.");
-            recomendaciones.push("  - Evaluar la instalación de un grupo electrógeno de respaldo.");
-        }
-        
-        return recomendaciones.join('\n');
-    }
-
-    // ============================================================
-    // FUNCIONES PARA SELECCIÓN DE FECHA
-    // ============================================================
-    function iniciarReporteDesvio() {
-        document.getElementById('modalFechaDesvio').style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fechaDesvioSelector').max = hoy;
-        document.getElementById('fechaDesvioSelector').value = hoy;
-    }
-
-    function cerrarModalFecha() {
-        document.getElementById('modalFechaDesvio').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    async function procesarFechaDesvio() {
-        const fechaInput = document.getElementById('fechaDesvioSelector').value;
-        
-        if (!fechaInput) {
-            alert('⚠️ Debe seleccionar una fecha para continuar.');
-            return;
-        }
-        
-        fechaDesvioSeleccionada = fechaInput;
-        cerrarModalFecha();
-        
-        const cargando = document.getElementById('loading');
-        const contenido = document.getElementById('content');
-        cargando.style.display = 'block';
-        contenido.style.display = 'none';
-        
-        try {
-            const url = `https://api.thingspeak.com/channels/${ID}/feeds.json?api_key=${KEY}&start=${fechaDesvioSeleccionada}T00:00:00Z&end=${fechaDesvioSeleccionada}T23:59:59Z`;
-            const res = await fetch(url);
-            const data = await res.json();
-            
-            if (!data.feeds || data.feeds.length === 0) {
-                alert('No hay datos disponibles para la fecha seleccionada.');
-                cargando.style.display = 'none';
-                contenido.style.display = 'block';
-                return;
-            }
-            
-            datosDesvioFecha = data.feeds.filter(f => parseFloat(f[FIELD]) !== -127);
-            
-            if (datosDesvioFecha.length === 0) {
-                alert('No hay datos válidos para la fecha seleccionada.');
-                cargando.style.display = 'none';
-                contenido.style.display = 'block';
-                return;
-            }
-            
-            const codigoUnico = generarCodigoUnico('PDCF');
-            document.getElementById('codigoUnicoDisplay').innerText = codigoUnico;
-            document.getElementById('fechaEmisionDisplay').innerText = new Date().toLocaleDateString('es-AR');
-            document.getElementById('fechaEventoDisplay').innerText = new Date(fechaDesvioSeleccionada).toLocaleDateString('es-AR');
-            document.getElementById('sensorDisplay').innerText = document.getElementById('sensorName')?.innerText || 'No especificado';
-            
-            document.getElementById('desvio_fecha').value = fechaDesvioSeleccionada;
-            
-            abrirModalDesvio();
-            
-        } catch (e) {
-            console.error('Error al cargar datos:', e);
-            alert('Error al cargar los datos de la fecha seleccionada.');
-        } finally {
-            cargando.style.display = 'none';
-            contenido.style.display = 'block';
-        }
-    }
-
-    // ============================================================
-    // FUNCIONES DEL FORMULARIO DE DESVÍO
-    // ============================================================
-    function abrirModalDesvio() {
-        document.getElementById('modalDesvio').style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        
-        if (contadorEquipos === 0) agregarEquipo();
-        if (contadorHeladeras === 0) agregarHeladera();
-    }
-
-    function cerrarModalDesvio() {
-        document.getElementById('modalDesvio').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    function agregarEquipo() {
-        contadorEquipos++;
-        const container = document.getElementById('equipos-container');
-        const div = document.createElement('div');
-        div.className = 'equipo-card';
-        div.id = `equipo_${contadorEquipos}`;
-        div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h4 class="form-desvio-subtitle">Equipo Frigorífico N° ${contadorEquipos}</h4>
-                <button type="button" onclick="eliminarEquipo(${contadorEquipos})" class="btn-eliminar">✖ Eliminar</button>
-            </div>
-            <div class="form-desvio-grid">
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Tipo de equipo:</label>
-                    <select class="form-desvio-control equipo-tipo" data-equipo="${contadorEquipos}">
-                        <option value="Heladera">Heladera</option>
-                        <option value="Freezer">Freezer</option>
-                        <option value="Ultra-freezer">Ultra-freezer</option>
-                        <option value="Termo">Termo/Caja térmica</option>
-                        <option value="Otro">Otro</option>
-                    </select>
-                </div>
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Marca:</label>
-                    <input type="text" class="form-desvio-control equipo-marca" data-equipo="${contadorEquipos}">
-                </div>
-                <div class="form-desvio-group">
-                    <label class="form-desvio-label">Modelo:</label>
-                    <input type="text" class="form-desvio-control equipo-modelo" data-equipo="${contadorEquipos}">
-                </div>
-            </div>
-            <div class="form-desvio-group">
-                <label class="form-desvio-label">Características:</label>
-                <textarea rows="2" class="form-desvio-control equipo-caract" data-equipo="${contadorEquipos}"></textarea>
-            </div>
-        `;
-        container.appendChild(div);
-    }
-
-    function eliminarEquipo(id) {
-        const elemento = document.getElementById(`equipo_${id}`);
-        if (elemento) elemento.remove();
-    }
-
-    function agregarHeladera() {
-        contadorHeladeras++;
-        const container = document.getElementById('temperaturas-container');
-        const div = document.createElement('div');
-        div.className = 'temperatura-card';
-        div.id = `heladera_${contadorHeladeras}`;
-        div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h4 class="form-desvio-subtitle">Heladera/Equipo N° ${contadorHeladeras}</h4>
-                <button type="button" onclick="eliminarHeladera(${contadorHeladeras})" class="btn-eliminar">✖ Eliminar</button>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
-                <div>
-                    <label class="form-desvio-label">Temp. previa (°C):</label>
-                    <input type="number" step="0.1" class="form-desvio-control temp-previa" data-heladera="${contadorHeladeras}" placeholder="Ej: 5.2">
-                </div>
-                <div>
-                    <label class="form-desvio-label">Fecha previa:</label>
-                    <input type="date" class="form-desvio-control fecha-previa" data-heladera="${contadorHeladeras}">
-                </div>
-                <div>
-                    <label class="form-desvio-label">Hora previa:</label>
-                    <input type="time" class="form-desvio-control hora-previa" data-heladera="${contadorHeladeras}">
-                </div>
-                <div>
-                    <label class="form-desvio-label">Temp. observada:</label>
-                    <input type="number" step="0.1" class="form-desvio-control temp-observada" data-heladera="${contadorHeladeras}" style="border-color: #ef4444;" placeholder="Ej: 12.5">
-                </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
-                <div>
-                    <label class="form-desvio-label">Fecha del desvío:</label>
-                    <input type="date" class="form-desvio-control fecha-desvio" data-heladera="${contadorHeladeras}">
-                </div>
-                <div>
-                    <label class="form-desvio-label">Hora del desvío:</label>
-                    <input type="time" class="form-desvio-control hora-desvio" data-heladera="${contadorHeladeras}">
-                </div>
-            </div>
-        `;
-        container.appendChild(div);
-    }
-
-    function eliminarHeladera(id) {
-        const elemento = document.getElementById(`heladera_${id}`);
-        if (elemento) elemento.remove();
-    }
-
-    function agregarDosisPorEquipo() {
-        contadorDosisPorEquipo++;
-        const container = document.getElementById('dosis-por-equipo-container');
-        const div = document.createElement('div');
-        div.className = 'dosis-por-equipo';
-        div.id = `dosis_equipo_${contadorDosisPorEquipo}`;
-        div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h4 class="form-desvio-subtitle">Dosis por Equipo N° ${contadorDosisPorEquipo}</h4>
-                <button type="button" onclick="eliminarDosisPorEquipo(${contadorDosisPorEquipo})" class="btn-eliminar">✖ Eliminar</button>
-            </div>
-            <div class="form-desvio-group">
-                <label class="form-desvio-label">Equipo/Heladera:</label>
-                <input type="text" class="form-desvio-control dosis-equipo-nombre" placeholder="Ej: Heladera N°1, Freezer N°2, etc.">
-            </div>
-            <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px;">
-                <thead>
-                    <tr style="background: #e2e8f0;">
-                        <th style="border: 1px solid #cbd5e1; padding: 8px;">VACUNA</th>
-                        <th style="border: 1px solid #cbd5e1; padding: 8px;">LABORATORIO</th>
-                        <th style="border: 1px solid #cbd5e1; padding: 8px;">LOTE</th>
-                        <th style="border: 1px solid #cbd5e1; padding: 8px;">VENCIMIENTO</th>
-                        <th style="border: 1px solid #cbd5e1; padding: 8px;">CANTIDAD</th>
-                    </tr>
-                </thead>
-                <tbody id="dosis_body_${contadorDosisPorEquipo}">
-                    <tr>
-                        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 6px;" placeholder="Vacuna"></td>
-                        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 6px;" placeholder="Lab."></td>
-                        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 6px;" placeholder="Lote"></td>
-                        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="date" class="form-desvio-control" style="padding: 6px;"></td>
-                        <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="number" class="form-desvio-control" style="padding: 6px;" placeholder="Cant."></td>
-                    </tr>
-                </tbody>
-            </table>
-            <button type="button" onclick="agregarFilaDosis(${contadorDosisPorEquipo})" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">+ Agregar fila</button>
-        `;
-        container.appendChild(div);
-    }
-
-    function eliminarDosisPorEquipo(id) {
-        const elemento = document.getElementById(`dosis_equipo_${id}`);
-        if (elemento) elemento.remove();
-    }
-
-    function agregarFilaDosis(equipoId) {
-        const tbody = document.getElementById(`dosis_body_${equipoId}`);
-        const fila = document.createElement('tr');
-        fila.innerHTML = `
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 6px;"></td>
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 6px;"></td>
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="text" class="form-desvio-control" style="padding: 6px;"></td>
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="date" class="form-desvio-control" style="padding: 6px;"></td>
-            <td style="border: 1px solid #cbd5e1; padding: 6px;"><input type="number" class="form-desvio-control" style="padding: 6px;"></td>
-        `;
-        tbody.appendChild(fila);
-    }
-
-    function mostrarNombreArchivo(input) {
-        const infoDiv = document.getElementById('info_archivo');
-        if (input.files && input.files[0]) {
-            archivoRegistro = input.files[0];
-            infoDiv.style.display = 'block';
-            infoDiv.innerHTML = `📎 Archivo seleccionado: ${archivoRegistro.name} (${(archivoRegistro.size / 1024).toFixed(2)} KB)`;
-        } else {
-            archivoRegistro = null;
-            infoDiv.style.display = 'none';
-        }
-    }
-
-    function validarFormulario() {
-        const establecimiento = document.getElementById('desvio_establecimiento').value;
-        const responsable = document.getElementById('desvio_responsable').value;
-        const descripcion = document.getElementById('desvio_descripcion').value;
-
-        if (!establecimiento || !responsable || !descripcion) {
-            alert('⚠️ Complete los campos obligatorios:\n- Establecimiento\n- Responsable\n- Descripción del desvío');
-            return false;
-        }
-        return true;
-    }
-
-    // ============================================================
-    // FUNCIÓN PARA GENERAR GRÁFICA TEMPORAL
-    // ============================================================
-    function generarGraficaTemporal(canvasId, feeds, field, titulo) {
-        if (!feeds || feeds.length === 0) return null;
-        
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = 800;
-        tempCanvas.height = 300;
-        tempCanvas.id = canvasId;
-        
-        const labels = feeds.map(f => {
-            const d = new Date(f.created_at);
-            return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
-        });
-        const values = feeds.map(f => parseFloat(f[field]));
-        
-        if (window.tempChart) window.tempChart.destroy();
-        
-        window.tempChart = new Chart(tempCanvas.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Temperatura (°C)',
-                    data: values,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59,130,246,0.1)',
-                    borderWidth: 2,
-                    pointRadius: 1,
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: false,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: titulo || 'Monitoreo de Temperatura'
-                    },
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        title: { display: true, text: '°C' }
-                    },
-                    x: {
-                        title: { display: true, text: 'Hora' }
-                    }
-                }
-            }
-        });
-        
-        return tempCanvas;
-    }
-
-    // ============================================================
-    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE PDF DE DESVÍO
-    // ============================================================
-    async function generarPDFDesvioProfesional() {
-        if (!validarFormulario()) return;
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        
-        const codigoUnico = document.getElementById('codigoUnicoDisplay').innerText;
-        const fechaEmision = document.getElementById('fechaEmisionDisplay').innerText;
-        const fechaEvento = document.getElementById('fechaEventoDisplay').innerText;
-        const sensorInfo = document.getElementById('sensorDisplay').innerText;
-        const establecimiento = document.getElementById('desvio_establecimiento').value || 'No especificado';
-        const responsable = document.getElementById('desvio_responsable').value || 'No especificado';
-        
-        // ================================================================
-        // [1] CARÁTULA
-        // ================================================================
-        const caratulaRuta = "RUTA_DE_TU_IMAGEN_CARATULA"; // <--- REEMPLAZA AQUÍ
-        
-        if (caratulaRuta && caratulaRuta !== "RUTA_DE_TU_IMAGEN_CARATULA") {
-            try {
-                doc.addImage(caratulaRuta, 'JPEG', 0, 0, 210, 297);
-            } catch (e) {
-                console.warn("Error al cargar carátula, se usa página en blanco:", e);
-                doc.setFontSize(16);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(0, 56, 77);
-                doc.text('CARATULA', 105, 150, { align: 'center' });
-                doc.setFontSize(10);
-                doc.setTextColor(100);
-                doc.text(codigoUnico, 105, 160, { align: 'center' });
-            }
-        } else {
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(0, 56, 77);
-            doc.text('CARATULA', 105, 150, { align: 'center' });
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(codigoUnico, 105, 160, { align: 'center' });
-        }
-        
-        // ================================================================
-        // [2] FORMULARIO (PÁGINA 2)
-        // ================================================================
-        doc.addPage();
-        let yPos = 20;
-        const margin = 15;
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const fieldWidth = (pageWidth - 2 * margin - 10) / 2;
-
-        // --- ENCABEZADO CON TRAZABILIDAD ---
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(0, 56, 77);
-        doc.text(`CODIGO UNICO: ${codigoUnico}`, margin, yPos);
-        yPos += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100);
-        doc.text(`Emision: ${fechaEmision} | Evento: ${fechaEvento} | Vigencia: 30 dias`, margin, yPos);
-        yPos += 5;
-        doc.text(`Establecimiento: ${establecimiento} | Sensor: ${sensorInfo}`, margin, yPos);
-        yPos += 5;
-        doc.text(`Usuario responsable: ${responsable}`, margin, yPos);
-        yPos += 5;
-        doc.setDrawColor(0, 56, 77);
-        doc.line(margin, yPos, pageWidth - margin, yPos);
-        yPos += 10;
-
-        // --- TÍTULO PRINCIPAL ---
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(0, 56, 77);
-        doc.text('FORMULARIO DE DESVIOS DE CADENA DE FRIO', margin, yPos);
-        yPos += 8;
-
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text('FO 03 - Coordinacion de Logistica - DICEI', margin, yPos);
-        yPos += 15;
-
-        // --- 1. IDENTIFICACIÓN ---
-        const fecha = document.getElementById('desvio_fecha').value || new Date().toLocaleDateString('es-AR');
-        const provincia = document.getElementById('desvio_provincia').value || 'Neuquen';
-        const tipoEst = document.getElementById('desvio_tipo_establecimiento').value || 'No especificado';
-        const localidad = document.getElementById('desvio_localidad').value || 'No especificado';
-
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(0, 56, 77);
-        doc.text('1. IDENTIFICACION DEL DESVIO', margin, yPos);
-        yPos += 8;
-
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(30, 41, 59);
-        doc.text(`Provincia: ${provincia}`, margin + 5, yPos); yPos += 6;
-        doc.text(`Fecha: ${fecha}`, margin + 5, yPos); yPos += 6;
-        doc.text(`Establecimiento: ${establecimiento}`, margin + 5, yPos); yPos += 6;
-        doc.text(`Tipo: ${tipoEst} - Localidad: ${localidad}`, margin + 5, yPos); yPos += 6;
-        doc.text(`Responsable: ${responsable}`, margin + 5, yPos); yPos += 15;
-
-        // --- GRÁFICA DE TEMPERATURA ---
-        if (datosDesvioFecha && datosDesvioFecha.length > 0) {
-            if (yPos > 220) { doc.addPage(); yPos = 20; }
-            
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
-            doc.setTextColor(0, 56, 77);
-            doc.text('GRAFICA DE TEMPERATURA DEL DIA', margin, yPos);
-            yPos += 5;
-            
-            const tempCanvas = generarGraficaTemporal('graficaDesvioTemp', datosDesvioFecha, FIELD, 
-                `Monitoreo de Temperatura - ${new Date(fechaDesvioSeleccionada).toLocaleDateString('es-AR')}`);
-            
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            if (tempCanvas) {
-                const imgData = tempCanvas.toDataURL('image/png');
-                const imgWidth = pageWidth - 2 * margin;
-                const imgHeight = 100;
-                doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
-                yPos += imgHeight + 10;
-            }
-        }
-
-        // --- 2. EQUIPOS (TABLA) ---
-        const equiposData = [];
-        document.querySelectorAll('.equipo-card').forEach(equipo => {
-            const tipo = equipo.querySelector('.equipo-tipo')?.value || '';
-            const marca = equipo.querySelector('.equipo-marca')?.value || '';
-            const modelo = equipo.querySelector('.equipo-modelo')?.value || '';
-            const caract = equipo.querySelector('.equipo-caract')?.value || '';
-            if (tipo || marca || modelo || caract) {
-                equiposData.push([tipo, marca, modelo, caract]);
-            }
-        });
-
-        if (equiposData.length > 0) {
-            if (yPos > 250) { doc.addPage(); yPos = 20; }
-            doc.setFont('helvetica', 'bold');
-            doc.text('2. EQUIPOS FRIGORIFICOS', margin, yPos);
-            yPos += 5;
-            doc.autoTable({
-                startY: yPos,
-                head: [['Tipo', 'Marca', 'Modelo', 'Caracteristicas']],
-                body: equiposData,
-                theme: 'grid',
-                styles: { fontSize: 8, cellPadding: 2 },
-                headStyles: { fillColor: [0, 56, 77], textColor: 255, fontStyle: 'bold' },
-                margin: { left: margin, right: margin },
-                didDrawPage: function(data) { yPos = data.cursor.y + 10; }
-            });
-            yPos = doc.lastAutoTable.finalY + 10;
-        } else {
-            if (yPos > 250) { doc.addPage(); yPos = 20; }
-            doc.setFont('helvetica', 'normal');
-            doc.text('No se registraron equipos.', margin + 5, yPos);
-            yPos += 10;
-        }
-
-        // --- 3. TEMPERATURAS (TABLA) ---
-        const temperaturasData = [];
-        document.querySelectorAll('.temperatura-card').forEach(heladera => {
-            const tempPrevia = heladera.querySelector('.temp-previa')?.value || '';
-            const fechaPrevia = heladera.querySelector('.fecha-previa')?.value || '';
-            const horaPrevia = heladera.querySelector('.hora-previa')?.value || '';
-            const tempObs = heladera.querySelector('.temp-observada')?.value || '';
-            const fechaDesvio = heladera.querySelector('.fecha-desvio')?.value || '';
-            const horaDesvio = heladera.querySelector('.hora-desvio')?.value || '';
-            if (tempPrevia || tempObs) {
-                temperaturasData.push([`${fechaPrevia} ${horaPrevia}`, `${tempPrevia}°C`, `${fechaDesvio} ${horaDesvio}`, `${tempObs}°C`]);
-            }
-        });
-
-        if (temperaturasData.length > 0) {
-            if (yPos > 250) { doc.addPage(); yPos = 20; }
-            doc.setFont('helvetica', 'bold');
-            doc.text('3. DATOS DE TEMPERATURA', margin, yPos);
-            yPos += 5;
-            doc.autoTable({
-                startY: yPos,
-                head: [['Fecha/Hora Previa', 'Temp. Previa', 'Fecha/Hora Desvio', 'Temp. Observada']],
-                body: temperaturasData,
-                theme: 'grid',
-                styles: { fontSize: 8, cellPadding: 2 },
-                headStyles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: 'bold' },
-                margin: { left: margin, right: margin }
-            });
-            yPos = doc.lastAutoTable.finalY + 10;
-        } else {
-            if (yPos > 250) { doc.addPage(); yPos = 20; }
-            doc.setFont('helvetica', 'normal');
-            doc.text('No se registraron datos de temperatura.', margin + 5, yPos);
-            yPos += 10;
-        }
-
-        // --- 4. INSPECCIÓN VISUAL ---
-        if (yPos > 250) { doc.addPage(); yPos = 20; }
-        doc.setFont('helvetica', 'bold');
-        doc.text('4. INSPECCION VISUAL', margin, yPos);
-        yPos += 6;
-        doc.setFont('helvetica', 'normal');
-        const visualRadios = document.querySelectorAll('input[name="inspeccion_visual"]');
-        let visualSeleccionado = 'No especificado';
-        visualRadios.forEach(radio => { if (radio.checked) visualSeleccionado = radio.value; });
-        doc.text(`Estado de vacunas: ${visualSeleccionado}`, margin + 5, yPos); yPos += 6;
-
-        const tempAmbiente = document.getElementById('temp_ambiente').value || 'No registrada';
-        doc.text(`Temperatura ambiente: ${tempAmbiente} °C`, margin + 5, yPos); yPos += 15;
-
-        // --- 5. MODALIDAD DE MONITOREO ---
-        if (yPos > 250) { doc.addPage(); yPos = 20; }
-        doc.setFont('helvetica', 'bold');
-        doc.text('5. MODALIDAD DE MONITOREO', margin, yPos);
-        yPos += 6;
-        doc.setFont('helvetica', 'normal');
-        const sensorManualMarca = document.getElementById('sensor_manual_marca').value || 'No especificado';
-        const sensorManualModelo = document.getElementById('sensor_manual_modelo').value || 'No especificado';
-        const sensorDigitalMarca = document.getElementById('sensor_digital_marca').value || 'No especificado';
-        const sensorDigitalModelo = document.getElementById('sensor_digital_modelo').value || 'No especificado';
-        doc.text(`Sensor Manual: ${sensorManualMarca} ${sensorManualModelo}`, margin + 5, yPos); yPos += 6;
-        doc.text(`Sensor Digital: ${sensorDigitalMarca} ${sensorDigitalModelo}`, margin + 5, yPos); yPos += 15;
-
-        // --- 6. FRECUENCIA DEL MONITOREO (TEXTO FIJO) ---
-        if (yPos > 250) { doc.addPage(); yPos = 20; }
-        doc.setFont('helvetica', 'bold');
-        doc.text('6. FRECUENCIA DEL MONITOREO', margin, yPos);
-        yPos += 6;
-        doc.setFont('helvetica', 'normal');
-        doc.text('La frecuencia de monitoreo es automatica cada 1 minuto mediante sistema digital continuo.', margin + 5, yPos);
-        yPos += 6;
-        doc.setFontSize(8);
-        doc.setTextColor(100);
-        doc.text('(Registro automatico del sistema - no editable)', margin + 5, yPos);
-        yPos += 10;
-        doc.setTextColor(30, 41, 59);
-        doc.setFontSize(10);
-
-        // --- 7. CAUSAS ---
-        if (yPos > 250) { doc.addPage(); yPos = 20; }
-        doc.setFont('helvetica', 'bold');
-        doc.text('7. CAUSA DEL DESVIO', margin, yPos);
-        yPos += 6;
-        doc.setFont('helvetica', 'normal');
-        const causas = [];
-        document.querySelectorAll('input[name="causa"]:checked').forEach(cb => { causas.push(cb.value); });
-        const causaOtro = document.getElementById('causa_otro').value;
-        if (causaOtro) causas.push(`Otro: ${causaOtro}`);
-        if (causas.length > 0) {
-            causas.forEach(c => { doc.text(`• ${c}`, margin + 5, yPos); yPos += 5; });
-        } else {
-            doc.text('No se especificaron causas.', margin + 5, yPos); yPos += 5;
-        }
-        yPos += 5;
-
-        const descripcion = document.getElementById('desvio_descripcion').value || 'No especificada';
-        const descripcionLines = doc.splitTextToSize(`Descripcion: ${descripcion}`, pageWidth - 2*margin - 10);
-        doc.text(descripcionLines, margin + 5, yPos);
-        yPos += (descripcionLines.length * 5) + 10;
-
-        // --- 8. ACCIONES TOMADAS ---
-        if (yPos > 250) { doc.addPage(); yPos = 20; }
-        doc.setFont('helvetica', 'bold');
-        doc.text('8. ACCIONES TOMADAS', margin, yPos);
-        yPos += 6;
-        doc.setFont('helvetica', 'normal');
-        const acciones = [];
-        document.querySelectorAll('input[name="accion"]:checked').forEach(cb => { acciones.push(cb.value); });
-        const accionOtro = document.getElementById('accion_otro').value;
-        if (accionOtro) acciones.push(`Otro: ${accionOtro}`);
-        const nuevoSitio = document.getElementById('nuevo_sitio').value;
-        if (nuevoSitio) acciones.push(`Nuevo Sitio: ${nuevoSitio}`);
-        const horarioRest = document.getElementById('horario_restablecimiento').value;
-        if (horarioRest) acciones.push(`Horario Restablecimiento: ${horarioRest}`);
-
-        if (acciones.length > 0) {
-            acciones.forEach(a => { doc.text(`• ${a}`, margin + 5, yPos); yPos += 5; });
-        } else {
-            doc.text('No se especificaron acciones.', margin + 5, yPos); yPos += 5;
-        }
-        yPos += 5;
-        const observaciones = document.getElementById('desvio_observaciones').value;
-        if (observaciones) {
-            const obsLines = doc.splitTextToSize(`Observaciones: ${observaciones}`, pageWidth - 2*margin - 10);
-            doc.text(obsLines, margin + 5, yPos);
-            yPos += (obsLines.length * 5) + 5;
-        }
-        yPos += 5;
-
-        // --- 9. ACCIONES CORRECTIVAS ---
-        if (yPos > 250) { doc.addPage(); yPos = 20; }
-        doc.setFont('helvetica', 'bold');
-        doc.text('9. ACCIONES CORRECTIVAS/PREVENTIVAS', margin, yPos);
-        yPos += 6;
-        doc.setFont('helvetica', 'normal');
-        const correctivas = [];
-        document.querySelectorAll('input[name="correctiva"]:checked').forEach(cb => { correctivas.push(cb.value); });
-        if (correctivas.length > 0) {
-            correctivas.forEach(c => { doc.text(`• ${c}`, margin + 5, yPos); yPos += 5; });
-        } else {
-            doc.text('No se especificaron acciones.', margin + 5, yPos); yPos += 5;
-        }
-        yPos += 5;
-        const obsCorrectivas = document.getElementById('correctivas_observaciones').value;
-        if (obsCorrectivas) {
-            const obsCorrLines = doc.splitTextToSize(`Observaciones: ${obsCorrectivas}`, pageWidth - 2*margin - 10);
-            doc.text(obsCorrLines, margin + 5, yPos);
-            yPos += (obsCorrLines.length * 5) + 5;
-        }
-        yPos += 5;
-
-        // --- 10. DOSIS AFECTADAS (TABLA) ---
-        const dosisData = [];
-        document.querySelectorAll('[id^="dosis_equipo_"]').forEach(equipo => {
-            const nombreEquipo = equipo.querySelector('.dosis-equipo-nombre')?.value || 'Sin especificar';
-            equipo.querySelectorAll('tbody tr').forEach(row => {
-                const celdas = row.querySelectorAll('input');
-                if (celdas.length >= 5) {
-                    const vacuna = celdas[0]?.value || '';
-                    const lab = celdas[1]?.value || '';
-                    const lote = celdas[2]?.value || '';
-                    const venc = celdas[3]?.value || '';
-                    const cant = celdas[4]?.value || '';
-                    if (vacuna || lab || lote || venc || cant) {
-                        dosisData.push([nombreEquipo, vacuna, lab, lote, venc, cant]);
-                    }
-                }
-            });
-        });
-
-        if (dosisData.length > 0) {
-            if (yPos > 250) { doc.addPage(); yPos = 20; }
-            doc.setFont('helvetica', 'bold');
-            doc.text('10. DOSIS AFECTADAS POR EQUIPO', margin, yPos);
-            yPos += 5;
-            doc.autoTable({
-                startY: yPos,
-                head: [['Equipo', 'Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Cantidad']],
-                body: dosisData,
-                theme: 'grid',
-                styles: { fontSize: 7, cellPadding: 1.5 },
-                headStyles: { fillColor: [5, 150, 105], textColor: 255, fontStyle: 'bold' },
-                margin: { left: margin, right: margin }
-            });
-            yPos = doc.lastAutoTable.finalY + 10;
-        } else {
-            if (yPos > 250) { doc.addPage(); yPos = 20; }
-            doc.setFont('helvetica', 'normal');
-            doc.text('No se registraron dosis afectadas.', margin + 5, yPos);
-            yPos += 10;
-        }
-
-        // --- 11. FIRMA ---
-        if (yPos > 250) { doc.addPage(); yPos = 20; }
-        doc.setFont('helvetica', 'bold');
-        doc.text('11. COMPLETO EL FORMULARIO', margin, yPos);
-        yPos += 8;
-        doc.setFont('helvetica', 'normal');
-        const firmaNombre = document.getElementById('firma_nombre').value || '_________________';
-        const firmaCargo = document.getElementById('firma_cargo').value || '_________________';
-        doc.text(`Nombre: ${firmaNombre}`, margin + 5, yPos); yPos += 6;
-        doc.text(`Cargo: ${firmaCargo}`, margin + 5, yPos); yPos += 6;
-        doc.text(`Fecha: ${new Date().toLocaleDateString('es-AR')}`, margin + 5, yPos); yPos += 15;
-
-        // --- 12. A COMPLETAR POR LA DICEI ---
-        if (yPos > 230) { doc.addPage(); yPos = 20; }
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.setTextColor(146, 64, 14);
-        doc.text('12. A COMPLETAR POR LA DICEI', margin, yPos);
-        yPos += 12;
-        doc.setFontSize(10);
-        doc.setTextColor(30, 41, 59);
-
-        const col1X = margin;
-        const col2X = margin + fieldWidth + 10;
-
-        // --- Columna 1: CNV ---
-        doc.setFont('helvetica', 'bold');
-        doc.text('N° de desvio CNV', col1X, yPos);
-        yPos += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
-        yPos += 12;
-
-        doc.setFont('helvetica', 'bold');
-        doc.text('Recomendaciones:', col1X, yPos);
-        yPos += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 30, 1, 1, 'S');
-        yPos += 35;
-
-        doc.setFont('helvetica', 'bold');
-        doc.text('Fecha:', col1X, yPos);
-        yPos += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
-        yPos += 12;
-
-        doc.setFont('helvetica', 'bold');
-        doc.text('Firma (Nombre y cargo):', col1X, yPos);
-        yPos += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 12, 1, 1, 'S');
-        yPos += 17;
-
-        let col2Y = yPos - (12 + 35 + 12 + 17);
-
-        // --- Columna 2: COVID ---
-        doc.setFont('helvetica', 'bold');
-        doc.text('N° de desvio COVID', col2X, col2Y);
-        col2Y += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 8, 1, 1, 'S');
-        col2Y += 12;
-
-        doc.setFont('helvetica', 'bold');
-        doc.text('Recomendaciones:', col2X, col2Y);
-        col2Y += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 30, 1, 1, 'S');
-        col2Y += 35;
-
-        doc.setFont('helvetica', 'bold');
-        doc.text('Fecha:', col2X, col2Y);
-        col2Y += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 8, 1, 1, 'S');
-        col2Y += 12;
-
-        doc.setFont('helvetica', 'bold');
-        doc.text('Firma (Nombre y cargo):', col2X, col2Y);
-        col2Y += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 12, 1, 1, 'S');
-        
-        // ================================================================
-        // [3] CONTRACARÁTULA
-        // ================================================================
-        doc.addPage();
-        const contracaratulaRuta = "RUTA_DE_TU_IMAGEN_CONTRACARATULA"; // <--- REEMPLAZA AQUÍ
-        
-        if (contracaratulaRuta && contracaratulaRuta !== "RUTA_DE_TU_IMAGEN_CONTRACARATULA") {
-            try {
-                doc.addImage(contracaratulaRuta, 'JPEG', 0, 0, 210, 297);
-            } catch (e) {
-                console.warn("Error al cargar contracaratula, se usa pagina en blanco:", e);
-                doc.setFontSize(16);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(0, 56, 77);
-                doc.text('CONTRACARATULA', 105, 150, { align: 'center' });
-                doc.setFontSize(10);
-                doc.setTextColor(100);
-                doc.text(codigoUnico, 105, 160, { align: 'center' });
-            }
-        } else {
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(0, 56, 77);
-            doc.text('CONTRACARATULA', 105, 150, { align: 'center' });
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(codigoUnico, 105, 160, { align: 'center' });
-        }
-
-        const nombreArchivo = `Desvio_${codigoUnico}.pdf`;
-        doc.save(nombreArchivo);
-        cerrarModalDesvio();
-        
-        if (window.tempChart) window.tempChart.destroy();
-    }
-
-    // ============================================================
-    // FUNCIÓN PARA GUARDAR OBSERVACIONES
-    // ============================================================
-    function guardarObservacion(input, id) {
-        observacionesAlmacenadas[id] = input.value;
-    }
-
-    // ============================================================
-    // FUNCIONES DEL INFORME TÉCNICO
-    // ============================================================
-    function fillAlerts(feeds, field) {
-        const tbody = document.querySelector('#alertTable tbody');
-        let lastState = 'normal';
-        let startTime = null;
-        let rows = '';
-        let eventos = [];
-        let index = 0;
-        
-        feeds.forEach((f, i) => {
-            const val = parseFloat(f[field]);
-            if (isNaN(val)) return;
-            const state = (val > MAX) ? 'high' : (val < MIN) ? 'low' : 'normal';
-            
-            if (state !== lastState) {
-                if (state !== 'normal') {
-                    startTime = f.created_at;
-                    const label = state === 'high' ? 'Alta (riesgo de perdida)' : 'Baja (riesgo de congelacion)';
-                    rows += `<tr class="row-alert" data-index="${index}">`;
-                    rows += `<td>${formatDateTime(f.created_at)}</td>`;
-                    rows += `<td>${val.toFixed(1)}</td>`;
-                    rows += `<td>${label}</td>`;
-                    rows += `<td>--</td>`;
-                    rows += `<td></td>`;
-                    rows += `</tr>`;
-                } else if (startTime) {
-                    const dur = (new Date(f.created_at) - new Date(startTime)) / 60000;
-                    if (dur >= EVENTO_CORTE_MINUTOS) {
-                        rows += `<tr data-index="${index}">`;
-                        rows += `<td>${formatDateTime(f.created_at)}</td>`;
-                        rows += `<td>${val.toFixed(1)}</td>`;
-                        rows += `<td>Recuperacion</td>`;
-                        rows += `<td>${formatDurationFull(dur)}</td>`;
-                        const obsId = `recuperacion_${i}`;
-                        const valorGuardado = observacionesAlmacenadas[obsId] || '';
-                        rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Normalizado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
-                        rows += `</tr>`;
-                        
-                        eventos.push({
-                            tipo: 'alerta',
-                            duracion: dur,
-                            severidad: state === 'high' ? 'alta' : 'baja'
-                        });
-                    }
-                }
-                lastState = state;
-                index++;
-            }
-        });
-        
-        tbody.innerHTML = rows || '<tr><td colspan="5" class="empty">Sin eventos fuera de rango.</td></tr>';
-        
-        const analisisDiv = document.getElementById('analisisAlertasContenido');
-        const recomDiv = document.getElementById('recomendacionesAlertasContenido');
-        
-        if (analisisDiv && recomDiv) {
-            if (eventos.length === 0) {
-                analisisDiv.innerHTML = "✅ No se registraron desvíos de temperatura en el período analizado. El equipo se mantuvo dentro del rango óptimo (2°C - 8°C).";
-                recomDiv.innerHTML = "• Continuar con el monitoreo habitual cada 1 minuto.<br>• Mantener registro actualizado de temperaturas.<br>• Realizar mantenimiento preventivo según calendario.";
-            } else {
-                analisisDiv.innerHTML = generarAnalisisAlertas(eventos).replace(/\n/g, '<br>');
-                recomDiv.innerHTML = generarRecomendacionesAlertas(eventos).replace(/\n/g, '<br>');
-            }
-        }
-    }
-
-    function fillWifi(feeds, field) {
-        const tbody = document.querySelector('#wifiTable tbody');
-        let rows = '';
-        let eventos = [];
-        
-        for (let i = 1; i < feeds.length; i++) {
-            const diff = (new Date(feeds[i].created_at) - new Date(feeds[i-1].created_at)) / 60000;
-            if (diff > EVENTO_CORTE_MINUTOS) {
-                const tempAntes = parseFloat(feeds[i-1][field]);
-                const tempDespues = parseFloat(feeds[i][field]);
-                const fueraRangoAntes = tempAntes > MAX || tempAntes < MIN;
-                const fueraRangoDespues = tempDespues > MAX || tempDespues < MIN;
-                
-                const impactoTermico = Math.abs(tempDespues - tempAntes);
-                const hayImpactoSignificativo = impactoTermico > 3.0 && (fueraRangoAntes || fueraRangoDespues);
-                
-                let tipoCorte = 'Corte de WiFi';
-                if (hayImpactoSignificativo) {
-                    tipoCorte = 'Corte de Energia (con impacto termico)';
-                }
-                
-                rows += `<tr data-index="${i}">`;
-                rows += `<td>${formatDateTime(feeds[i-1].created_at)}</td>`;
-                rows += `<td>${formatDateTime(feeds[i].created_at)}</td>`;
-                rows += `<td>${tipoCorte}</td>`;
-                rows += `<td>${feeds[i-1][field]}°C</td>`;
-                rows += `<td>${feeds[i][field]}°C</td>`;
-                rows += `<td>${formatDurationFull(diff)}</td>`;
-                const obsId = `evento_${i}`;
-                const valorGuardado = observacionesAlmacenadas[obsId] || '';
-                rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Corte programado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
-                rows += `</tr>`;
-                
-                eventos.push({
-                    tipo: tipoCorte,
-                    duracion: diff,
-                    impacto: impactoTermico,
-                    hayImpacto: hayImpactoSignificativo
-                });
-            }
-        }
-        
-        tbody.innerHTML = rows || '<tr><td colspan="7" class="empty">Sin interrupciones >30 min.</td></tr>';
-        
-        const analisisDiv = document.getElementById('analisisEventosContenido');
-        const recomDiv = document.getElementById('recomendacionesEventosContenido');
-        
-        if (analisisDiv && recomDiv) {
-            if (eventos.length === 0) {
-                analisisDiv.innerHTML = "✅ No se detectaron interrupciones de conectividad >30 minutos. La transmisión de datos fue continua.";
-                recomDiv.innerHTML = "• Verificar periódicamente el estado de la red WiFi.<br>• Mantener actualizado el firmware del sensor.<br>• Revisar la distancia entre el sensor y el router.";
-            } else {
-                analisisDiv.innerHTML = generarAnalisisEventos(eventos).replace(/\n/g, '<br>');
-                recomDiv.innerHTML = generarRecomendacionesEventos(eventos).replace(/\n/g, '<br>');
-            }
-        }
-    }
-
-    // ============================================================
-    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO
-    // ============================================================
-    async function generarInformeTecnico() {
-        alert('Funcionalidad de generación de PDF en desarrollo.');
-    }
-
-    // ============================================================
-    // FUNCIONES EXISTENTES
-    // ============================================================
-    window.onload = () => {
-        if (!ID || !KEY) {
-            document.getElementById('status').innerText = "Error: Faltan parametros ID o KEY.";
-            return;
-        }
-        document.getElementById('issueDate').innerText = new Date().toLocaleDateString('es-AR');
-        setupDaySelector();
-        setupDatePicker();
-        run(DAYS);
-    };
-
-    function cleanTextForPDF(text) {
-        if (!text) return "";
-        return text.replace(/[^\x20-\x7EáéíóúÁÉÍÓÚñÑ]/g, '')
-                   .replace(/[⚠️❄️🔥✅⚡📶📡]/g, '')
-                   .trim();
-    }
-
-    function formatDurationFull(minutesFloat) {
-        const totalSeconds = Math.round(minutesFloat * 60);
-        const d = Math.floor(totalSeconds / 86400);
-        const h = Math.floor((totalSeconds % 86400) / 3600);
-        const m = Math.floor((totalSeconds % 3600) / 60);
-        const s = totalSeconds % 60;
-        let parts = [];
-        if (d > 0) parts.push(`${d} d`);
-        if (h > 0) parts.push(`${h} h`);
-        if (m > 0) parts.push(`${m} min`);
-        if (s > 0 || parts.length === 0) parts.push(`${s} seg`);
-        return parts.join(' ');
-    }
-
-    function setupDaySelector() {
-        document.querySelectorAll('.btn-day').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.btn-day').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                SELECTED_DATE = null;
-                document.getElementById('datePicker').value = '';
-                run(parseInt(btn.dataset.days));
-            });
-        });
-        document.querySelector(`.btn-day[data-days="${DAYS}"]`).classList.add('active');
-    }
-
-    function setupDatePicker() {
-        const datePicker = document.getElementById('datePicker');
-        datePicker.addEventListener('change', () => {
-            if (datePicker.value) {
-                SELECTED_DATE = datePicker.value;
-                document.querySelectorAll('.btn-day').forEach(b => b.classList.remove('active'));
-                run(null);
-            }
-        });
-    }
-
-    async function run(days) {
-        try {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('content').style.display = 'none';
-            let url;
-            if (SELECTED_DATE) {
-                url = `https://api.thingspeak.com/channels/${ID}/feeds.json?api_key=${KEY}&start=${SELECTED_DATE}T00:00:00Z&end=${SELECTED_DATE}T23:59:59Z`;
-            } else {
-                url = `https://api.thingspeak.com/channels/${ID}/feeds.json?api_key=${KEY}&minutes=${days * 1440}`;
-            }
-            const res = await fetch(url);
-            const data = await res.json();
-            if (!data.feeds || data.feeds.length === 0) {
-                document.getElementById('status').innerText = "Sin datos en este rango.";
-                return;
-            }
-            document.getElementById('sensorName').innerText = data.channel[FIELD] || "Sensor";
-            const teamNameEl = document.getElementById('teamName');
-            teamNameEl.innerHTML = `Vacunas: ${data.channel.name || "Sin nombre"}`;
-            teamNameEl.className = "tag vacunas-tag";
-            
-            currentFeeds = data.feeds.filter(f => parseFloat(f[FIELD]) !== -127);
-            
-            if (currentFeeds.length === 0) {
-                document.getElementById('status').innerText = "Sin datos validos (lecturas de error filtradas).";
-                return;
-            }
-
-            const labels = currentFeeds.map(f => formatDate(f.created_at));
-            const values = currentFeeds.map(f => parseFloat(f[FIELD]));
-            drawChart(labels, values, data.channel[FIELD] || "Valor");
-            fillAlerts(currentFeeds, FIELD);
-            fillWifi(currentFeeds, FIELD);
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-        } catch (e) {
-            document.getElementById('status').innerText = "Error al cargar datos.";
-        }
-    }
-
-    function drawChart(labels, values, label) {
-        const ctx = document.getElementById('chart').getContext('2d');
-        if (chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{
-                    label,
-                    data: values,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59,130,246,0.1)',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { y: { beginAtZero: false } }
-            }
-        });
-    }
-
-    function formatDate(iso) {
-        const d = new Date(iso);
-        return `${d.getDate()}/${d.getMonth() + 1} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
-    }
-
-    function formatDateTime(iso) {
-        const d = new Date(iso);
-        return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
-    }
-
-    // Cerrar modales al hacer clic fuera
-    window.onclick = function(event) {
-        const modalFecha = document.getElementById('modalFechaDesvio');
-        const modalDesvio = document.getElementById('modalDesvio');
-        if (event.target === modalFecha) {
-            cerrarModalFecha();
-        }
-        if (event.target === modalDesvio) {
-            cerrarModalDesvio();
-        }
-    };
-
-    window.onbeforeunload = function() {
-        if (document.getElementById('modalDesvio').style.display === 'block' || 
-            document.getElementById('modalFechaDesvio').style.display === 'block') {
-            return '¿Esta seguro que desea salir? Los datos no guardados se perderan.';
-        }
-    };
-  </script>
+<!-- Sección Stock (CONEXIÓN REAL A APPS SCRIPT) -->
+<div id="stockSection" style="display: none;" class="stock-container">
+<div class="stock-header">
+<h2>💊 Stock de Vacunas - Zona 1</h2>
+<button onclick="volverAlPanelEstadisticas()" class="btn-volver">← Volver</button>
+</div>
+
+<div id="stockLoader" style="text-align: center; padding: 40px;">
+<div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #059669; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+<p>Cargando stock actual...</p>
+</div>
+
+<div id="stockContent" style="display: none;">
+<table class="stock-table" id="stockTable">
+<thead>
+<tr>
+<th>Vacuna</th>
+<th>Laboratorio</th>
+<th>Lote</th>
+<th>Vencimiento</th>
+<th>Stock</th>
+<th>Ubicación</th>
+</tr>
+</thead>
+<tbody id="stockTableBody">
+<!-- Se llena dinámicamente -->
+</tbody>
+</table>
+
+<div class="egreso-form" id="egresoForm">
+<h3>📤 Registrar Egreso de Dosis</h3>
+<select id="vacunaSelect" required>
+<option value="">Seleccionar vacuna</option>
+</select>
+<input type="number" id="cantidadEgreso" placeholder="Cantidad" min="1" required>
+<input type="text" id="destinoEgreso" placeholder="Destino (ej: CAPS Centro)" required>
+<input type="text" id="responsableEgreso" placeholder="Responsable" required>
+<button onclick="registrarEgreso()">Registrar Egreso</button>
+</div>
+</div>
+</div>
+
+<!-- Dashboard de Sensores -->
+<div id="dashboardSensores" style="display: none;" class="dashboard-container">
+<div class="dashboard-header">
+<h2>🌡️ Dashboard de Decisiones - Sensores</h2>
+<button onclick="volverAlPanelEstadisticas()" class="btn-volver">← Volver</button>
+</div>
+
+<div style="background: #f5f3ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #8b5cf6;">
+<p style="margin: 0; font-weight: 600;">Sensor seleccionado: <span id="sensorSeleccionado">No hay sensor seleccionado</span></p>
+<p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #4b5563;" id="sensorInfo">Seleccione un sensor para ver sus estadísticas</p>
+</div>
+
+<div class="dashboard-grid">
+<div class="dashboard-card">
+<h3>Análisis Automático</h3>
+<div id="dashboardAnalisis">
+<p>Cargando análisis consolidado...</p>
+</div>
+</div>
+<div class="dashboard-card">
+<h3>Recomendaciones</h3>
+<div id="dashboardRecomendaciones">
+<p>Basado en el historial de los últimos 7 días...</p>
+</div>
+</div>
+<div class="dashboard-card">
+<h3>Tendencias</h3>
+<canvas id="trendChart" width="400" height="200"></canvas>
+</div>
+</div>
+
+<h3 style="margin-top: 30px; color: #00384d;">🗺️ Monitoreo Regional</h3>
+<div class="gallery-container">
+<div class="gallery-item">
+<img src="RUTA_DE_TU_IMAGEN_REGIONES" alt="Regiones de la provincia" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22 font-family=%22Arial%22>Regiones</text><text x=%2210%22 y=%2260%22 fill=%22%231e293b%22>Alto Neuquén</text><text x=%2210%22 y=%2280%22 fill=%22%231e293b%22>Pehuén</text><text x=%2210%22 y=%22100%22 fill=%22%231e293b%22>Lagos del Sur</text><text x=%2210%22 y=%22120%22 fill=%22%231e293b%22>Limay</text><text x=%2210%22 y=%22140%22 fill=%22%231e293b%22>Vaca Muerta</text><text x=%2210%22 y=%22160%22 fill=%22%231e293b%22>Comarca</text><text x=%2210%22 y=%22180%22 fill=%22%231e293b%22>Confluencia</text></svg>'">
+<p>Plan Provincial de Regionalización</p>
+</div>
+<div class="gallery-item">
+<img src="RUTA_DE_TU_IMAGEN_CONFLUENCIA" alt="Región Confluencia" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22 font-family=%22Arial%22>Región Confluencia</text><text x=%2210%22 y=%2260%22 fill=%22%231e293b%22>Centenario</text><text x=%2210%22 y=%2280%22 fill=%22%231e293b%22>Neuquén</text><text x=%2210%22 y=%22100%22 fill=%22%231e293b%22>Plottier</text><text x=%2210%22 y=%22120%22 fill=%22%231e293b%22>Senillosa</text><text x=%2210%22 y=%22140%22 fill=%22%231e293b%22>Vista Alegre</text><text x=%2210%22 y=%22160%22 fill=%22%231e293b%22>Villa El Chocón</text></svg>'">
+<p>Región Confluencia - Centenario y Vista Alegre</p>
+</div>
+<div class="gallery-item">
+<img src="RUTA_DE_TU_IMAGEN_VACAMUERTA" alt="Vaca Muerta" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22 font-family=%22Arial%22>Vaca Muerta</text><text x=%2210%22 y=%2260%22 fill=%22%231e293b%22>Rincón de los Sauces</text><text x=%2210%22 y=%2280%22 fill=%22%231e293b%22>San Patricio del Chañar</text><text x=%2210%22 y=%22100%22 fill=%22%231e293b%22>Añelo</text><text x=%2210%22 y=%22120%22 fill=%22%231e293b%22>Buta Ranquil</text><text x=%2210%22 y=%22140%22 fill=%22%231e293b%22>Barrancas</text></svg>'">
+<p>Vaca Muerta - Hospital de El Chañar</p>
+</div>
+</div>
+</div>
+
+<!-- Modal para seleccionar sensor en el dashboard -->
+<div id="modalSelectorSensores" class="modal-sensores">
+<div class="modal-content">
+<h3>Seleccionar Sensor para Análisis</h3>
+<select id="selectorSensorDashboard" size="10" style="height: auto; max-height: 300px;">
+<optgroup label="Centenario (H. Natalio Burd)">
+<option value="2986932|field1|9ODQC0Q4Y05C1O1T|Vacunatorio HNB 1">HNB 1 (2986932)</option>
+<option value="2986935|field1|Q1CXSNKL68D24MJH|Vacunatorio HNB 2">HNB 2 (2986935)</option>
+<option value="2993812|field1|PNS5MD5VS74CKIIM|Depósito HNB 1">Depósito 1 (2993812)</option>
+<option value="2993815|field1|XZ0DG337HFATUG1O|Depósito HNB 2">Depósito 2 (2993815)</option>
+</optgroup>
+<optgroup label="Centenario (CAPS)">
+<option value="3102139|field1|YPWRU12M4LY6DBIX|CAPS Sarmiento 2">Sarmiento 2 (3102139)</option>
+<option value="3003527|field1|9ALDC8QUP8JV6ZDJ|CAPS Sarmiento 1">Sarmiento 1 (3003527)</option>
+<option value="3015641|field1|4IV9V3L1RC08AAQ5|CAPS Villa Obrera">Villa Obrera (3015641)</option>
+<option value="3018408|field1|ZY1L55G8AUXGCV9B|CAPS Nueva España">Nueva España (3018408)</option>
+<option value="3019919|field1|BGIYFCS3AS3BBQC0|CAPS 11 de Octubre">11 de Octubre (3019919)</option>
+</optgroup>
+<optgroup label="Vista Alegre">
+<option value="3060520|field1|YBS2XVLA80RQ63J6|CAPS Vista Alegre Norte">Norte (3060520)</option>
+<option value="3079464|field1|18OTBS7ODP225VBW|CAPS Vista Alegre Sur">Sur (3079464)</option>
+<option value="3090672|field1|7K994UH4606YRUE1|CAPS Costa de Reyes">Costa de Reyes (3090672)</option>
+</optgroup>
+<optgroup label="Región Confluencia (Depósito Zona 1)">
+<option value="3016635|field1|8QKPERAJWIATGC5F|Depósito Zona 1 A">Depósito 1 (3016635)</option>
+<option value="3016636|field1|SAP43F3FB83V79KP|Depósito Zona 1 B">Depósito 2 (3016636)</option>
+</optgroup>
+<optgroup label="San Patricio del Chañar (Vaca Muerta)">
+<option value="3082646|field1|TSE6UAW72LLR8R39|Hospital El Chañar">Hospital (3082646)</option>
+<option value="3125888|field1|SCAORB4D3OCPE9DK|Depósito El Chañar">Depósito (3125888)</option>
+</optgroup>
+</select>
+<div class="modal-botones">
+<button onclick="cerrarModalSelector()" class="btn-volver" style="background: #64748b;">Cancelar</button>
+<button onclick="cargarSensorEnDashboard()" class="btn-estadistica" style="background: #8b5cf6;">Cargar Datos</button>
+</div>
+</div>
+</div>
+
+<div id="app" class="device-grid">
+<p style="text-align:center;color:#94a3b8;">Cargando dispositivos...</p>
+</div>
+
+<div style="margin-top: 32px; text-align: center;">
+<div style="background-color: #00384d; padding: 6px 16px; border-top: 1px solid var(--border);">
+<img src="logos/footer.jpg" alt="HNB - Provincia del Neuquén" style="max-width: 100%; height: auto; display: inline-block;">
+</div>
+</div>
+
+<!-- Panel de Normativa -->
+<div id="normativaPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; overflow:auto; padding:20px; box-sizing:border-box;">
+<div style="max-width:900px; margin:0 auto;">
+<div style="text-align:right; margin-bottom:20px;">
+<button onclick="toggleNormativa()" style="padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer;">Cerrar ✕</button>
+</div>
+<div style="text-align:center; margin-bottom:20px;">
+<div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; margin-bottom:16px;">
+<img src="logos/logo_hnb_oscuro.jpg" alt="HNB" style="max-height:80px; object-fit:contain;">
+<img src="logos/logo_rih.jpg" alt="RIH" style="max-height:80px; object-fit:contain;">
+<img src="logos/logo_hnb_blanco.jpg" alt="HNB Blanco" style="max-height:80px; object-fit:contain;">
+</div>
+<h1 style="color:#1d4ed8; font-size:24px;">Marco Normativo para la Cadena de Frío en Inmunización</h1>
+<p>Sistemas de monitoreo – rsamio | Vigencia: Enero 2026</p>
+<button onclick="buscarTodasNormas()" style="background:#dbeafe; border:1px solid #cbd5e1; padding:6px 12px; border-radius:4px; color:#1d4ed8; cursor:pointer; margin-top:10px;">🔍 Verificar todas las normas</button>
+</div>
+<div style="background:#fffbeb; border-left:4px solid #fbbf24; padding:12px; margin:16px 0; border-radius:4px; font-size:14px;">
+ℹ️ <strong>Nota importante:</strong> Si al verificar una norma no se encuentran resultados, esto <em>no significa que haya sido derogada</em>. Puede deberse a cambios en la indexación, formato de publicación o mantenimiento del sitio. En caso de duda, consulte con la autoridad sanitaria competente (Ministerio de Salud de Neuquén o Nación).
+</div>
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">1. Normativa Nacional</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Ley Nacional N° 27.491 (2018)</strong> – "Ley de Vacunas"
+<p style="margin:8px 0;">Establece el Programa Nacional de Inmunizaciones (PNI) como política de Estado.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Ley 27.491 boletinoficial.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Resolución MSAL N° 1030/2021</strong>
+<p style="margin:8px 0;">Normas técnicas para la cadena de frío del PNI. Define rangos (+2 °C a +8 °C), prohibiciones y requisitos de monitoreo.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Resolución 1030/2021 cadena de frío argentina.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>ANMAT – Disposición N° 10.872/2020</strong>
+<p style="margin:8px 0;">Buenas Prácticas de Almacenamiento y Distribución de Productos Médicos (incluye vacunas).</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Disposición 10872/2020 ANMAT productos biológicos argentina.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+</div>
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">2. Normativa Provincial – Neuquén</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Resolución Ministerial N° 1285/2022</strong>
+<p style="margin:8px 0;">Protocolo Provincial de Gestión de la Cadena de Frío en Inmunización.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Resolución 1285/2022 cadena de frío inmunización salud.neuquen.gov.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<strong>Decreto Provincial N° 1874/2023</strong>
+<p style="margin:8px 0;">Sistema Provincial de Trazabilidad en Salud Pública.</p>
+<div style="text-align:right; margin-top:8px;">
+<button onclick="buscarNorma('Decreto 1874/2023 trazabilidad salud Neuquén neuquen.gov.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8;">Verificar</button>
+</div>
+</div>
+</div>
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">3. Fuentes Oficiales</h2>
+<div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+<ul style="padding-left:20px; margin-top:8px; line-height:1.6;">
+<li><a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="color:#2563eb; text-decoration:underline;">Programa Nacional de Inmunizaciones</a></li>
+<li><a href="https://www.argentina.gob.ar/anmat/productos-biologicos" target="_blank" style="color:#2563eb; text-decoration:underline;">ANMAT – Productos Biológicos</a></li>
+<li><a href="https://salud.neuquen.gov.ar/programas/inmunizaciones/" target="_blank" style="color:#2563eb; text-decoration:underline;">Inmunizaciones – Ministerio de Salud de Neuquén</a></li>
+</ul>
+</div>
+</div>
+<div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+<h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">Conclusión</h2>
+<p>El módulo "Inmunización" de rsamio cumple con la normativa vigente siempre que se respeten los rangos térmicos, se incluyan los elementos gráficos exigidos por Neuquén, y se permita el registro y exportación detallada de eventos térmicos.</p>
+</div>
+</div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURACIÓN
+// ============================================================
+const MAX = 8.0, MIN = 2.0;
+const WIFI_CUTOFF = 10;
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDal_mI-_9TqksUzvvQmwOAobN5EfQwd-smvac9fVgPqV9cOu1YIr_npOiX8x5uMAm/exec';
+
+// Lista fija de canales
+const CHANNELS = [
+"3016635", "3016636", "3082646", "3125888", "2986932", "2986935",
+"2993812", "2993815", "3102139", "3003527", "3003528", "3015641",
+"3018408", "3019919", "3060520", "3079464", "3090672"
+];
+const API_KEYS = {
+"3016635": "8QKPERAJWIATGC5F",
+"3016636": "SAP43F3FB83V79KP",
+"3082646": "TSE6UAW72LLR8R39",
+"3125888": "SCAORB4D3OCPE9DK",
+"2986932": "9ODQC0Q4Y05C1O1T",
+"2986935": "Q1CXSNKL68D24MJH",
+"2993812": "PNS5MD5VS74CKIIM",
+"2993815": "XZ0DG337HFATUG1O",
+"3102139": "YPWRU12M4LY6DBIX",
+"3003527": "9ALDC8QUP8JV6ZDJ",
+"3003528": "3ENZ4FNKZRFF1I2W",
+"3015641": "4IV9V3L1RC08AAQ5",
+"3018408": "ZY1L55G8AUXGCV9B",
+"3019919": "BGIYFCS3AS3BBQC0",
+"3060520": "YBS2XVLA80RQ63J6",
+"3079464": "18OTBS7ODP225VBW",
+"3090672": "7K994UH4606YRUE1"
+};
+
+// Variables globales
+let chartInstance = null;
+let trendChartInstance = null;
+let currentFeeds = [];
+
+// ============================================================
+// FUNCIONES DE INTERFAZ PRINCIPAL
+// ============================================================
+function isTempAmbiente(label) {
+if (!label) return false;
+return label.trim().toLowerCase() === "temp ambiente";
+}
+
+function renderInitialStructure() {
+const app = document.getElementById('app');
+app.innerHTML = "";
+CHANNELS.forEach(id => {
+const card = document.createElement('div');
+card.className = 'device-card';
+card.id = `p-${id}`;
+card.innerHTML = `
+<div class="device-header">
+<span class="device-name">ID: ${id}</span>
+<span class="type-badge vacunas">Vacunas 💉</span>
+</div>
+<div class="sensor-cards" id="sensors-${id}">
+<div class="sensor-card"><div class="label">Cargando...</div><div class="value">--</div></div>
+<div class="sensor-card"><div class="label">Cargando...</div><div class="value">--</div></div>
+</div>
+`;
+app.appendChild(card);
+});
+}
+
+async function refreshData() {
+for (const id of CHANNELS) {
+try {
+const k = API_KEYS[id];
+const url = `https://api.thingspeak.com/channels/${id}/feeds.json?api_key=${k}&results=1`;
+const res = await fetch(url);
+const data = await res.json();
+if (!data.channel || !data.feeds || data.feeds.length === 0) continue;
+
+const channelName = data.channel.name || `ID: ${id}`;
+const feed = data.feeds[0];
+
+let validFields = [];
+if (!isTempAmbiente(data.channel.field1)) validFields.push({ key: 'field1', label: data.channel.field1 || 'Campo 1' });
+if (!isTempAmbiente(data.channel.field2)) validFields.push({ key: 'field2', label: data.channel.field2 || 'Campo 2' });
+
+const nameEl = document.querySelector(`#p-${id} .device-name`);
+if (nameEl && !channelName.includes("Sarmiento 1 Farmacia")) {
+nameEl.innerText = channelName;
+} else if (channelName.includes("Sarmiento 1 Farmacia")) {
+document.getElementById(`p-${id}`).style.display = 'none';
+continue;
+}
+
+const sensors = document.querySelectorAll(`#sensors-${id} .sensor-card`);
+let hasAlert = false;
+
+for (let i = 0; i < 2; i++) {
+if (i < validFields.length) {
+const f = validFields[i];
+const val = parseFloat(feed[f.key]);
+const isDanger = !isNaN(val) && (val < MIN || val > MAX);
+if (isDanger) {
+checkTemperatureAlerts(f.label, val, MIN, MAX, id);
+}
+const valueText = isNaN(val) ? '--' : val.toFixed(1);
+sensors[i].querySelector('.label').innerText = f.label;
+sensors[i].querySelector('.value').innerText = valueText;
+sensors[i].classList.toggle('danger', isDanger);
+sensors[i].querySelector('.value').classList.toggle('danger', isDanger);
+sensors[i].onclick = () => openRep(id, k, f.key);
+sensors[i].querySelector('.btn-hist')?.remove();
+const btn = document.createElement('button');
+btn.className = 'btn-hist';
+btn.innerText = '📊 Gráfico';
+btn.onclick = () => openRep(id, k, f.key);
+sensors[i].appendChild(btn);
+if (isDanger) hasAlert = true;
+} else {
+sensors[i].style.display = 'none';
+}
+}
+
+const card = document.getElementById(`p-${id}`);
+if (card) {
+card.classList.toggle('alert', hasAlert);
+card.style.display = validFields.length > 0 ? 'block' : 'none';
+}
+} catch (e) {
+console.warn(`Error al cargar canal ${id}:`, e);
+}
+}
+}
+
+function init() {
+renderInitialStructure();
+refreshData();
+setInterval(refreshData, 10000);
+
+// Solicitar permiso para notificaciones
+if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+Notification.requestPermission();
+}
+}
+
+function openRep(id, k, f) {
+window.open(`reporte_individual_inmunizacion_zona1.html?id=${id}&key=${k}&field=${f}&type=vacunas&days=7`, '_blank');
+}
+
+function checkTemperatureAlerts(sensorName, temperature, minTemp, maxTemp, channelId) {
+if (temperature < minTemp || temperature > maxTemp) {
+if ('Notification' in window && Notification.permission === 'granted') {
+new Notification('💉 ZONA 1 - ALERTA DE TEMPERATURA', {
+body: `Canal: ${channelId}\nSensor: ${sensorName}\nTemperatura: ${temperature}°C\nRango: ${minTemp}°C - ${maxTemp}°C`,
+icon: '/icons/icon-192x192.png',
+vibrate: [200, 100, 200],
+requireInteraction: true
+});
+}
+}
+}
+
+// ============================================================
+// FUNCIONES DE NAVEGACIÓN (Estadísticas)
+// ============================================================
+function toggleNormativa() {
+const panel = document.getElementById('normativaPanel');
+panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+
+function buscarNorma(query) {
+window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+}
+
+function buscarTodasNormas() {
+if (confirm('¿Desea abrir pestañas para verificar todas las normas?')) {
+const queries = [
+'Ley 27.491 boletinoficial.gob.ar',
+'Resolución 1030/2021 cadena de frío argentina.gob.ar',
+'Disposición 10872/2020 ANMAT productos biológicos argentina.gob.ar',
+'Resolución 1285/2022 cadena de frío inmunización salud.neuquen.gov.ar',
+'Decreto 1874/2023 trazabilidad salud Neuquén neuquen.gov.ar'
+];
+queries.forEach((q, i) => {
+setTimeout(() => window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank'), i * 600);
+});
+}
+}
+
+function mostrarPanelEstadisticas() {
+ocultarTodo();
+document.getElementById('panelEstadisticas').style.display = 'block';
+document.getElementById('app').style.display = 'grid';
+}
+
+function ocultarPanelEstadisticas() {
+document.getElementById('panelEstadisticas').style.display = 'none';
+}
+
+function ocultarTodo() {
+document.getElementById('panelEstadisticas').style.display = 'none';
+document.getElementById('stockSection').style.display = 'none';
+document.getElementById('dashboardSensores').style.display = 'none';
+document.getElementById('app').style.display = 'grid';
+}
+
+function volverAlPanelEstadisticas() {
+ocultarTodo();
+document.getElementById('panelEstadisticas').style.display = 'block';
+}
+
+// ============================================================
+// FUNCIONES DE STOCK (CONEXIÓN REAL A APPS SCRIPT)
+// ============================================================
+async function mostrarStock() {
+ocultarTodo();
+document.getElementById('stockSection').style.display = 'block';
+document.getElementById('stockLoader').style.display = 'block';
+document.getElementById('stockContent').style.display = 'none';
+
+await cargarStock();
+}
+
+async function cargarStock() {
+try {
+const url = `${APPS_SCRIPT_URL}?action=getStock`;
+const response = await fetch(url);
+const data = await response.json();
+
+if (data.error) {
+alert('Error al cargar stock: ' + data.error);
+return;
+}
+
+const tbody = document.getElementById('stockTableBody');
+tbody.innerHTML = '';
+
+const select = document.getElementById('vacunaSelect');
+select.innerHTML = '<option value="">Seleccionar vacuna</option>';
+
+data.forEach(item => {
+const row = document.createElement('tr');
+const stockClass = item.stock < 10 ? 'stock-low' : '';
+row.innerHTML = `
+<td>${item.vacuna || ''}</td>
+<td>${item.laboratorio || ''}</td>
+<td>${item.lote || ''}</td>
+<td>${item.vencimiento || ''}</td>
+<td class="${stockClass}">${item.stock || 0}</td>
+<td>${item.ubicacion || ''}</td>
+`;
+tbody.appendChild(row);
+
+const option = document.createElement('option');
+option.value = item.vacuna;
+option.textContent = `${item.vacuna} (Stock: ${item.stock})`;
+select.appendChild(option);
+});
+
+document.getElementById('stockLoader').style.display = 'none';
+document.getElementById('stockContent').style.display = 'block';
+
+} catch (error) {
+console.error('Error al cargar stock:', error);
+document.getElementById('stockLoader').innerHTML = '<p style="color: red;">Error al conectar con el servidor. Verifique la URL del script.</p>';
+}
+}
+
+async function registrarEgreso() {
+const vacuna = document.getElementById('vacunaSelect').value;
+const cantidad = document.getElementById('cantidadEgreso').value;
+const destino = document.getElementById('destinoEgreso').value;
+const responsable = document.getElementById('responsableEgreso').value;
+
+if (!vacuna || !cantidad || !destino || !responsable) {
+alert('Complete todos los campos');
+return;
+}
+
+try {
+const response = await fetch(APPS_SCRIPT_URL, {
+method: 'POST',
+mode: 'no-cors', // Importante para Apps Script
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+vacuna: vacuna,
+cantidad: parseInt(cantidad),
+destino: destino,
+responsable: responsable
+})
+});
+
+// Con no-cors no podemos leer la respuesta, asumimos éxito
+alert('Egreso registrado (verificar en la planilla)');
+
+// Limpiar formulario
+document.getElementById('cantidadEgreso').value = '';
+document.getElementById('destinoEgreso').value = '';
+document.getElementById('responsableEgreso').value = '';
+
+// Recargar stock
+await cargarStock();
+
+} catch (error) {
+console.error('Error al registrar egreso:', error);
+alert('Error al registrar egreso. Intente nuevamente.');
+}
+}
+
+// ============================================================
+// FUNCIONES DEL DASHBOARD DE SENSORES
+// ============================================================
+function mostrarSelectorSensores() {
+document.getElementById('modalSelectorSensores').style.display = 'block';
+}
+
+function cerrarModalSelector() {
+document.getElementById('modalSelectorSensores').style.display = 'none';
+}
+
+async function cargarSensorEnDashboard() {
+const select = document.getElementById('selectorSensorDashboard');
+const [id, field, key, name] = select.value.split('|');
+
+cerrarModalSelector();
+ocultarTodo();
+document.getElementById('dashboardSensores').style.display = 'block';
+
+document.getElementById('sensorSeleccionado').innerText = name;
+document.getElementById('sensorInfo').innerText = `ID: ${id} | Campo: ${field}`;
+
+await cargarDatosSensor(id, key, field);
+}
+
+async function cargarDatosSensor(id, key, field) {
+try {
+const url = `https://api.thingspeak.com/channels/${id}/feeds.json?api_key=${key}&results=100`;
+const response = await fetch(url);
+const data = await response.json();
+
+if (!data.feeds || data.feeds.length === 0) {
+document.getElementById('dashboardAnalisis').innerHTML = '<p>No hay datos disponibles para este sensor.</p>';
+return;
+}
+
+const feeds = data.feeds.filter(f => parseFloat(f[field]) !== -127);
+const valores = feeds.map(f => parseFloat(f[field])).filter(v => !isNaN(v));
+
+if (valores.length === 0) {
+document.getElementById('dashboardAnalisis').innerHTML = '<p>No hay datos válidos.</p>';
+return;
+}
+
+const max = Math.max(...valores).toFixed(1);
+const min = Math.min(...valores).toFixed(1);
+const prom = (valores.reduce((a,b) => a+b, 0) / valores.length).toFixed(1);
+const fueraRango = valores.filter(v => v > MAX || v < MIN).length;
+const pctFueraRango = ((fueraRango / valores.length) * 100).toFixed(1);
+
+document.getElementById('dashboardAnalisis').innerHTML = `
+<p><strong>Sensor:</strong> ${name}</p>
+<p><strong>Período:</strong> Últimas 100 lecturas</p>
+<p><strong>Temperatura:</strong> Máx ${max}°C | Mín ${min}°C | Prom ${prom}°C</p>
+<p><strong>Confiabilidad:</strong> ${(100 - pctFueraRango).toFixed(1)}% en rango</p>
+<p><strong>Alertas:</strong> ${fueraRango} lecturas fuera de rango (${pctFueraRango}%)</p>
+`;
+
+document.getElementById('dashboardRecomendaciones').innerHTML = `
+<p>✅ <strong>Recomendaciones:</strong></p>
+<ul style="margin-left: 20px;">
+<li>Mantener registro diario de temperaturas</li>
+${max > 8 ? '<li style="color:#dc2626;">⚠️ ALERTA: Temperaturas altas detectadas</li>' : ''}
+${min < 2 ? '<li style="color:#dc2626;">⚠️ ALERTA: Temperaturas bajas detectadas</li>' : ''}
+<li>Verificar calibración del sensor</li>
+<li>Programar mantenimiento preventivo</li>
+</ul>
+`;
+
+// Gráfico de tendencia
+const ctx = document.getElementById('trendChart').getContext('2d');
+if (trendChartInstance) trendChartInstance.destroy();
+
+trendChartInstance = new Chart(ctx, {
+type: 'line',
+data: {
+labels: feeds.slice(-20).map(f => {
+const d = new Date(f.created_at);
+return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+}),
+datasets: [{
+label: 'Temperatura (°C)',
+data: valores.slice(-20),
+borderColor: '#8b5cf6',
+backgroundColor: 'rgba(139,92,246,0.1)',
+tension: 0.3,
+fill: true
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+title: { display: true, text: 'Tendencia (últimas 20 lecturas)' }
+}
+}
+});
+
+} catch (error) {
+console.error('Error al cargar datos del sensor:', error);
+document.getElementById('dashboardAnalisis').innerHTML = '<p style="color: red;">Error al cargar datos.</p>';
+}
+}
+
+// Inicialización
+window.onload = function() {
+init();
+};
+</script>
 </body>
 </html>
