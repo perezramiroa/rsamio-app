@@ -79,6 +79,7 @@ display: flex;
 gap: 12px;
 align-items: center;
 margin-top: 12px;
+flex-wrap: wrap;
 }
 .btn-normativa {
 padding: 8px 16px;
@@ -91,6 +92,30 @@ font-weight: 600;
 }
 .btn-normativa:hover {
 background: #475569;
+}
+.btn-estadistica {
+padding: 8px 16px;
+background: #3b82f6;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-weight: 600;
+}
+.btn-estadistica:hover {
+background: #2563eb;
+}
+.btn-stock {
+padding: 8px 16px;
+background: #10b981;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-weight: 600;
+}
+.btn-stock:hover {
+background: #059669;
 }
 .device-grid {
 display: grid;
@@ -212,6 +237,7 @@ background: #2563eb;
 .logo-bar { gap: 10px; }
 .device-grid { grid-template-columns: 1fr; }
 .sensor-card { min-width: 100%; }
+.controls { justify-content: center; }
 }
 </style>
 </head>
@@ -227,7 +253,9 @@ background: #2563eb;
 <p> Monitoreo de Sistema de cadena de Frío </p>
 </div>
 <div class="controls">
-<button class="btn-normativa" onclick="toggleNormativa()">Normativa</button>
+<button class="btn-estadistica" onclick="abrirEstadistica()">📊 Estadística</button>
+<button class="btn-stock" onclick="abrirStock()">📦 Stock</button>
+<button class="btn-normativa" onclick="toggleNormativa()">📋 Normativa</button>
 </div>
 </div>
 <div id="app" class="device-grid">
@@ -346,11 +374,13 @@ const API_KEYS = {
 "3079464": "18OTBS7ODP225VBW",
 "3090672": "7K994UH4606YRUE1"
 };
+
 // Normaliza y verifica si es "Temp Ambiente"
 function isTempAmbiente(label) {
 if (!label) return false;
 return label.trim().toLowerCase() === "temp ambiente";
 }
+
 // Renderiza la estructura inicial (una sola vez)
 function renderInitialStructure() {
 const app = document.getElementById('app');
@@ -372,6 +402,7 @@ card.innerHTML = `
 app.appendChild(card);
 });
 }
+
 // Actualiza SOLO los valores y estados (sin borrar/recrear)
 async function refreshData() {
 for (const id of CHANNELS) {
@@ -434,22 +465,36 @@ console.warn(`Error al cargar canal ${id}:`, e);
 }
 }
 }
+
 function init() {
 renderInitialStructure();
 refreshData(); // Primera carga
 setInterval(refreshData, 10000); // Refresco suave cada 10 segundos
 }
+
 function openRep(id, k, f) {
 window.open(`reporte_individual_inmunizacion_zona1.html?id=${id}&key=${k}&field=${f}&type=vacunas&days=7`, '_blank');
 }
+
+// === NUEVAS FUNCIONES PARA LOS BOTONES ===
+function abrirEstadistica() {
+window.open('estadistica_inmunizacion_zona1.html', '_blank');
+}
+
+function abrirStock() {
+window.open('stock_inmunizacion_zona1.html', '_blank');
+}
+
 // === FUNCIONES DE NORMATIVA ===
 function toggleNormativa() {
 const panel = document.getElementById('normativaPanel');
 panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
 }
+
 function buscarNorma(query) {
 window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
 }
+
 function buscarTodasNormas() {
 if (confirm('¿Desea abrir pestañas para verificar todas las normas?')) {
 const queries = [
@@ -464,6 +509,7 @@ setTimeout(() => window.open(`https://www.google.com/search?q=${encodeURICompone
 });
 }
 }
+
 function checkTemperatureAlerts(sensorName, temperature, minTemp, maxTemp, channelId) {
   if (temperature < minTemp || temperature > maxTemp) {
     if ('Notification' in window && Notification.permission === 'granted') {
