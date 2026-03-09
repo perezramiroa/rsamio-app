@@ -1050,7 +1050,7 @@
     let SELECTED_DATE = null;
 
     const MAX = 8.0, MIN = 2.0;
-    const EVENTO_CORTE_MINUTOS = 30;
+    const EVENTO_CORTE_MINUTOS = 30; // Cambiado de 10 a 30 minutos
     let chartInstance = null;
     let currentFeeds = [];
 
@@ -1077,8 +1077,18 @@
         return `${prefijo}-${año}${mes}${dia}-${hora}${minuto}${segundo}-${sensorShort}-${randomHash}`;
     }
 
+    function generarHashSimple(texto) {
+        let hash = 0;
+        for (let i = 0; i < texto.length; i++) {
+            const char = texto.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return Math.abs(hash).toString(16).padStart(8, '0').toUpperCase();
+    }
+
     // ============================================================
-    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES
+    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES (ACTUALIZADAS)
     // ============================================================
     function generarAnalisisAlertas(eventos) {
         if (!eventos || eventos.length === 0) {
@@ -2005,7 +2015,7 @@
     }
 
     // ============================================================
-    // FUNCIONES DEL INFORME TÉCNICO
+    // FUNCIONES DEL INFORME TÉCNICO (MODIFICADAS)
     // ============================================================
     function fillAlerts(feeds, field) {
         const tbody = document.querySelector('#alertTable tbody');
@@ -2029,6 +2039,7 @@
                     rows += `<td>${val.toFixed(1)}</td>`;
                     rows += `<td>${label}</td>`;
                     rows += `<td>--</td>`;
+                    // OBSERVACIÓN: Solo visible en recuperación, no en alerta
                     rows += `<td></td>`;
                     rows += `</tr>`;
                 } else if (startTime) {
@@ -2039,6 +2050,7 @@
                         rows += `<td>${val.toFixed(1)}</td>`;
                         rows += `<td>Recuperacion</td>`;
                         rows += `<td>${formatDurationFull(dur)}</td>`;
+                        // OBSERVACIÓN: Solo en recuperación
                         const obsId = `recuperacion_${i}`;
                         const valorGuardado = observacionesAlmacenadas[obsId] || '';
                         rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Normalizado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
@@ -2058,6 +2070,7 @@
         
         tbody.innerHTML = rows || '<tr><td colspan="5" class="empty">Sin eventos fuera de rango.</td></tr>';
         
+        // Actualizar análisis y recomendaciones en el HTML
         const analisisDiv = document.getElementById('analisisAlertasContenido');
         const recomDiv = document.getElementById('recomendacionesAlertasContenido');
         
@@ -2100,6 +2113,7 @@
                 rows += `<td>${feeds[i-1][field]}°C</td>`;
                 rows += `<td>${feeds[i][field]}°C</td>`;
                 rows += `<td>${formatDurationFull(diff)}</td>`;
+                // OBSERVACIÓN: Para eventos de conectividad
                 const obsId = `evento_${i}`;
                 const valorGuardado = observacionesAlmacenadas[obsId] || '';
                 rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Corte programado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
@@ -2116,6 +2130,7 @@
         
         tbody.innerHTML = rows || '<tr><td colspan="7" class="empty">Sin interrupciones >30 min.</td></tr>';
         
+        // Actualizar análisis y recomendaciones en el HTML
         const analisisDiv = document.getElementById('analisisEventosContenido');
         const recomDiv = document.getElementById('recomendacionesEventosContenido');
         
@@ -2134,11 +2149,344 @@
     // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO
     // ============================================================
     async function generarInformeTecnico() {
-        alert('Funcionalidad de generación de PDF en desarrollo.');
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 15;
+            const marginBottom = 30; // Espacio para footer
+
+            // Generar código único para informe técnico
+            const codigoUnico = generarCodigoUnico('IT');
+            const fechaEmision = new Date().toLocaleDateString('es-AR');
+            const sensorName = cleanTextForPDF(document.getElementById('sensorName').innerText);
+            const teamName = cleanTextForPDF(document.getElementById('teamName').innerText);
+
+            // Capturar logos
+            const getBase64Image = (imgId) => {
+                try {
+                    const img = document.getElementById(imgId);
+                    if (!img) return null;
+                    if (img.src.startsWith('data:image')) return img.src;
+                    if (!img.complete || img.naturalWidth === 0) return null;
+                    const canvas = document.createElement("canvas");
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    return canvas.toDataURL("image/jpeg");
+                } catch (e) { return null; }
+            };
+
+            const b64_1 = getBase64Image('webLogo1');
+            const b64_2 = getBase64Image('webLogo2');
+            const b64_3 = getBase64Image('webLogo3');
+            const b64_footer = getBase64Image('webFooter');
+
+            const drawHeaderFooter = (pdf) => {
+                const pageCount = pdf.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    pdf.setPage(i);
+                    if(b64_1) pdf.addImage(b64_1, 'JPEG', margin, 10, 40, 20);
+                    if(b64_2) pdf.addImage(b64_2, 'JPEG', (pageWidth/2)-20, 10, 40, 20);
+                    if(b64_3) pdf.addImage(b64_3, 'JPEG', pageWidth - margin - 40, 10, 40, 20);
+                    
+                    pdf.setDrawColor(226, 232, 240);
+                    pdf.line(margin, 35, pageWidth - margin, 35);
+                    
+                    pdf.setFillColor(0, 56, 77);
+                    pdf.rect(0, 272, pageWidth, 25, 'F');
+                    if(b64_footer) pdf.addImage(b64_footer, 'JPEG', 0, 274, pageWidth, 20);
+                    
+                    pdf.setFontSize(8);
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.text(`Pagina ${i} de ${pageCount}`, pageWidth - margin, 292, { align: 'right' });
+                }
+            };
+
+            let yPos = 45;
+
+            // --- ENCABEZADO CON TRAZABILIDAD ---
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text(`CODIGO UNICO: ${codigoUnico}`, margin, yPos);
+            yPos += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100);
+            doc.text(`Emision: ${fechaEmision} | Vigencia: 30 dias`, margin, yPos);
+            yPos += 5;
+            doc.text(`Dispositivo: ${sensorName} | Ubicacion: ${teamName}`, margin, yPos);
+            yPos += 5;
+            doc.text(`Version: IT-01 v2.1 | Documento autogenerado por sistema digital de monitoreo continuo`, margin, yPos);
+            yPos += 10;
+
+            doc.setDrawColor(0, 56, 77);
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 10;
+
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            const title = "INFORME TECNICO DE CADENA DE FRIO - VACUNAS";
+            doc.setFontSize(14);
+            const splitTitle = doc.splitTextToSize(title, pageWidth - (margin * 2));
+            doc.text(splitTitle, margin, yPos);
+            yPos += (splitTitle.length > 1) ? 15 : 10;
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(100);
+            doc.text("Segun Ley 27.491 y Manual de Almacenamiento de Vacunas (DiCEI)", margin, yPos);
+            yPos += 12;
+
+            // Verificar espacio para gráfica
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            
+            const canvas = document.getElementById('chart');
+            if (canvas) {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = pageWidth - 2 * margin;
+                const imgHeight = (imgWidth * canvas.height) / canvas.width;
+                
+                // Verificar si la gráfica entra en la página actual
+                if (yPos + imgHeight + 10 > 272 - marginBottom) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
+                doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
+                yPos += imgHeight + 10;
+            }
+
+            // ============================================================
+            // TABLA DE ALERTAS Y RECUPERACIONES
+            // ============================================================
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('Alertas y Recuperaciones (Rango: 2C - 8C)', margin, yPos);
+            yPos += 10;
+
+            const alertRows = [];
+            const alertObs = [];
+            document.querySelectorAll('#alertTable tbody tr').forEach((tr, idx) => {
+                const cells = Array.from(tr.cells).map(td => {
+                    // Limpiar emojis y caracteres especiales
+                    return td.innerText.replace(/[^\x20-\x7EáéíóúÁÉÍÓÚñÑ]/g, '').trim();
+                });
+                if (cells.length >= 4 && !cells[0].toLowerCase().includes('sin eventos')) {
+                    // Solo tomar las primeras 4 columnas (sin observaciones para la tabla principal)
+                    alertRows.push(cells.slice(0, 4));
+                    
+                    // Capturar observación si existe (solo en recuperación)
+                    const obsInput = tr.querySelector('input');
+                    if (obsInput && cells[2].toLowerCase().includes('recuperacion')) {
+                        alertObs.push({
+                            fecha: cells[0],
+                            observacion: obsInput.value || ''
+                        });
+                    }
+                }
+            });
+
+            if (alertRows.length > 0) {
+                // Verificar espacio para la tabla
+                const tableHeight = alertRows.length * 8 + 20;
+                if (yPos + tableHeight > 272 - marginBottom) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
+                doc.autoTable({
+                    startY: yPos,
+                    head: [['Fecha y Hora', 'Valor', 'Estado', 'Duracion']],
+                    body: alertRows,
+                    theme: 'grid',
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    headStyles: { fillColor: [241, 245, 249], textColor: [30, 41, 59], fontStyle: 'bold' },
+                    margin: { left: margin, right: margin },
+                    didDrawPage: function(data) {
+                        yPos = data.cursor.y + 10;
+                    }
+                });
+                yPos = doc.lastAutoTable.finalY + 10;
+            } else {
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(16, 185, 129);
+                doc.text('Sin eventos fuera de rango.', margin, yPos);
+                yPos += 8;
+            }
+
+            // Agregar observaciones de recuperación si existen
+            if (alertObs.length > 0) {
+                if (yPos > 250) { doc.addPage(); yPos = 45; }
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 56, 77);
+                doc.text('OBSERVACIONES DE RECUPERACION:', margin, yPos);
+                yPos += 6;
+                
+                alertObs.forEach(obs => {
+                    if (obs.observacion) {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(30, 41, 59);
+                        const obsLine = `${obs.fecha}: ${obs.observacion}`;
+                        const splitObs = doc.splitTextToSize(obsLine, pageWidth - 2*margin - 10);
+                        doc.text(splitObs, margin + 5, yPos);
+                        yPos += splitObs.length * 5 + 2;
+                    }
+                });
+                yPos += 10;
+            }
+
+            // Agregar análisis y recomendaciones de alertas al PDF
+            const analisisAlertas = document.getElementById('analisisAlertasContenido').innerHTML || 'Sin analisis disponible.';
+            const recomAlertas = document.getElementById('recomendacionesAlertasContenido').innerHTML || 'Sin recomendaciones.';
+            
+            if (yPos > 230) { doc.addPage(); yPos = 45; }
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('ANALISIS DE EVENTOS:', margin, yPos);
+            yPos += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(30, 41, 59);
+            const analisisLines = doc.splitTextToSize(analisisAlertas.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
+            doc.text(analisisLines, margin + 5, yPos);
+            yPos += (analisisLines.length * 5) + 10;
+            
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('RECOMENDACIONES:', margin, yPos);
+            yPos += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(30, 41, 59);
+            const recomLines = doc.splitTextToSize(recomAlertas.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
+            doc.text(recomLines, margin + 5, yPos);
+            yPos += (recomLines.length * 5) + 15;
+
+            // ============================================================
+            // TABLA DE EVENTOS DETECTADOS
+            // ============================================================
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('Eventos detectados (>30 min sin datos)', margin, yPos);
+            yPos += 10;
+
+            const wifiRows = [];
+            const wifiObs = [];
+            document.querySelectorAll('#wifiTable tbody tr').forEach((tr, idx) => {
+                const cells = Array.from(tr.cells).map(td => {
+                    return td.innerText.replace(/[^\x20-\x7EáéíóúÁÉÍÓÚñÑ]/g, '').trim();
+                });
+                if (cells.length >= 6 && !cells[0].toLowerCase().includes('sin interrupciones')) {
+                    wifiRows.push(cells.slice(0, 6));
+                    
+                    const obsInput = tr.querySelector('input');
+                    if (obsInput) {
+                        wifiObs.push({
+                            fecha: cells[0],
+                            observacion: obsInput.value || ''
+                        });
+                    }
+                }
+            });
+
+            if (wifiRows.length > 0) {
+                const tableHeight = wifiRows.length * 8 + 20;
+                if (yPos + tableHeight > 272 - marginBottom) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
+                doc.autoTable({
+                    startY: yPos,
+                    head: [['Inicio', 'Fin', 'Tipo de Corte', 'Temp. Antes', 'Temp. Despues', 'Duracion']],
+                    body: wifiRows,
+                    theme: 'grid',
+                    styles: { fontSize: 8, cellPadding: 2 },
+                    headStyles: { fillColor: [241, 245, 249], textColor: [30, 41, 59], fontStyle: 'bold' },
+                    margin: { left: margin, right: margin },
+                    didDrawPage: function(data) {
+                        yPos = data.cursor.y + 10;
+                    }
+                });
+                yPos = doc.lastAutoTable.finalY + 10;
+            } else {
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(16, 185, 129);
+                doc.text('Sin interrupciones >30 min.', margin, yPos);
+                yPos += 8;
+            }
+
+            // Agregar observaciones de eventos
+            if (wifiObs.length > 0) {
+                if (yPos > 250) { doc.addPage(); yPos = 45; }
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 56, 77);
+                doc.text('OBSERVACIONES DE EVENTOS:', margin, yPos);
+                yPos += 6;
+                
+                wifiObs.forEach(obs => {
+                    if (obs.observacion) {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(30, 41, 59);
+                        const obsLine = `${obs.fecha}: ${obs.observacion}`;
+                        const splitObs = doc.splitTextToSize(obsLine, pageWidth - 2*margin - 10);
+                        doc.text(splitObs, margin + 5, yPos);
+                        yPos += splitObs.length * 5 + 2;
+                    }
+                });
+                yPos += 10;
+            }
+
+            // Agregar análisis y recomendaciones de eventos al PDF
+            const analisisEventos = document.getElementById('analisisEventosContenido').innerHTML || 'Sin analisis disponible.';
+            const recomEventos = document.getElementById('recomendacionesEventosContenido').innerHTML || 'Sin recomendaciones.';
+            
+            if (yPos > 230) { doc.addPage(); yPos = 45; }
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('ANALISIS DE CONECTIVIDAD:', margin, yPos);
+            yPos += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(30, 41, 59);
+            const analisisEventosLines = doc.splitTextToSize(analisisEventos.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
+            doc.text(analisisEventosLines, margin + 5, yPos);
+            yPos += (analisisEventosLines.length * 5) + 10;
+            
+            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 56, 77);
+            doc.text('RECOMENDACIONES DE CONECTIVIDAD:', margin, yPos);
+            yPos += 6;
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(30, 41, 59);
+            const recomEventosLines = doc.splitTextToSize(recomEventos.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
+            doc.text(recomEventosLines, margin + 5, yPos);
+            yPos += (recomEventosLines.length * 5) + 15;
+
+            drawHeaderFooter(doc);
+            const safeName = sensorName.replace(/[^a-zA-Z0-9]/g, '_');
+            doc.save(`Informe_Tecnico_${codigoUnico}.pdf`);
+        } catch (err) {
+            console.error(err);
+            alert("Error al generar el PDF.");
+        }
     }
 
     // ============================================================
-    // FUNCIONES EXISTENTES
+    // FUNCIONES EXISTENTES (sin cambios)
     // ============================================================
     window.onload = () => {
         if (!ID || !KEY) {
@@ -2284,6 +2632,7 @@
         }
     };
 
+    // Confirmar cierre si hay datos
     window.onbeforeunload = function() {
         if (document.getElementById('modalDesvio').style.display === 'block' || 
             document.getElementById('modalFechaDesvio').style.display === 'block') {
