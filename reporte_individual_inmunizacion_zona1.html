@@ -1043,17 +1043,29 @@
     const ID = params.get('id');
     const KEY = params.get('key');
     const FIELD = params.get('field') || 'field1';
-    const TYPE = params.get('type') || 'inmunizacion'; // Adaptado para zona de inmunización
+    const TYPE = params.get('type') || 'inmunizacion';
     let DAYS = parseInt(params.get('days')) || 7;
     let SELECTED_DATE = null;
 
     const MAX = 8.0, MIN = 2.0;
-    const EVENTO_CORTE_MINUTOS = 30; // Cambiado de 10 a 30 minutos
+    const EVENTO_CORTE_MINUTOS = 30;
     let chartInstance = null;
     let currentFeeds = [];
 
     // Almacenamiento temporal de observaciones
     let observacionesAlmacenadas = {};
+
+    // ============================================================
+    // FUNCIÓN AUXILIAR PARA CONTROL DE SALTO DE PÁGINA EN PDF
+    // ============================================================
+    function checkPageBreak(doc, yPos, espacioNecesario, marginBottom = 30) {
+        const pageHeight = doc.internal.pageSize.getHeight();
+        if (yPos + espacioNecesario > pageHeight - marginBottom) {
+            doc.addPage();
+            return 20; // Reiniciar yPos después del salto de página
+        }
+        return yPos;
+    }
 
     // ============================================================
     // FUNCIONES PARA TRAZABILIDAD
@@ -1086,7 +1098,7 @@
     }
 
     // ============================================================
-    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES (ACTUALIZADAS Y SIN EMOJIS)
+    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES (ACTUALIZADAS)
     // ============================================================
     function generarAnalisisAlertas(eventos) {
         if (!eventos || eventos.length === 0) {
@@ -1105,9 +1117,9 @@
         });
         
         let analisis = `Se detectaron ${eventos.length} evento(s) de temperatura fuera de rango.\n`;
-        analisis += `   • Alertas por temperatura alta: ${alertasAltas}\n`;
-        analisis += `   • Alertas por temperatura baja: ${alertasBajas}\n`;
-        analisis += `   • Tiempo total acumulado fuera de rango: ${formatDurationFull(totalDuracion)}\n\n`;
+        analisis += `• Alertas por temperatura alta: ${alertasAltas}\n`;
+        analisis += `• Alertas por temperatura baja: ${alertasBajas}\n`;
+        analisis += `• Tiempo total acumulado fuera de rango: ${formatDurationFull(totalDuracion)}\n\n`;
         
         if (totalDuracion < 30) {
             analisis += "Los desvíos fueron breves y no representan un riesgo crítico para la cadena de frío. Se recomienda monitorear de cerca las próximas horas.";
@@ -1169,9 +1181,9 @@
         });
         
         let analisis = `Se detectaron ${eventos.length} evento(s) de interrupción.\n`;
-        analisis += `   • Cortes de energía con impacto térmico: ${cortesElectricos}\n`;
-        analisis += `   • Cortes de WiFi sin impacto térmico: ${cortesWiFi}\n`;
-        analisis += `   • Tiempo total sin datos: ${formatDurationFull(totalDuracion)}\n\n`;
+        analisis += `• Cortes de energía con impacto térmico: ${cortesElectricos}\n`;
+        analisis += `• Cortes de WiFi sin impacto térmico: ${cortesWiFi}\n`;
+        analisis += `• Tiempo total sin datos: ${formatDurationFull(totalDuracion)}\n\n`;
         
         if (totalDuracion < 30) {
             analisis += "Los cortes fueron breves y no afectaron el registro de temperatura.";
@@ -2013,7 +2025,7 @@
     }
 
     // ============================================================
-    // FUNCIONES DEL INFORME TÉCNICO (MODIFICADAS)
+    // FUNCIONES DEL INFORME TÉCNICO (MODIFICADAS CON CORRECIONES DE FORMATO)
     // ============================================================
     function fillAlerts(feeds, field) {
         const tbody = document.querySelector('#alertTable tbody');
@@ -2037,7 +2049,6 @@
                     rows += `<td>${val.toFixed(1)}</td>`;
                     rows += `<td>${label}</td>`;
                     rows += `<td>--</td>`;
-                    // OBSERVACIÓN: Solo visible en recuperación, no en alerta
                     rows += `<td></td>`;
                     rows += `</tr>`;
                 } else if (startTime) {
@@ -2048,7 +2059,6 @@
                         rows += `<td>${val.toFixed(1)}</td>`;
                         rows += `<td>Recuperacion</td>`;
                         rows += `<td>${formatDurationFull(dur)}</td>`;
-                        // OBSERVACIÓN: Solo en recuperación
                         const obsId = `recuperacion_${i}`;
                         const valorGuardado = observacionesAlmacenadas[obsId] || '';
                         rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Normalizado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
@@ -2068,7 +2078,6 @@
         
         tbody.innerHTML = rows || '<tr><td colspan="5" class="empty">Sin eventos fuera de rango.</td></tr>';
         
-        // Actualizar análisis y recomendaciones en el HTML
         const analisisDiv = document.getElementById('analisisAlertasContenido');
         const recomDiv = document.getElementById('recomendacionesAlertasContenido');
         
@@ -2111,7 +2120,6 @@
                 rows += `<td>${feeds[i-1][field]}°C</td>`;
                 rows += `<td>${feeds[i][field]}°C</td>`;
                 rows += `<td>${formatDurationFull(diff)}</td>`;
-                // OBSERVACIÓN: Para eventos de conectividad
                 const obsId = `evento_${i}`;
                 const valorGuardado = observacionesAlmacenadas[obsId] || '';
                 rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Corte programado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
@@ -2128,7 +2136,6 @@
         
         tbody.innerHTML = rows || '<tr><td colspan="7" class="empty">Sin interrupciones >30 min.</td></tr>';
         
-        // Actualizar análisis y recomendaciones en el HTML
         const analisisDiv = document.getElementById('analisisEventosContenido');
         const recomDiv = document.getElementById('recomendacionesEventosContenido');
         
@@ -2144,7 +2151,7 @@
     }
 
     // ============================================================
-    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO
+    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO (CORREGIDA)
     // ============================================================
     async function generarInformeTecnico() {
         try {
@@ -2152,7 +2159,7 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
-            const marginBottom = 30; // Espacio para footer
+            const marginBottom = 30;
 
             // Generar código único para informe técnico
             const codigoUnico = generarCodigoUnico('IT');
@@ -2226,7 +2233,7 @@
             doc.setFontSize(16);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
-            const title = "INFORME TECNICO DE CADENA DE FRIO - ZONA DE INMUNIZACION"; // Título adaptado
+            const title = "INFORME TECNICO DE CADENA DE FRIO - ZONA DE INMUNIZACION";
             doc.setFontSize(14);
             const splitTitle = doc.splitTextToSize(title, pageWidth - (margin * 2));
             doc.text(splitTitle, margin, yPos);
@@ -2240,19 +2247,13 @@
             yPos += 12;
 
             // Verificar espacio para gráfica
-            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            yPos = checkPageBreak(doc, yPos, 120, marginBottom);
             
             const canvas = document.getElementById('chart');
             if (canvas) {
                 const imgData = canvas.toDataURL('image/png');
                 const imgWidth = pageWidth - 2 * margin;
                 const imgHeight = (imgWidth * canvas.height) / canvas.width;
-                
-                // Verificar si la gráfica entra en la página actual
-                if (yPos + imgHeight + 10 > 272 - marginBottom) {
-                    doc.addPage();
-                    yPos = 45;
-                }
                 
                 doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
                 yPos += imgHeight + 10;
@@ -2261,7 +2262,7 @@
             // ============================================================
             // TABLA DE ALERTAS Y RECUPERACIONES
             // ============================================================
-            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            yPos = checkPageBreak(doc, yPos, 30, marginBottom);
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
@@ -2272,14 +2273,11 @@
             const alertObs = [];
             document.querySelectorAll('#alertTable tbody tr').forEach((tr, idx) => {
                 const cells = Array.from(tr.cells).map(td => {
-                    // Limpiar emojis y caracteres especiales
                     return td.innerText.replace(/[^\x20-\x7EáéíóúÁÉÍÓÚñÑ]/g, '').trim();
                 });
                 if (cells.length >= 4 && !cells[0].toLowerCase().includes('sin eventos')) {
-                    // Solo tomar las primeras 4 columnas (sin observaciones para la tabla principal)
                     alertRows.push(cells.slice(0, 4));
                     
-                    // Capturar observación si existe (solo en recuperación)
                     const obsInput = tr.querySelector('input');
                     if (obsInput && cells[2].toLowerCase().includes('recuperacion')) {
                         alertObs.push({
@@ -2291,12 +2289,8 @@
             });
 
             if (alertRows.length > 0) {
-                // Verificar espacio para la tabla
                 const tableHeight = alertRows.length * 8 + 20;
-                if (yPos + tableHeight > 272 - marginBottom) {
-                    doc.addPage();
-                    yPos = 45;
-                }
+                yPos = checkPageBreak(doc, yPos, tableHeight, marginBottom);
                 
                 doc.autoTable({
                     startY: yPos,
@@ -2320,7 +2314,7 @@
 
             // Agregar observaciones de recuperación si existen
             if (alertObs.length > 0) {
-                if (yPos > 250) { doc.addPage(); yPos = 45; }
+                yPos = checkPageBreak(doc, yPos, 20, marginBottom);
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(0, 56, 77);
@@ -2340,11 +2334,15 @@
                 yPos += 10;
             }
 
-            // Agregar análisis y recomendaciones de alertas al PDF
-            const analisisAlertas = document.getElementById('analisisAlertasContenido').innerHTML || 'Sin analisis disponible.';
-            const recomAlertas = document.getElementById('recomendacionesAlertasContenido').innerHTML || 'Sin recomendaciones.';
+            // Agregar análisis y recomendaciones de alertas al PDF (CORREGIDO: USANDO ARRAYS)
+            const analisisAlertasRaw = document.getElementById('analisisAlertasContenido').innerText || 'Sin análisis disponible.';
+            const recomAlertasRaw = document.getElementById('recomendacionesAlertasContenido').innerText || 'Sin recomendaciones.';
             
-            if (yPos > 230) { doc.addPage(); yPos = 45; }
+            // Dividir el análisis en líneas para que se impriman correctamente
+            const analisisLineas = analisisAlertasRaw.split('\n').filter(linea => linea.trim() !== '');
+            const recomLineas = recomAlertasRaw.split('\n').filter(linea => linea.trim() !== '');
+
+            yPos = checkPageBreak(doc, yPos, analisisLineas.length * 5 + 20, marginBottom);
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
@@ -2353,11 +2351,11 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const analisisLines = doc.splitTextToSize(analisisAlertas.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
-            doc.text(analisisLines, margin + 5, yPos);
-            yPos += (analisisLines.length * 5) + 10;
-            
-            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            // Usar array para imprimir cada línea por separado
+            doc.text(analisisLineas, margin + 5, yPos);
+            yPos += (analisisLineas.length * 5) + 10;
+
+            yPos = checkPageBreak(doc, yPos, recomLineas.length * 5 + 20, marginBottom);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('RECOMENDACIONES:', margin, yPos);
@@ -2365,14 +2363,14 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const recomLines = doc.splitTextToSize(recomAlertas.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
-            doc.text(recomLines, margin + 5, yPos);
-            yPos += (recomLines.length * 5) + 15;
+            // Usar array para imprimir cada recomendación por separado
+            doc.text(recomLineas, margin + 5, yPos);
+            yPos += (recomLineas.length * 5) + 15;
 
             // ============================================================
             // TABLA DE EVENTOS DETECTADOS
             // ============================================================
-            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            yPos = checkPageBreak(doc, yPos, 30, marginBottom);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('Eventos detectados (>30 min sin datos)', margin, yPos);
@@ -2399,10 +2397,7 @@
 
             if (wifiRows.length > 0) {
                 const tableHeight = wifiRows.length * 8 + 20;
-                if (yPos + tableHeight > 272 - marginBottom) {
-                    doc.addPage();
-                    yPos = 45;
-                }
+                yPos = checkPageBreak(doc, yPos, tableHeight, marginBottom);
                 
                 doc.autoTable({
                     startY: yPos,
@@ -2426,7 +2421,7 @@
 
             // Agregar observaciones de eventos
             if (wifiObs.length > 0) {
-                if (yPos > 250) { doc.addPage(); yPos = 45; }
+                yPos = checkPageBreak(doc, yPos, 20, marginBottom);
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(0, 56, 77);
@@ -2446,11 +2441,14 @@
                 yPos += 10;
             }
 
-            // Agregar análisis y recomendaciones de eventos al PDF
-            const analisisEventos = document.getElementById('analisisEventosContenido').innerHTML || 'Sin analisis disponible.';
-            const recomEventos = document.getElementById('recomendacionesEventosContenido').innerHTML || 'Sin recomendaciones.';
+            // Agregar análisis y recomendaciones de eventos al PDF (CORREGIDO: USANDO ARRAYS)
+            const analisisEventosRaw = document.getElementById('analisisEventosContenido').innerText || 'Sin análisis disponible.';
+            const recomEventosRaw = document.getElementById('recomendacionesEventosContenido').innerText || 'Sin recomendaciones.';
             
-            if (yPos > 230) { doc.addPage(); yPos = 45; }
+            const analisisEventosLineas = analisisEventosRaw.split('\n').filter(linea => linea.trim() !== '');
+            const recomEventosLineas = recomEventosRaw.split('\n').filter(linea => linea.trim() !== '');
+
+            yPos = checkPageBreak(doc, yPos, analisisEventosLineas.length * 5 + 20, marginBottom);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('ANALISIS DE CONECTIVIDAD:', margin, yPos);
@@ -2458,11 +2456,10 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const analisisEventosLines = doc.splitTextToSize(analisisEventos.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
-            doc.text(analisisEventosLines, margin + 5, yPos);
-            yPos += (analisisEventosLines.length * 5) + 10;
-            
-            if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.text(analisisEventosLineas, margin + 5, yPos);
+            yPos += (analisisEventosLineas.length * 5) + 10;
+
+            yPos = checkPageBreak(doc, yPos, recomEventosLineas.length * 5 + 20, marginBottom);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('RECOMENDACIONES DE CONECTIVIDAD:', margin, yPos);
@@ -2470,9 +2467,8 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const recomEventosLines = doc.splitTextToSize(recomEventos.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
-            doc.text(recomEventosLines, margin + 5, yPos);
-            yPos += (recomEventosLines.length * 5) + 15;
+            doc.text(recomEventosLineas, margin + 5, yPos);
+            yPos += (recomEventosLineas.length * 5) + 15;
 
             drawHeaderFooter(doc);
             const safeName = sensorName.replace(/[^a-zA-Z0-9]/g, '_');
@@ -2560,7 +2556,7 @@
             }
             document.getElementById('sensorName').innerText = data.channel[FIELD] || "Sensor";
             const teamNameEl = document.getElementById('teamName');
-            teamNameEl.innerHTML = `Zona: ${data.channel.name || "Sin nombre"}`; // Adaptado para zona
+            teamNameEl.innerHTML = `Zona: ${data.channel.name || "Sin nombre"}`;
             teamNameEl.className = "tag vacunas-tag";
             
             currentFeeds = data.feeds.filter(f => parseFloat(f[FIELD]) !== -127);
