@@ -1088,11 +1088,11 @@
     }
 
     // ============================================================
-    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES (ACTUALIZADAS)
+    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES (CORREGIDAS)
     // ============================================================
     function generarAnalisisAlertas(eventos) {
         if (!eventos || eventos.length === 0) {
-            return "✅ No se registraron desvíos de temperatura en el período analizado. El equipo se mantuvo dentro del rango óptimo (2°C - 8°C).";
+            return "No se registraron desvíos de temperatura en el período analizado. El equipo se mantuvo dentro del rango óptimo (2°C - 8°C).";
         }
         
         let totalDuracion = 0;
@@ -1106,17 +1106,17 @@
             else if (evento.severidad === 'baja') alertasBajas++;
         });
         
-        let analisis = `📊 Se detectaron ${eventos.length} evento(s) de temperatura fuera de rango.\n`;
-        analisis += `   • Alertas por temperatura alta: ${alertasAltas}\n`;
-        analisis += `   • Alertas por temperatura baja: ${alertasBajas}\n`;
-        analisis += `   • Tiempo total acumulado fuera de rango: ${formatDurationFull(totalDuracion)}\n\n`;
+        let analisis = `Se detectaron ${eventos.length} evento(s) de temperatura fuera de rango.\n`;
+        analisis += `   - Alertas por temperatura alta: ${alertasAltas}\n`;
+        analisis += `   - Alertas por temperatura baja: ${alertasBajas}\n`;
+        analisis += `   - Tiempo total acumulado fuera de rango: ${formatDurationFull(totalDuracion)}\n\n`;
         
         if (totalDuracion < 30) {
-            analisis += "✅ Los desvíos fueron breves y no representan un riesgo crítico para la cadena de frío. Se recomienda monitorear de cerca las próximas horas.";
+            analisis += "Los desvíos fueron breves y no representan un riesgo crítico para la cadena de frío. Se recomienda monitorear de cerca las próximas horas.";
         } else if (totalDuracion < 120) {
-            analisis += "⚠️ Se registraron desvíos de moderada duración. Es posible que algunos lotes hayan sido afectados. Se requiere revisión de protocolos y posible reubicación de vacunas.";
+            analisis += "Se registraron desvíos de moderada duración. Es posible que algunos lotes hayan sido afectados. Se requiere revisión de protocolos y posible reubicación de vacunas.";
         } else {
-            analisis += "❌ Los desvíos fueron prolongados y representan un riesgo significativo para la integridad de las vacunas. Se requiere evaluación técnica inmediata y posible descarte de lotes afectados.";
+            analisis += "Los desvíos fueron prolongados y representan un riesgo significativo para la integridad de las vacunas. Se requiere evaluación técnica inmediata y posible descarte de lotes afectados.";
         }
         
         return analisis;
@@ -1124,28 +1124,28 @@
 
     function generarRecomendacionesAlertas(eventos) {
         if (!eventos || eventos.length === 0) {
-            return "• Continuar con el monitoreo habitual cada 1 minuto.\n• Mantener registro actualizado de temperaturas.\n• Realizar mantenimiento preventivo según calendario.";
+            return "- Continuar con el monitoreo habitual cada 1 minuto.\n- Mantener registro actualizado de temperaturas.\n- Realizar mantenimiento preventivo según calendario.";
         }
         
         let recomendaciones = [];
         
         // Recomendaciones generales
-        recomendaciones.push("• Verificar el cierre hermético de puertas y burletes de los equipos.");
-        recomendaciones.push("• Controlar la calibración del sensor de temperatura contra un termómetro patrón.");
-        recomendaciones.push("• Documentar todas las aperturas programadas del equipo en el período afectado.");
-        recomendaciones.push("• Evaluar la necesidad de respaldo eléctrico (grupo electrógeno o UPS).");
-        recomendaciones.push("• Aplicar protocolo establecido ante corte prolongado de energía (anexar al informe).");
+        recomendaciones.push("- Verificar el cierre hermético de puertas y burletes de los equipos.");
+        recomendaciones.push("- Controlar la calibración del sensor de temperatura contra un termómetro patrón.");
+        recomendaciones.push("- Documentar todas las aperturas programadas del equipo en el período afectado.");
+        recomendaciones.push("- Evaluar la necesidad de respaldo eléctrico (grupo electrógeno o UPS).");
+        recomendaciones.push("- Aplicar protocolo establecido ante corte prolongado de energía (anexar al informe).");
         
         // Recomendaciones específicas según el tipo de alerta
         const tieneAlertasAltas = eventos.some(e => e.severidad === 'alta');
         const tieneAlertasBajas = eventos.some(e => e.severidad === 'baja');
         
         if (tieneAlertasAltas) {
-            recomendaciones.push("• Dado que se detectaron temperaturas ALTAS: verificar el funcionamiento del sistema de refrigeración y la carga de refrigerante.");
+            recomendaciones.push("- Dado que se detectaron temperaturas ALTAS: verificar el funcionamiento del sistema de refrigeración y la carga de refrigerante.");
         }
         
         if (tieneAlertasBajas) {
-            recomendaciones.push("• Dado que se detectaron temperaturas BAJAS: revisar la configuración del termostato y evitar la acumulación de hielo en evaporadores.");
+            recomendaciones.push("- Dado que se detectaron temperaturas BAJAS: revisar la configuración del termostato y evitar la acumulación de hielo en evaporadores.");
         }
         
         return recomendaciones.join('\n');
@@ -1153,7 +1153,7 @@
 
     function generarAnalisisEventos(eventos) {
         if (!eventos || eventos.length === 0) {
-            return "✅ No se detectaron interrupciones de conectividad >30 minutos. La transmisión de datos fue continua.";
+            return "No se detectaron interrupciones de conectividad >30 minutos. La transmisión de datos fue continua.";
         }
         
         let totalDuracion = 0;
@@ -1170,17 +1170,17 @@
             }
         });
         
-        let analisis = `📊 Se detectaron ${eventos.length} evento(s) de interrupción.\n`;
-        analisis += `   • Cortes de energía con impacto térmico: ${cortesElectricos}\n`;
-        analisis += `   • Cortes de WiFi sin impacto térmico: ${cortesWiFi}\n`;
-        analisis += `   • Tiempo total sin datos: ${formatDurationFull(totalDuracion)}\n\n`;
+        let analisis = `Se detectaron ${eventos.length} evento(s) de interrupción.\n`;
+        analisis += `   - Cortes de energía con impacto térmico: ${cortesElectricos}\n`;
+        analisis += `   - Cortes de WiFi sin impacto térmico: ${cortesWiFi}\n`;
+        analisis += `   - Tiempo total sin datos: ${formatDurationFull(totalDuracion)}\n\n`;
         
         if (totalDuracion < 30) {
-            analisis += "✅ Los cortes fueron breves y no afectaron el registro de temperatura.";
+            analisis += "Los cortes fueron breves y no afectaron el registro de temperatura.";
         } else if (totalDuracion < 120) {
-            analisis += "⚠️ Los cortes fueron prolongados. Se recomienda revisar la conectividad y el estado del router.";
+            analisis += "Los cortes fueron prolongados. Se recomienda revisar la conectividad y el estado del router.";
         } else {
-            analisis += "❌ Los cortes fueron muy prolongados. Se requiere evaluación técnica de la infraestructura de red y posible instalación de respaldo.";
+            analisis += "Los cortes fueron muy prolongados. Se requiere evaluación técnica de la infraestructura de red y posible instalación de respaldo.";
         }
         
         return analisis;
@@ -1188,19 +1188,19 @@
 
     function generarRecomendacionesEventos(eventos) {
         if (!eventos || eventos.length === 0) {
-            return "• Verificar periódicamente el estado de la red WiFi.\n• Mantener actualizado el firmware del sensor.\n• Revisar la distancia entre el sensor y el router.";
+            return "- Verificar periódicamente el estado de la red WiFi.\n- Mantener actualizado el firmware del sensor.\n- Revisar la distancia entre el sensor y el router.";
         }
         
         let recomendaciones = [
-            "• Verificar el estado del router y la conexión a internet.",
-            "• Revisar la distancia entre el sensor y el punto de acceso WiFi.",
-            "• Considerar instalar un repetidor de señal si la distancia es mayor a 30 metros.",
-            "• Mantener actualizado el firmware del sensor y del gateway."
+            "- Verificar el estado del router y la conexión a internet.",
+            "- Revisar la distancia entre el sensor y el punto de acceso WiFi.",
+            "- Considerar instalar un repetidor de señal si la distancia es mayor a 30 metros.",
+            "- Mantener actualizado el firmware del sensor y del gateway."
         ];
         
         const tieneCortesElectricos = eventos.some(e => e.tipo && e.tipo.includes('Energía'));
         if (tieneCortesElectricos) {
-            recomendaciones.push("• Dado que se detectaron cortes de energía con impacto térmico, se recomienda:");
+            recomendaciones.push("- Dado que se detectaron cortes de energía con impacto térmico, se recomienda:");
             recomendaciones.push("  - Instalar sistema de monitoreo con respaldo de batería.");
             recomendaciones.push("  - Revisar el estado del estabilizador de tensión.");
             recomendaciones.push("  - Evaluar la instalación de un grupo electrógeno de respaldo.");
@@ -2015,7 +2015,7 @@
     }
 
     // ============================================================
-    // FUNCIONES DEL INFORME TÉCNICO (MODIFICADAS)
+    // FUNCIONES DEL INFORME TÉCNICO (CORREGIDAS)
     // ============================================================
     function fillAlerts(feeds, field) {
         const tbody = document.querySelector('#alertTable tbody');
@@ -2059,7 +2059,7 @@
                         eventos.push({
                             tipo: 'alerta',
                             duracion: dur,
-                            severidad: state === 'high' ? 'alta' : 'baja'
+                            severidad: lastState === 'high' ? 'alta' : 'baja'
                         });
                     }
                 }
@@ -2076,8 +2076,8 @@
         
         if (analisisDiv && recomDiv) {
             if (eventos.length === 0) {
-                analisisDiv.innerHTML = "✅ No se registraron desvíos de temperatura en el período analizado. El equipo se mantuvo dentro del rango óptimo (2°C - 8°C).";
-                recomDiv.innerHTML = "• Continuar con el monitoreo habitual cada 1 minuto.<br>• Mantener registro actualizado de temperaturas.<br>• Realizar mantenimiento preventivo según calendario.";
+                analisisDiv.innerHTML = "No se registraron desvíos de temperatura en el período analizado. El equipo se mantuvo dentro del rango óptimo (2°C - 8°C).";
+                recomDiv.innerHTML = "- Continuar con el monitoreo habitual cada 1 minuto.<br>- Mantener registro actualizado de temperaturas.<br>- Realizar mantenimiento preventivo según calendario.";
             } else {
                 analisisDiv.innerHTML = generarAnalisisAlertas(eventos).replace(/\n/g, '<br>');
                 recomDiv.innerHTML = generarRecomendacionesAlertas(eventos).replace(/\n/g, '<br>');
@@ -2136,8 +2136,8 @@
         
         if (analisisDiv && recomDiv) {
             if (eventos.length === 0) {
-                analisisDiv.innerHTML = "✅ No se detectaron interrupciones de conectividad >30 minutos. La transmisión de datos fue continua.";
-                recomDiv.innerHTML = "• Verificar periódicamente el estado de la red WiFi.<br>• Mantener actualizado el firmware del sensor.<br>• Revisar la distancia entre el sensor y el router.";
+                analisisDiv.innerHTML = "No se detectaron interrupciones de conectividad >30 minutos. La transmisión de datos fue continua.";
+                recomDiv.innerHTML = "- Verificar periódicamente el estado de la red WiFi.<br>- Mantener actualizado el firmware del sensor.<br>- Revisar la distancia entre el sensor y el router.";
             } else {
                 analisisDiv.innerHTML = generarAnalisisEventos(eventos).replace(/\n/g, '<br>');
                 recomDiv.innerHTML = generarRecomendacionesEventos(eventos).replace(/\n/g, '<br>');
@@ -2146,7 +2146,7 @@
     }
 
     // ============================================================
-    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO
+    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO (CORREGIDA)
     // ============================================================
     async function generarInformeTecnico() {
         try {
@@ -2155,6 +2155,7 @@
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
             const marginBottom = 30; // Espacio para footer
+            const maxLineWidth = pageWidth - 2 * margin - 10; // Ancho máximo para textos
 
             // Generar código único para informe técnico
             const codigoUnico = generarCodigoUnico('IT');
@@ -2230,9 +2231,9 @@
             doc.setTextColor(0, 56, 77);
             const title = "INFORME TECNICO DE CADENA DE FRIO - VACUNAS";
             doc.setFontSize(14);
-            const splitTitle = doc.splitTextToSize(title, pageWidth - (margin * 2));
+            const splitTitle = doc.splitTextToSize(title, maxLineWidth);
             doc.text(splitTitle, margin, yPos);
-            yPos += (splitTitle.length > 1) ? 15 : 10;
+            yPos += (splitTitle.length * 7);
             yPos += 10;
             
             doc.setFontSize(10);
@@ -2334,7 +2335,7 @@
                         doc.setFont('helvetica', 'normal');
                         doc.setTextColor(30, 41, 59);
                         const obsLine = `${obs.fecha}: ${obs.observacion}`;
-                        const splitObs = doc.splitTextToSize(obsLine, pageWidth - 2*margin - 10);
+                        const splitObs = doc.splitTextToSize(obsLine, maxLineWidth);
                         doc.text(splitObs, margin + 5, yPos);
                         yPos += splitObs.length * 5 + 2;
                     }
@@ -2355,8 +2356,8 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const analisisLines = doc.splitTextToSize(analisisAlertas.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
-            doc.text(analisisLines, margin + 5, yPos);
+            const analisisLines = doc.splitTextToSize(analisisAlertas.replace(/<[^>]*>/g, ''), maxLineWidth);
+            doc.text(analisisLines, margin, yPos);
             yPos += (analisisLines.length * 5) + 10;
             
             if (yPos > 250) { doc.addPage(); yPos = 45; }
@@ -2367,8 +2368,8 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const recomLines = doc.splitTextToSize(recomAlertas.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
-            doc.text(recomLines, margin + 5, yPos);
+            const recomLines = doc.splitTextToSize(recomAlertas.replace(/<[^>]*>/g, ''), maxLineWidth);
+            doc.text(recomLines, margin, yPos);
             yPos += (recomLines.length * 5) + 15;
 
             // ============================================================
@@ -2440,7 +2441,7 @@
                         doc.setFont('helvetica', 'normal');
                         doc.setTextColor(30, 41, 59);
                         const obsLine = `${obs.fecha}: ${obs.observacion}`;
-                        const splitObs = doc.splitTextToSize(obsLine, pageWidth - 2*margin - 10);
+                        const splitObs = doc.splitTextToSize(obsLine, maxLineWidth);
                         doc.text(splitObs, margin + 5, yPos);
                         yPos += splitObs.length * 5 + 2;
                     }
@@ -2460,8 +2461,8 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const analisisEventosLines = doc.splitTextToSize(analisisEventos.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
-            doc.text(analisisEventosLines, margin + 5, yPos);
+            const analisisEventosLines = doc.splitTextToSize(analisisEventos.replace(/<[^>]*>/g, ''), maxLineWidth);
+            doc.text(analisisEventosLines, margin, yPos);
             yPos += (analisisEventosLines.length * 5) + 10;
             
             if (yPos > 250) { doc.addPage(); yPos = 45; }
@@ -2472,8 +2473,8 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            const recomEventosLines = doc.splitTextToSize(recomEventos.replace(/<[^>]*>/g, ''), pageWidth - 2*margin - 10);
-            doc.text(recomEventosLines, margin + 5, yPos);
+            const recomEventosLines = doc.splitTextToSize(recomEventos.replace(/<[^>]*>/g, ''), maxLineWidth);
+            doc.text(recomEventosLines, margin, yPos);
             yPos += (recomEventosLines.length * 5) + 15;
 
             drawHeaderFooter(doc);
