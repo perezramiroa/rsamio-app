@@ -1056,13 +1056,13 @@
     let observacionesAlmacenadas = {};
 
     // ============================================================
-    // FUNCIÓN AUXILIAR PARA CONTROL DE SALTO DE PÁGINA EN PDF
+    // FUNCIÓN AUXILIAR PARA CONTROL DE SALTO DE PÁGINA EN PDF (MEJORADA)
     // ============================================================
-    function checkPageBreak(doc, yPos, espacioNecesario, marginBottom = 30) {
+    function checkPageBreak(doc, yPos, espacioNecesario, marginTop = 45, marginBottom = 30) {
         const pageHeight = doc.internal.pageSize.getHeight();
         if (yPos + espacioNecesario > pageHeight - marginBottom) {
             doc.addPage();
-            return 20; // Reiniciar yPos después del salto de página
+            return marginTop; // Reiniciar yPos con el margen superior adecuado después del salto
         }
         return yPos;
     }
@@ -1909,7 +1909,10 @@
         doc.text(`Fecha: ${new Date().toLocaleDateString('es-AR')}`, margin + 5, yPos); yPos += 15;
 
         // --- 12. A COMPLETAR POR LA DICEI ---
-        if (yPos > 230) { doc.addPage(); yPos = 20; }
+        // Calcular espacio necesario para la sección DICEI
+        const espacioDICEI = 120; // Espacio aproximado necesario
+        
+        yPos = checkPageBreak(doc, yPos, espacioDICEI, 20, 30); // Usar marginTop=20 para nueva página
 
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
@@ -2160,6 +2163,7 @@
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
             const marginBottom = 30;
+            const marginTop = 45; // Margen superior para nuevas páginas
 
             // Generar código único para informe técnico
             const codigoUnico = generarCodigoUnico('IT');
@@ -2209,7 +2213,7 @@
                 }
             };
 
-            let yPos = 45;
+            let yPos = marginTop;
 
             // --- ENCABEZADO CON TRAZABILIDAD ---
             doc.setFontSize(10);
@@ -2247,7 +2251,7 @@
             yPos += 12;
 
             // Verificar espacio para gráfica
-            yPos = checkPageBreak(doc, yPos, 120, marginBottom);
+            yPos = checkPageBreak(doc, yPos, 120, marginTop, marginBottom);
             
             const canvas = document.getElementById('chart');
             if (canvas) {
@@ -2262,7 +2266,7 @@
             // ============================================================
             // TABLA DE ALERTAS Y RECUPERACIONES
             // ============================================================
-            yPos = checkPageBreak(doc, yPos, 30, marginBottom);
+            yPos = checkPageBreak(doc, yPos, 30, marginTop, marginBottom);
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
@@ -2290,7 +2294,7 @@
 
             if (alertRows.length > 0) {
                 const tableHeight = alertRows.length * 8 + 20;
-                yPos = checkPageBreak(doc, yPos, tableHeight, marginBottom);
+                yPos = checkPageBreak(doc, yPos, tableHeight, marginTop, marginBottom);
                 
                 doc.autoTable({
                     startY: yPos,
@@ -2314,7 +2318,7 @@
 
             // Agregar observaciones de recuperación si existen
             if (alertObs.length > 0) {
-                yPos = checkPageBreak(doc, yPos, 20, marginBottom);
+                yPos = checkPageBreak(doc, yPos, 20, marginTop, marginBottom);
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(0, 56, 77);
@@ -2342,7 +2346,7 @@
             const analisisLineas = analisisAlertasRaw.split('\n').filter(linea => linea.trim() !== '');
             const recomLineas = recomAlertasRaw.split('\n').filter(linea => linea.trim() !== '');
 
-            yPos = checkPageBreak(doc, yPos, analisisLineas.length * 5 + 20, marginBottom);
+            yPos = checkPageBreak(doc, yPos, analisisLineas.length * 5 + 20, marginTop, marginBottom);
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
@@ -2355,7 +2359,7 @@
             doc.text(analisisLineas, margin + 5, yPos);
             yPos += (analisisLineas.length * 5) + 10;
 
-            yPos = checkPageBreak(doc, yPos, recomLineas.length * 5 + 20, marginBottom);
+            yPos = checkPageBreak(doc, yPos, recomLineas.length * 5 + 20, marginTop, marginBottom);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('RECOMENDACIONES:', margin, yPos);
@@ -2370,7 +2374,7 @@
             // ============================================================
             // TABLA DE EVENTOS DETECTADOS
             // ============================================================
-            yPos = checkPageBreak(doc, yPos, 30, marginBottom);
+            yPos = checkPageBreak(doc, yPos, 30, marginTop, marginBottom);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('Eventos detectados (>30 min sin datos)', margin, yPos);
@@ -2397,7 +2401,7 @@
 
             if (wifiRows.length > 0) {
                 const tableHeight = wifiRows.length * 8 + 20;
-                yPos = checkPageBreak(doc, yPos, tableHeight, marginBottom);
+                yPos = checkPageBreak(doc, yPos, tableHeight, marginTop, marginBottom);
                 
                 doc.autoTable({
                     startY: yPos,
@@ -2421,7 +2425,7 @@
 
             // Agregar observaciones de eventos
             if (wifiObs.length > 0) {
-                yPos = checkPageBreak(doc, yPos, 20, marginBottom);
+                yPos = checkPageBreak(doc, yPos, 20, marginTop, marginBottom);
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(0, 56, 77);
@@ -2448,7 +2452,7 @@
             const analisisEventosLineas = analisisEventosRaw.split('\n').filter(linea => linea.trim() !== '');
             const recomEventosLineas = recomEventosRaw.split('\n').filter(linea => linea.trim() !== '');
 
-            yPos = checkPageBreak(doc, yPos, analisisEventosLineas.length * 5 + 20, marginBottom);
+            yPos = checkPageBreak(doc, yPos, analisisEventosLineas.length * 5 + 20, marginTop, marginBottom);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('ANALISIS DE CONECTIVIDAD:', margin, yPos);
@@ -2459,7 +2463,7 @@
             doc.text(analisisEventosLineas, margin + 5, yPos);
             yPos += (analisisEventosLineas.length * 5) + 10;
 
-            yPos = checkPageBreak(doc, yPos, recomEventosLineas.length * 5 + 20, marginBottom);
+            yPos = checkPageBreak(doc, yPos, recomEventosLineas.length * 5 + 20, marginTop, marginBottom);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('RECOMENDACIONES DE CONECTIVIDAD:', margin, yPos);
