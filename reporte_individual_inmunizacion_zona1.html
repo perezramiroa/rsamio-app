@@ -1925,71 +1925,70 @@
         const col1X = margin;
         const col2X = margin + fieldWidth + 10;
 
+        // Guardar la posición Y inicial para la columna 1
+        const yInicialCol1 = yPos;
+
         // --- Columna 1: CNV ---
+        let yCol1 = yInicialCol1;
         doc.setFont('helvetica', 'bold');
-        doc.text('N° de desvio CNV', col1X, yPos);
-        yPos += 5;
+        doc.text('N° de desvio CNV', col1X, yCol1);
+        yCol1 += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
-        yPos += 12;
-
-        doc.setFont('helvetica', 'bold');
-        doc.text('Recomendaciones:', col1X, yPos);
-        yPos += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 30, 1, 1, 'S');
-        yPos += 35;
+        doc.roundedRect(col1X, yCol1, fieldWidth - 5, 8, 1, 1, 'S');
+        yCol1 += 12;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Fecha:', col1X, yPos);
-        yPos += 5;
+        doc.text('Recomendaciones:', col1X, yCol1);
+        yCol1 += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
-        yPos += 12;
+        doc.roundedRect(col1X, yCol1, fieldWidth - 5, 30, 1, 1, 'S');
+        yCol1 += 35;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Firma (Nombre y cargo):', col1X, yPos);
-        yPos += 5;
+        doc.text('Fecha:', col1X, yCol1);
+        yCol1 += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col1X, yPos, fieldWidth - 5, 12, 1, 1, 'S');
-        yPos += 17;
+        doc.roundedRect(col1X, yCol1, fieldWidth - 5, 8, 1, 1, 'S');
+        yCol1 += 12;
 
-        // Guardar la posición Y después de la columna 1 para usarla como referencia para la columna 2
-        const yPosAfterCol1 = yPos;
-
-        // Reiniciar yPos para la columna 2 (volver a la posición inicial después del título)
-        yPos = yPosAfterCol1 - (12 + 35 + 12 + 17); // Restar lo que avanzamos en la columna 1
+        doc.setFont('helvetica', 'bold');
+        doc.text('Firma (Nombre y cargo):', col1X, yCol1);
+        yCol1 += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.roundedRect(col1X, yCol1, fieldWidth - 5, 12, 1, 1, 'S');
+        yCol1 += 17;
 
         // --- Columna 2: COVID ---
+        let yCol2 = yInicialCol1;
         doc.setFont('helvetica', 'bold');
-        doc.text('N° de desvio COVID', col2X, yPos);
-        yPos += 5;
+        doc.text('N° de desvio COVID', col2X, yCol2);
+        yCol2 += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
-        yPos += 12;
+        doc.roundedRect(col2X, yCol2, fieldWidth - 5, 8, 1, 1, 'S');
+        yCol2 += 12;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Recomendaciones:', col2X, yPos);
-        yPos += 5;
+        doc.text('Recomendaciones:', col2X, yCol2);
+        yCol2 += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, yPos, fieldWidth - 5, 30, 1, 1, 'S');
-        yPos += 35;
+        doc.roundedRect(col2X, yCol2, fieldWidth - 5, 30, 1, 1, 'S');
+        yCol2 += 35;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Fecha:', col2X, yPos);
-        yPos += 5;
+        doc.text('Fecha:', col2X, yCol2);
+        yCol2 += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
-        yPos += 12;
+        doc.roundedRect(col2X, yCol2, fieldWidth - 5, 8, 1, 1, 'S');
+        yCol2 += 12;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Firma (Nombre y cargo):', col2X, yPos);
-        yPos += 5;
+        doc.text('Firma (Nombre y cargo):', col2X, yCol2);
+        yCol2 += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, yPos, fieldWidth - 5, 12, 1, 1, 'S');
+        doc.roundedRect(col2X, yCol2, fieldWidth - 5, 12, 1, 1, 'S');
         
-        // Restaurar yPos para el resto del documento
-        yPos = yPosAfterCol1;
+        // Restaurar yPos para el resto del documento (usar el punto más alto de las dos columnas)
+        yPos = Math.max(yCol1, yCol2);
         
         // ================================================================
         // [3] CONTRACARÁTULA
