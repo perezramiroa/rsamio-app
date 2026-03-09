@@ -1542,7 +1542,7 @@
     }
 
     // ============================================================
-    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE PDF DE DESVÍO
+    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE PDF DE DESVÍO (CORREGIDA)
     // ============================================================
     async function generarPDFDesvioProfesional() {
         if (!validarFormulario()) return;
@@ -1954,35 +1954,42 @@
         doc.roundedRect(col1X, yPos, fieldWidth - 5, 12, 1, 1, 'S');
         yPos += 17;
 
-        let col2Y = yPos - (12 + 35 + 12 + 17);
+        // Guardar la posición Y después de la columna 1 para usarla como referencia para la columna 2
+        const yPosAfterCol1 = yPos;
+
+        // Reiniciar yPos para la columna 2 (volver a la posición inicial después del título)
+        yPos = yPosAfterCol1 - (12 + 35 + 12 + 17); // Restar lo que avanzamos en la columna 1
 
         // --- Columna 2: COVID ---
         doc.setFont('helvetica', 'bold');
-        doc.text('N° de desvio COVID', col2X, col2Y);
-        col2Y += 5;
+        doc.text('N° de desvio COVID', col2X, yPos);
+        yPos += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 8, 1, 1, 'S');
-        col2Y += 12;
+        doc.roundedRect(col2X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
+        yPos += 12;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Recomendaciones:', col2X, col2Y);
-        col2Y += 5;
+        doc.text('Recomendaciones:', col2X, yPos);
+        yPos += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 30, 1, 1, 'S');
-        col2Y += 35;
+        doc.roundedRect(col2X, yPos, fieldWidth - 5, 30, 1, 1, 'S');
+        yPos += 35;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Fecha:', col2X, col2Y);
-        col2Y += 5;
+        doc.text('Fecha:', col2X, yPos);
+        yPos += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 8, 1, 1, 'S');
-        col2Y += 12;
+        doc.roundedRect(col2X, yPos, fieldWidth - 5, 8, 1, 1, 'S');
+        yPos += 12;
 
         doc.setFont('helvetica', 'bold');
-        doc.text('Firma (Nombre y cargo):', col2X, col2Y);
-        col2Y += 5;
+        doc.text('Firma (Nombre y cargo):', col2X, yPos);
+        yPos += 5;
         doc.setFont('helvetica', 'normal');
-        doc.roundedRect(col2X, col2Y, fieldWidth - 5, 12, 1, 1, 'S');
+        doc.roundedRect(col2X, yPos, fieldWidth - 5, 12, 1, 1, 'S');
+        
+        // Restaurar yPos para el resto del documento
+        yPos = yPosAfterCol1;
         
         // ================================================================
         // [3] CONTRACARÁTULA
@@ -2164,6 +2171,7 @@
             const margin = 15;
             const marginBottom = 30;
             const marginTop = 45; // Margen superior para nuevas páginas
+            const maxWidth = pageWidth - 2 * margin - 10; // Ancho máximo para el texto
 
             // Generar código único para informe técnico
             const codigoUnico = generarCodigoUnico('IT');
@@ -2330,7 +2338,7 @@
                         doc.setFont('helvetica', 'normal');
                         doc.setTextColor(30, 41, 59);
                         const obsLine = `${obs.fecha}: ${obs.observacion}`;
-                        const splitObs = doc.splitTextToSize(obsLine, pageWidth - 2*margin - 10);
+                        const splitObs = doc.splitTextToSize(obsLine, maxWidth);
                         doc.text(splitObs, margin + 5, yPos);
                         yPos += splitObs.length * 5 + 2;
                     }
@@ -2338,7 +2346,7 @@
                 yPos += 10;
             }
 
-            // Agregar análisis y recomendaciones de alertas al PDF (CORREGIDO: USANDO ARRAYS)
+            // Agregar análisis y recomendaciones de alertas al PDF (CORREGIDO: USANDO ARRAYS y maxWidth)
             const analisisAlertasRaw = document.getElementById('analisisAlertasContenido').innerText || 'Sin análisis disponible.';
             const recomAlertasRaw = document.getElementById('recomendacionesAlertasContenido').innerText || 'Sin recomendaciones.';
             
@@ -2355,9 +2363,14 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            // Usar array para imprimir cada línea por separado
-            doc.text(analisisLineas, margin + 5, yPos);
-            yPos += (analisisLineas.length * 5) + 10;
+            // Usar array para imprimir cada línea por separado, con maxWidth
+            analisisLineas.forEach((linea, index) => {
+                const lineasAjustadas = doc.splitTextToSize(linea, maxWidth);
+                lineasAjustadas.forEach(lineaAjustada => {
+                    doc.text(lineaAjustada, margin + 5, yPos);
+                    yPos += 5;
+                });
+            });
 
             yPos = checkPageBreak(doc, yPos, recomLineas.length * 5 + 20, marginTop, marginBottom);
             doc.setFont('helvetica', 'bold');
@@ -2367,9 +2380,15 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            // Usar array para imprimir cada recomendación por separado
-            doc.text(recomLineas, margin + 5, yPos);
-            yPos += (recomLineas.length * 5) + 15;
+            // Usar array para imprimir cada recomendación por separado, con maxWidth
+            recomLineas.forEach((linea, index) => {
+                const lineasAjustadas = doc.splitTextToSize(linea, maxWidth);
+                lineasAjustadas.forEach(lineaAjustada => {
+                    doc.text(lineaAjustada, margin + 5, yPos);
+                    yPos += 5;
+                });
+            });
+            yPos += 5;
 
             // ============================================================
             // TABLA DE EVENTOS DETECTADOS
@@ -2437,7 +2456,7 @@
                         doc.setFont('helvetica', 'normal');
                         doc.setTextColor(30, 41, 59);
                         const obsLine = `${obs.fecha}: ${obs.observacion}`;
-                        const splitObs = doc.splitTextToSize(obsLine, pageWidth - 2*margin - 10);
+                        const splitObs = doc.splitTextToSize(obsLine, maxWidth);
                         doc.text(splitObs, margin + 5, yPos);
                         yPos += splitObs.length * 5 + 2;
                     }
@@ -2445,7 +2464,7 @@
                 yPos += 10;
             }
 
-            // Agregar análisis y recomendaciones de eventos al PDF (CORREGIDO: USANDO ARRAYS)
+            // Agregar análisis y recomendaciones de eventos al PDF (CORREGIDO: USANDO ARRAYS y maxWidth)
             const analisisEventosRaw = document.getElementById('analisisEventosContenido').innerText || 'Sin análisis disponible.';
             const recomEventosRaw = document.getElementById('recomendacionesEventosContenido').innerText || 'Sin recomendaciones.';
             
@@ -2460,8 +2479,13 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            doc.text(analisisEventosLineas, margin + 5, yPos);
-            yPos += (analisisEventosLineas.length * 5) + 10;
+            analisisEventosLineas.forEach((linea, index) => {
+                const lineasAjustadas = doc.splitTextToSize(linea, maxWidth);
+                lineasAjustadas.forEach(lineaAjustada => {
+                    doc.text(lineaAjustada, margin + 5, yPos);
+                    yPos += 5;
+                });
+            });
 
             yPos = checkPageBreak(doc, yPos, recomEventosLineas.length * 5 + 20, marginTop, marginBottom);
             doc.setFont('helvetica', 'bold');
@@ -2471,8 +2495,14 @@
             
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            doc.text(recomEventosLineas, margin + 5, yPos);
-            yPos += (recomEventosLineas.length * 5) + 15;
+            recomEventosLineas.forEach((linea, index) => {
+                const lineasAjustadas = doc.splitTextToSize(linea, maxWidth);
+                lineasAjustadas.forEach(lineaAjustada => {
+                    doc.text(lineaAjustada, margin + 5, yPos);
+                    yPos += 5;
+                });
+            });
+            yPos += 5;
 
             drawHeaderFooter(doc);
             const safeName = sensorName.replace(/[^a-zA-Z0-9]/g, '_');
