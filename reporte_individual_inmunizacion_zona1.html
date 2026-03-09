@@ -1050,7 +1050,7 @@
     let SELECTED_DATE = null;
 
     const MAX = 8.0, MIN = 2.0;
-    const EVENTO_CORTE_MINUTOS = 30; // Cambiado de 10 a 30 minutos
+    const EVENTO_CORTE_MINUTOS = 30;
     let chartInstance = null;
     let currentFeeds = [];
 
@@ -1077,18 +1077,8 @@
         return `${prefijo}-${año}${mes}${dia}-${hora}${minuto}${segundo}-${sensorShort}-${randomHash}`;
     }
 
-    function generarHashSimple(texto) {
-        let hash = 0;
-        for (let i = 0; i < texto.length; i++) {
-            const char = texto.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
-        }
-        return Math.abs(hash).toString(16).padStart(8, '0').toUpperCase();
-    }
-
     // ============================================================
-    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES (CORREGIDAS)
+    // FUNCIONES DE ANÁLISIS Y RECOMENDACIONES
     // ============================================================
     function generarAnalisisAlertas(eventos) {
         if (!eventos || eventos.length === 0) {
@@ -1107,9 +1097,9 @@
         });
         
         let analisis = `Se detectaron ${eventos.length} evento(s) de temperatura fuera de rango.\n`;
-        analisis += `   - Alertas por temperatura alta: ${alertasAltas}\n`;
-        analisis += `   - Alertas por temperatura baja: ${alertasBajas}\n`;
-        analisis += `   - Tiempo total acumulado fuera de rango: ${formatDurationFull(totalDuracion)}\n\n`;
+        analisis += `- Alertas por temperatura alta: ${alertasAltas}\n`;
+        analisis += `- Alertas por temperatura baja: ${alertasBajas}\n`;
+        analisis += `- Tiempo total acumulado fuera de rango: ${formatDurationFull(totalDuracion)}\n\n`;
         
         if (totalDuracion < 30) {
             analisis += "Los desvíos fueron breves y no representan un riesgo crítico para la cadena de frío. Se recomienda monitorear de cerca las próximas horas.";
@@ -1129,14 +1119,12 @@
         
         let recomendaciones = [];
         
-        // Recomendaciones generales
         recomendaciones.push("- Verificar el cierre hermético de puertas y burletes de los equipos.");
         recomendaciones.push("- Controlar la calibración del sensor de temperatura contra un termómetro patrón.");
         recomendaciones.push("- Documentar todas las aperturas programadas del equipo en el período afectado.");
         recomendaciones.push("- Evaluar la necesidad de respaldo eléctrico (grupo electrógeno o UPS).");
         recomendaciones.push("- Aplicar protocolo establecido ante corte prolongado de energía (anexar al informe).");
         
-        // Recomendaciones específicas según el tipo de alerta
         const tieneAlertasAltas = eventos.some(e => e.severidad === 'alta');
         const tieneAlertasBajas = eventos.some(e => e.severidad === 'baja');
         
@@ -1171,9 +1159,9 @@
         });
         
         let analisis = `Se detectaron ${eventos.length} evento(s) de interrupción.\n`;
-        analisis += `   - Cortes de energía con impacto térmico: ${cortesElectricos}\n`;
-        analisis += `   - Cortes de WiFi sin impacto térmico: ${cortesWiFi}\n`;
-        analisis += `   - Tiempo total sin datos: ${formatDurationFull(totalDuracion)}\n\n`;
+        analisis += `- Cortes de energía con impacto térmico: ${cortesElectricos}\n`;
+        analisis += `- Cortes de WiFi sin impacto térmico: ${cortesWiFi}\n`;
+        analisis += `- Tiempo total sin datos: ${formatDurationFull(totalDuracion)}\n\n`;
         
         if (totalDuracion < 30) {
             analisis += "Los cortes fueron breves y no afectaron el registro de temperatura.";
@@ -1448,18 +1436,6 @@
         tbody.appendChild(fila);
     }
 
-    function mostrarNombreArchivo(input) {
-        const infoDiv = document.getElementById('info_archivo');
-        if (input.files && input.files[0]) {
-            archivoRegistro = input.files[0];
-            infoDiv.style.display = 'block';
-            infoDiv.innerHTML = `📎 Archivo seleccionado: ${archivoRegistro.name} (${(archivoRegistro.size / 1024).toFixed(2)} KB)`;
-        } else {
-            archivoRegistro = null;
-            infoDiv.style.display = 'none';
-        }
-    }
-
     function validarFormulario() {
         const establecimiento = document.getElementById('desvio_establecimiento').value;
         const responsable = document.getElementById('desvio_responsable').value;
@@ -1550,7 +1526,7 @@
         // ================================================================
         // [1] CARÁTULA
         // ================================================================
-        const caratulaRuta = "RUTA_DE_TU_IMAGEN_CARATULA"; // <--- REEMPLAZA AQUÍ
+        const caratulaRuta = "RUTA_DE_TU_IMAGEN_CARATULA";
         
         if (caratulaRuta && caratulaRuta !== "RUTA_DE_TU_IMAGEN_CARATULA") {
             try {
@@ -1683,8 +1659,7 @@
                 theme: 'grid',
                 styles: { fontSize: 8, cellPadding: 2 },
                 headStyles: { fillColor: [0, 56, 77], textColor: 255, fontStyle: 'bold' },
-                margin: { left: margin, right: margin },
-                didDrawPage: function(data) { yPos = data.cursor.y + 10; }
+                margin: { left: margin, right: margin }
             });
             yPos = doc.lastAutoTable.finalY + 10;
         } else {
@@ -1975,7 +1950,7 @@
         // [3] CONTRACARÁTULA
         // ================================================================
         doc.addPage();
-        const contracaratulaRuta = "RUTA_DE_TU_IMAGEN_CONTRACARATULA"; // <--- REEMPLAZA AQUÍ
+        const contracaratulaRuta = "RUTA_DE_TU_IMAGEN_CONTRACARATULA";
         
         if (contracaratulaRuta && contracaratulaRuta !== "RUTA_DE_TU_IMAGEN_CONTRACARATULA") {
             try {
@@ -2039,7 +2014,6 @@
                     rows += `<td>${val.toFixed(1)}</td>`;
                     rows += `<td>${label}</td>`;
                     rows += `<td>--</td>`;
-                    // OBSERVACIÓN: Solo visible en recuperación, no en alerta
                     rows += `<td></td>`;
                     rows += `</tr>`;
                 } else if (startTime) {
@@ -2050,7 +2024,6 @@
                         rows += `<td>${val.toFixed(1)}</td>`;
                         rows += `<td>Recuperacion</td>`;
                         rows += `<td>${formatDurationFull(dur)}</td>`;
-                        // OBSERVACIÓN: Solo en recuperación
                         const obsId = `recuperacion_${i}`;
                         const valorGuardado = observacionesAlmacenadas[obsId] || '';
                         rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Normalizado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
@@ -2070,7 +2043,6 @@
         
         tbody.innerHTML = rows || '<tr><td colspan="5" class="empty">Sin eventos fuera de rango.</td></tr>';
         
-        // Actualizar análisis y recomendaciones en el HTML
         const analisisDiv = document.getElementById('analisisAlertasContenido');
         const recomDiv = document.getElementById('recomendacionesAlertasContenido');
         
@@ -2103,7 +2075,7 @@
                 
                 let tipoCorte = 'Corte de WiFi';
                 if (hayImpactoSignificativo) {
-                    tipoCorte = 'Corte de Energia (con impacto termico)';
+                    tipoCorte = 'Corte de Energía (con impacto térmico)';
                 }
                 
                 rows += `<tr data-index="${i}">`;
@@ -2113,7 +2085,6 @@
                 rows += `<td>${feeds[i-1][field]}°C</td>`;
                 rows += `<td>${feeds[i][field]}°C</td>`;
                 rows += `<td>${formatDurationFull(diff)}</td>`;
-                // OBSERVACIÓN: Para eventos de conectividad
                 const obsId = `evento_${i}`;
                 const valorGuardado = observacionesAlmacenadas[obsId] || '';
                 rows += `<td><input type="text" class="observacion-input" value="${valorGuardado.replace(/"/g, '&quot;')}" placeholder="Ej: Corte programado..." onchange="guardarObservacion(this, '${obsId}')"></td>`;
@@ -2130,7 +2101,6 @@
         
         tbody.innerHTML = rows || '<tr><td colspan="7" class="empty">Sin interrupciones >30 min.</td></tr>';
         
-        // Actualizar análisis y recomendaciones en el HTML
         const analisisDiv = document.getElementById('analisisEventosContenido');
         const recomDiv = document.getElementById('recomendacionesEventosContenido');
         
@@ -2146,7 +2116,7 @@
     }
 
     // ============================================================
-    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO (CORREGIDA)
+    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO
     // ============================================================
     async function generarInformeTecnico() {
         try {
@@ -2154,16 +2124,14 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
-            const marginBottom = 30; // Espacio para footer
-            const maxLineWidth = pageWidth - 2 * margin - 10; // Ancho máximo para textos
+            const marginBottom = 30;
+            const maxLineWidth = pageWidth - 2 * margin - 10;
 
-            // Generar código único para informe técnico
             const codigoUnico = generarCodigoUnico('IT');
             const fechaEmision = new Date().toLocaleDateString('es-AR');
             const sensorName = cleanTextForPDF(document.getElementById('sensorName').innerText);
             const teamName = cleanTextForPDF(document.getElementById('teamName').innerText);
 
-            // Capturar logos
             const getBase64Image = (imgId) => {
                 try {
                     const img = document.getElementById(imgId);
@@ -2242,7 +2210,6 @@
             doc.text("Segun Ley 27.491 y Manual de Almacenamiento de Vacunas (DiCEI)", margin, yPos);
             yPos += 12;
 
-            // Verificar espacio para gráfica
             if (yPos > 250) { doc.addPage(); yPos = 45; }
             
             const canvas = document.getElementById('chart');
@@ -2251,7 +2218,6 @@
                 const imgWidth = pageWidth - 2 * margin;
                 const imgHeight = (imgWidth * canvas.height) / canvas.width;
                 
-                // Verificar si la gráfica entra en la página actual
                 if (yPos + imgHeight + 10 > 272 - marginBottom) {
                     doc.addPage();
                     yPos = 45;
@@ -2275,14 +2241,11 @@
             const alertObs = [];
             document.querySelectorAll('#alertTable tbody tr').forEach((tr, idx) => {
                 const cells = Array.from(tr.cells).map(td => {
-                    // Limpiar emojis y caracteres especiales
                     return td.innerText.replace(/[^\x20-\x7EáéíóúÁÉÍÓÚñÑ]/g, '').trim();
                 });
                 if (cells.length >= 4 && !cells[0].toLowerCase().includes('sin eventos')) {
-                    // Solo tomar las primeras 4 columnas (sin observaciones para la tabla principal)
                     alertRows.push(cells.slice(0, 4));
                     
-                    // Capturar observación si existe (solo en recuperación)
                     const obsInput = tr.querySelector('input');
                     if (obsInput && cells[2].toLowerCase().includes('recuperacion')) {
                         alertObs.push({
@@ -2294,7 +2257,6 @@
             });
 
             if (alertRows.length > 0) {
-                // Verificar espacio para la tabla
                 const tableHeight = alertRows.length * 8 + 20;
                 if (yPos + tableHeight > 272 - marginBottom) {
                     doc.addPage();
@@ -2308,10 +2270,7 @@
                     theme: 'grid',
                     styles: { fontSize: 9, cellPadding: 2 },
                     headStyles: { fillColor: [241, 245, 249], textColor: [30, 41, 59], fontStyle: 'bold' },
-                    margin: { left: margin, right: margin },
-                    didDrawPage: function(data) {
-                        yPos = data.cursor.y + 10;
-                    }
+                    margin: { left: margin, right: margin }
                 });
                 yPos = doc.lastAutoTable.finalY + 10;
             } else {
@@ -2321,7 +2280,6 @@
                 yPos += 8;
             }
 
-            // Agregar observaciones de recuperación si existen
             if (alertObs.length > 0) {
                 if (yPos > 250) { doc.addPage(); yPos = 45; }
                 doc.setFontSize(10);
@@ -2336,46 +2294,94 @@
                         doc.setTextColor(30, 41, 59);
                         const obsLine = `${obs.fecha}: ${obs.observacion}`;
                         const splitObs = doc.splitTextToSize(obsLine, maxLineWidth);
-                        doc.text(splitObs, margin + 5, yPos);
+                        doc.text(splitObs, margin, yPos);
                         yPos += splitObs.length * 5 + 2;
                     }
                 });
                 yPos += 10;
             }
 
-            // Agregar análisis y recomendaciones de alertas al PDF
-            const analisisAlertas = document.getElementById('analisisAlertasContenido').innerHTML || 'Sin analisis disponible.';
-            const recomAlertas = document.getElementById('recomendacionesAlertasContenido').innerHTML || 'Sin recomendaciones.';
-            
+            // ============================================================
+            // ANÁLISIS DE ALERTAS - VIÑETAS CORREGIDAS
+            // ============================================================
             if (yPos > 230) { doc.addPage(); yPos = 45; }
-            doc.setFontSize(10);
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('ANALISIS DE EVENTOS:', margin, yPos);
-            yPos += 6;
-            
+            yPos += 8;
+
+            const analisisAlertasHTML = document.getElementById('analisisAlertasContenido').innerHTML || '';
+            const analisisLines = analisisAlertasHTML
+                .replace(/<[^>]*>/g, '')
+                .split('\n')
+                .filter(line => line.trim() !== '');
+
             doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
             doc.setTextColor(30, 41, 59);
-            const analisisLines = doc.splitTextToSize(analisisAlertas.replace(/<[^>]*>/g, ''), maxLineWidth);
-            doc.text(analisisLines, margin, yPos);
-            yPos += (analisisLines.length * 5) + 10;
-            
+
+            analisisLines.forEach(line => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
+                if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+                    const bulletLine = doc.splitTextToSize(line.trim(), maxLineWidth - 5);
+                    doc.text(bulletLine, margin + 5, yPos);
+                    yPos += bulletLine.length * 5;
+                } else {
+                    const textLines = doc.splitTextToSize(line.trim(), maxLineWidth);
+                    doc.text(textLines, margin, yPos);
+                    yPos += textLines.length * 5;
+                }
+            });
+            yPos += 5;
+
+            // ============================================================
+            // RECOMENDACIONES DE ALERTAS - VIÑETAS CORREGIDAS
+            // ============================================================
             if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('RECOMENDACIONES:', margin, yPos);
-            yPos += 6;
-            
+            yPos += 8;
+
+            const recomAlertasHTML = document.getElementById('recomendacionesAlertasContenido').innerHTML || '';
+            const recomLines = recomAlertasHTML
+                .replace(/<[^>]*>/g, '')
+                .split('\n')
+                .filter(line => line.trim() !== '');
+
             doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
             doc.setTextColor(30, 41, 59);
-            const recomLines = doc.splitTextToSize(recomAlertas.replace(/<[^>]*>/g, ''), maxLineWidth);
-            doc.text(recomLines, margin, yPos);
-            yPos += (recomLines.length * 5) + 15;
+
+            recomLines.forEach(line => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
+                if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+                    const bulletLine = doc.splitTextToSize(line.trim(), maxLineWidth - 5);
+                    doc.text(bulletLine, margin + 5, yPos);
+                    yPos += bulletLine.length * 5;
+                } else {
+                    const textLines = doc.splitTextToSize(line.trim(), maxLineWidth);
+                    doc.text(textLines, margin, yPos);
+                    yPos += textLines.length * 5;
+                }
+            });
+            yPos += 10;
 
             // ============================================================
             // TABLA DE EVENTOS DETECTADOS
             // ============================================================
             if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('Eventos detectados (>30 min sin datos)', margin, yPos);
@@ -2414,10 +2420,7 @@
                     theme: 'grid',
                     styles: { fontSize: 8, cellPadding: 2 },
                     headStyles: { fillColor: [241, 245, 249], textColor: [30, 41, 59], fontStyle: 'bold' },
-                    margin: { left: margin, right: margin },
-                    didDrawPage: function(data) {
-                        yPos = data.cursor.y + 10;
-                    }
+                    margin: { left: margin, right: margin }
                 });
                 yPos = doc.lastAutoTable.finalY + 10;
             } else {
@@ -2427,7 +2430,6 @@
                 yPos += 8;
             }
 
-            // Agregar observaciones de eventos
             if (wifiObs.length > 0) {
                 if (yPos > 250) { doc.addPage(); yPos = 45; }
                 doc.setFontSize(10);
@@ -2442,40 +2444,88 @@
                         doc.setTextColor(30, 41, 59);
                         const obsLine = `${obs.fecha}: ${obs.observacion}`;
                         const splitObs = doc.splitTextToSize(obsLine, maxLineWidth);
-                        doc.text(splitObs, margin + 5, yPos);
+                        doc.text(splitObs, margin, yPos);
                         yPos += splitObs.length * 5 + 2;
                     }
                 });
                 yPos += 10;
             }
 
-            // Agregar análisis y recomendaciones de eventos al PDF
-            const analisisEventos = document.getElementById('analisisEventosContenido').innerHTML || 'Sin analisis disponible.';
-            const recomEventos = document.getElementById('recomendacionesEventosContenido').innerHTML || 'Sin recomendaciones.';
-            
+            // ============================================================
+            // ANÁLISIS DE CONECTIVIDAD - VIÑETAS CORREGIDAS
+            // ============================================================
             if (yPos > 230) { doc.addPage(); yPos = 45; }
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('ANALISIS DE CONECTIVIDAD:', margin, yPos);
-            yPos += 6;
-            
+            yPos += 8;
+
+            const analisisEventosHTML = document.getElementById('analisisEventosContenido').innerHTML || '';
+            const analisisEventosLines = analisisEventosHTML
+                .replace(/<[^>]*>/g, '')
+                .split('\n')
+                .filter(line => line.trim() !== '');
+
             doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
             doc.setTextColor(30, 41, 59);
-            const analisisEventosLines = doc.splitTextToSize(analisisEventos.replace(/<[^>]*>/g, ''), maxLineWidth);
-            doc.text(analisisEventosLines, margin, yPos);
-            yPos += (analisisEventosLines.length * 5) + 10;
-            
+
+            analisisEventosLines.forEach(line => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
+                if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+                    const bulletLine = doc.splitTextToSize(line.trim(), maxLineWidth - 5);
+                    doc.text(bulletLine, margin + 5, yPos);
+                    yPos += bulletLine.length * 5;
+                } else {
+                    const textLines = doc.splitTextToSize(line.trim(), maxLineWidth);
+                    doc.text(textLines, margin, yPos);
+                    yPos += textLines.length * 5;
+                }
+            });
+            yPos += 5;
+
+            // ============================================================
+            // RECOMENDACIONES DE CONECTIVIDAD - VIÑETAS CORREGIDAS
+            // ============================================================
             if (yPos > 250) { doc.addPage(); yPos = 45; }
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(0, 56, 77);
             doc.text('RECOMENDACIONES DE CONECTIVIDAD:', margin, yPos);
-            yPos += 6;
-            
+            yPos += 8;
+
+            const recomEventosHTML = document.getElementById('recomendacionesEventosContenido').innerHTML || '';
+            const recomEventosLines = recomEventosHTML
+                .replace(/<[^>]*>/g, '')
+                .split('\n')
+                .filter(line => line.trim() !== '');
+
             doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
             doc.setTextColor(30, 41, 59);
-            const recomEventosLines = doc.splitTextToSize(recomEventos.replace(/<[^>]*>/g, ''), maxLineWidth);
-            doc.text(recomEventosLines, margin, yPos);
-            yPos += (recomEventosLines.length * 5) + 15;
+
+            recomEventosLines.forEach(line => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 45;
+                }
+                
+                if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+                    const bulletLine = doc.splitTextToSize(line.trim(), maxLineWidth - 5);
+                    doc.text(bulletLine, margin + 5, yPos);
+                    yPos += bulletLine.length * 5;
+                } else {
+                    const textLines = doc.splitTextToSize(line.trim(), maxLineWidth);
+                    doc.text(textLines, margin, yPos);
+                    yPos += textLines.length * 5;
+                }
+            });
+            yPos += 10;
 
             drawHeaderFooter(doc);
             const safeName = sensorName.replace(/[^a-zA-Z0-9]/g, '_');
@@ -2487,7 +2537,7 @@
     }
 
     // ============================================================
-    // FUNCIONES EXISTENTES (sin cambios)
+    // FUNCIONES EXISTENTES
     // ============================================================
     window.onload = () => {
         if (!ID || !KEY) {
@@ -2621,7 +2671,6 @@
         return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
 
-    // Cerrar modales al hacer clic fuera
     window.onclick = function(event) {
         const modalFecha = document.getElementById('modalFechaDesvio');
         const modalDesvio = document.getElementById('modalDesvio');
@@ -2633,7 +2682,6 @@
         }
     };
 
-    // Confirmar cierre si hay datos
     window.onbeforeunload = function() {
         if (document.getElementById('modalDesvio').style.display === 'block' || 
             document.getElementById('modalFechaDesvio').style.display === 'block') {
