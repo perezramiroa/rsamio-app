@@ -824,117 +824,175 @@ document.getElementById('panelEstadisticas').style.display = 'block';
 }
 
 // ============================================================
-// FUNCIONES DE STOCK - VERSIÓN CORREGIDA
+// FUNCIONES DE STOCK - VERSIÓN FINAL CONEXIÓN REAL
 // ============================================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQ5zIle_WR5O2nJ_wtDh6s31Nu4hPppkWl-g72DTdwXzwu5LEpNcLZM-uiLTBOTz39/exec';
+
 async function mostrarStock() {
-ocultarTodo();
-document.getElementById('stockSection').style.display = 'block';
-document.getElementById('stockLoader').style.display = 'block';
-document.getElementById('stockContent').style.display = 'none';
-document.getElementById('stockContent').innerHTML = ''; // Limpiar contenido anterior
-
-await cargarStock();
+    ocultarTodo();
+    document.getElementById('stockSection').style.display = 'block';
+    document.getElementById('stockLoader').style.display = 'block';
+    document.getElementById('stockContent').style.display = 'none';
+    document.getElementById('stockContent').innerHTML = '';
+    
+    await cargarStockReal();
 }
 
-// Intenta cargar desde el script real
-async function cargarStock() {
-try {
-console.log('Intentando cargar stock desde:', APPS_SCRIPT_URL + '?action=getStock');
-
-// Opción 1: Con modo no-cors (más permisivo)
-const response = await fetch(APPS_SCRIPT_URL + '?action=getStock', {
-method: 'GET',
-mode: 'no-cors', // Esto evita errores de CORS pero no podemos leer la respuesta
-});
-
-// Como usamos no-cors, no podemos leer la respuesta, así que mostramos datos de prueba
-console.log('Usando modo no-cors, mostrando datos de prueba');
-cargarStockPrueba();
-
-} catch (error) {
-console.error('Error al cargar stock:', error);
-document.getElementById('stockLoader').innerHTML = `
-<p style="color: #f59e0b;">⚠️ No se pudo conectar al servidor de stock.</p>
-<p>Usando datos de demostración.</p>
-<button onclick="cargarStockPrueba()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 10px; cursor: pointer;">📋 Cargar datos de prueba</button>
-`;
+async function cargarStockReal() {
+    try {
+        console.log('Cargando stock desde:', APPS_SCRIPT_URL + '?action=getStock');
+        
+        const response = await fetch(APPS_SCRIPT_URL + '?action=getStock', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Datos recibidos:', data);
+        
+        if (data && data.length > 0) {
+            mostrarTablaStockReal(data);
+        } else {
+            throw new Error('No se recibieron datos válidos');
+        }
+        
+    } catch (error) {
+        console.error('Error al cargar stock real:', error);
+        document.getElementById('stockLoader').innerHTML = `
+            <p style="color: #dc2626;">❌ Error al conectar con el servidor de stock.</p>
+            <p style="color: #64748b; margin: 10px 0;">${error.message}</p>
+            <button onclick="cargarStockPrueba()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 10px; cursor: pointer;">
+                📋 Usar datos de prueba
+            </button>
+        `;
+    }
 }
+
+function mostrarTablaStockReal(data) {
+    let html = `
+        <table class="stock-table">
+            <thead>
+                <tr>
+                    <th>Vacuna</th>
+                    <th>Laboratorio</th>
+                    <th>Lote</th>
+                    <th>Vencimiento</th>
+                    <th>Stock</th>
+                    <th>Ubicación</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Crear opciones para el selector de vacunas
+    let opcionesVacunas = '';
+    
+    data.forEach(item => {
+        const stockClass = item.stock < 50 ? 'stock-low' : '';
+        html += `
+            <tr>
+                <td>${item.vacuna || ''}</td>
+                <td>${item.laboratorio || ''}</td>
+                <td>${item.lote || ''}</td>
+                <td>${item.vencimiento || ''}</td>
+                <td class="${stockClass}">${item.stock || 0}</td>
+                <td>${item.ubicacion || ''}</td>
+            </tr>
+        `;
+        
+        opcionesVacunas += `<option value="${item.vacuna}">${item.vacuna} (Stock: ${item.stock})</option>`;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+        
+        <div class="egreso-form">
+            <h3>📤 Registrar Egreso de Dosis</h3>
+            <select id="vacunaSelectReal" required>
+                <option value="">Seleccionar vacuna</option>
+                ${opcionesVacunas}
+            </select>
+            <input type="number" id="cantidadEgresoReal" placeholder="Cantidad" min="1" required>
+            <input type="text" id="destinoEgresoReal" placeholder="Destino (ej: CAPS Centro)" required>
+            <input type="text" id="responsableEgresoReal" placeholder="Responsable" required>
+            <button onclick="registrarEgresoReal()" style="background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                ✅ Registrar Egreso
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('stockContent').innerHTML = html;
+    document.getElementById('stockLoader').style.display = 'none';
+    document.getElementById('stockContent').style.display = 'block';
 }
 
-// Función con datos de prueba (para cuando el script no responde)
+async function registrarEgresoReal() {
+    const vacuna = document.getElementById('vacunaSelectReal').value;
+    const cantidad = document.getElementById('cantidadEgresoReal').value;
+    const destino = document.getElementById('destinoEgresoReal').value;
+    const responsable = document.getElementById('responsableEgresoReal').value;
+    
+    if (!vacuna || !cantidad || !destino || !responsable) {
+        alert('⚠️ Complete todos los campos');
+        return;
+    }
+    
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                vacuna: vacuna,
+                cantidad: parseInt(cantidad),
+                destino: destino,
+                responsable: responsable
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.result) {
+            alert('✅ Egreso registrado correctamente');
+            // Limpiar formulario
+            document.getElementById('cantidadEgresoReal').value = '';
+            document.getElementById('destinoEgresoReal').value = '';
+            document.getElementById('responsableEgresoReal').value = '';
+            // Recargar stock
+            await cargarStockReal();
+        } else {
+            alert('❌ Error: ' + (result.message || 'Error desconocido'));
+        }
+        
+    } catch (error) {
+        console.error('Error al registrar egreso:', error);
+        alert('❌ Error al conectar con el servidor. Intente nuevamente.');
+    }
+}
+
+// Función de respaldo con datos de prueba (por si acaso)
 function cargarStockPrueba() {
-const datosPrueba = [
-{ vacuna: "BCG", laboratorio: "Laboratorio Público", lote: "BCG-2401", vencimiento: "2025-12-31", stock: 245, ubicacion: "Heladera Principal" },
-{ vacuna: "Hepatitis B", laboratorio: "Sinergium", lote: "HEP-2305", vencimiento: "2025-08-15", stock: 132, ubicacion: "Heladera Principal" },
-{ vacuna: "Pentavalente", laboratorio: "BioCubaFarma", lote: "PENT-2410", vencimiento: "2026-01-20", stock: 78, ubicacion: "Heladera Secundaria" },
-{ vacuna: "Antigripal", laboratorio: "Pfizer", lote: "FLU-2403", vencimiento: "2025-05-30", stock: 56, ubicacion: "Heladera Secundaria", class: 'stock-low' },
-{ vacuna: "COVID-19", laboratorio: "Moderna", lote: "MRNA-2408", vencimiento: "2025-11-15", stock: 320, ubicacion: "Freezer" },
-{ vacuna: "Triple Viral", laboratorio: "MSD", lote: "MMR-2312", vencimiento: "2025-09-10", stock: 95, ubicacion: "Heladera Principal" }
-];
-
-mostrarTablaStock(datosPrueba);
+    const datosPrueba = [
+        { vacuna: "BCG", laboratorio: "Laboratorio Público", lote: "BCG-2401", vencimiento: "2025-12-31", stock: 245, ubicacion: "Heladera Principal" },
+        { vacuna: "Hepatitis B", laboratorio: "Sinergium", lote: "HEP-2305", vencimiento: "2025-08-15", stock: 132, ubicacion: "Heladera Principal" },
+        { vacuna: "Pentavalente", laboratorio: "BioCubaFarma", lote: "PENT-2410", vencimiento: "2026-01-20", stock: 78, ubicacion: "Heladera Secundaria" },
+        { vacuna: "Antigripal", laboratorio: "Pfizer", lote: "FLU-2403", vencimiento: "2025-05-30", stock: 56, ubicacion: "Heladera Secundaria" },
+        { vacuna: "COVID-19", laboratorio: "Moderna", lote: "MRNA-2408", vencimiento: "2025-11-15", stock: 320, ubicacion: "Freezer" },
+        { vacuna: "Triple Viral", laboratorio: "MSD", lote: "MMR-2312", vencimiento: "2025-09-10", stock: 95, ubicacion: "Heladera Principal" }
+    ];
+    
+    mostrarTablaStockReal(datosPrueba);
+    document.getElementById('stockLoader').style.display = 'none';
+    document.getElementById('stockContent').style.display = 'block';
 }
-
-function mostrarTablaStock(data) {
-let html = `
-<table class="stock-table">
-<thead>
-<tr>
-<th>Vacuna</th>
-<th>Laboratorio</th>
-<th>Lote</th>
-<th>Vencimiento</th>
-<th>Stock</th>
-<th>Ubicación</th>
-</tr>
-</thead>
-<tbody>
-`;
-
-data.forEach(item => {
-const stockClass = item.stock < 50 ? 'stock-low' : '';
-html += `
-<tr>
-<td>${item.vacuna || ''}</td>
-<td>${item.laboratorio || ''}</td>
-<td>${item.lote || ''}</td>
-<td>${item.vencimiento || ''}</td>
-<td class="${stockClass}">${item.stock || 0}</td>
-<td>${item.ubicacion || ''}</td>
-</tr>
-`;
-});
-
-html += `
-</tbody>
-</table>
-<div class="egreso-form">
-<h3>📤 Registrar Egreso de Dosis (Demostración)</h3>
-<select id="vacunaSelectDemo">
-${data.map(item => `<option value="${item.vacuna}">${item.vacuna} (Stock: ${item.stock})</option>`).join('')}
-</select>
-<input type="number" id="cantidadEgresoDemo" placeholder="Cantidad" min="1" value="1">
-<input type="text" id="destinoEgresoDemo" placeholder="Destino" value="CAPS Centro">
-<input type="text" id="responsableEgresoDemo" placeholder="Responsable" value="Dr. Pérez">
-<button onclick="registrarEgresoDemo()" style="background: #059669; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">Registrar Egreso (Demo)</button>
-</div>
-<p style="text-align: center; color: #64748b; margin-top: 10px;">⚡ Modo demostración - Los cambios no se guardan en el servidor</p>
-`;
-
-document.getElementById('stockContent').innerHTML = html;
-document.getElementById('stockLoader').style.display = 'none';
-document.getElementById('stockContent').style.display = 'block';
-}
-
-function registrarEgresoDemo() {
-const vacuna = document.getElementById('vacunaSelectDemo')?.value;
-const cantidad = document.getElementById('cantidadEgresoDemo')?.value;
-const destino = document.getElementById('destinoEgresoDemo')?.value;
-const responsable = document.getElementById('responsableEgresoDemo')?.value;
-
-alert(`✅ Egreso registrado (DEMO):\nVacuna: ${vacuna}\nCantidad: ${cantidad}\nDestino: ${destino}\nResponsable: ${responsable}\n\n(Modo demostración - no se guardó en el servidor)`);
-}
-
 // ============================================================
 // FUNCIONES DEL DASHBOARD DE SENSORES
 // ============================================================
