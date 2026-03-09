@@ -455,9 +455,9 @@ justify-content: flex-end;
 <body onload="init()">
 <div class="header">
 <div class="logo-bar">
-<div class="logo-item"><img src="logos/logo_hnb_oscuro.jpg" alt="HNB"></div>
-<div class="logo-item"><img src="logos/logo_rih.jpg" alt="RIH"></div>
-<div class="logo-item"><img src="logos/logo_hnb_blanco.jpg" alt="HNB"></div>
+<div class="logo-item"><img src="logos/logo_hnb_oscuro.jpg" alt="HNB" onerror="this.style.display='none'"></div>
+<div class="logo-item"><img src="logos/logo_rih.jpg" alt="RIH" onerror="this.style.display='none'"></div>
+<div class="logo-item"><img src="logos/logo_hnb_blanco.jpg" alt="HNB" onerror="this.style.display='none'"></div>
 </div>
 <div class="title-section">
 <h1>Inmunización Zona 1</h1>
@@ -489,26 +489,17 @@ justify-content: flex-end;
 </div>
 </div>
 
-<!-- Sección Stock - VERSIÓN CORREGIDA -->
+<!-- Sección Stock -->
 <div id="stockSection" style="display: none;" class="stock-container">
 <div class="stock-header">
 <h2>💊 Stock de Vacunas - Zona 1</h2>
 <button onclick="volverAlPanelEstadisticas()" class="btn-volver">← Volver</button>
 </div>
-
 <div id="stockLoader" style="text-align: center; padding: 40px;">
 <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #059669; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
 <p>Cargando stock actual...</p>
 </div>
-
-<div id="stockContent" style="display: none;">
-<!-- La tabla se llena dinámicamente -->
-</div>
-
-<!-- Botón para usar datos de prueba si el script falla -->
-<div style="text-align: center; margin: 20px 0;">
-<button onclick="cargarStockPrueba()" style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">📋 Cargar datos de prueba</button>
-</div>
+<div id="stockContent" style="display: none;"></div>
 </div>
 
 <!-- Dashboard de Sensores -->
@@ -517,49 +508,42 @@ justify-content: flex-end;
 <h2>🌡️ Dashboard de Decisiones - Sensores</h2>
 <button onclick="volverAlPanelEstadisticas()" class="btn-volver">← Volver</button>
 </div>
-
 <div style="background: #f5f3ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #8b5cf6;">
 <p style="margin: 0; font-weight: 600;">Sensor seleccionado: <span id="sensorSeleccionado">No hay sensor seleccionado</span></p>
 <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #4b5563;" id="sensorInfo">Seleccione un sensor para ver sus estadísticas</p>
 </div>
-
 <div class="dashboard-grid">
 <div class="dashboard-card">
 <h3>Análisis Automático</h3>
-<div id="dashboardAnalisis">
-<p>Cargando análisis consolidado...</p>
-</div>
+<div id="dashboardAnalisis"><p>Cargando análisis consolidado...</p></div>
 </div>
 <div class="dashboard-card">
 <h3>Recomendaciones</h3>
-<div id="dashboardRecomendaciones">
-<p>Basado en el historial de los últimos 7 días...</p>
-</div>
+<div id="dashboardRecomendaciones"><p>Basado en el historial de los últimos 7 días...</p></div>
 </div>
 <div class="dashboard-card">
 <h3>Tendencias</h3>
 <canvas id="trendChart" width="400" height="200"></canvas>
 </div>
 </div>
-
 <h3 style="margin-top: 30px; color: #00384d;">🗺️ Monitoreo Regional</h3>
 <div class="gallery-container">
 <div class="gallery-item">
-<img src="RUTA_DE_TU_IMAGEN_REGIONES" alt="Regiones de la provincia" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22 font-family=%22Arial%22>Regiones</text><text x=%2210%22 y=%2260%22 fill=%22%231e293b%22>Alto Neuquén</text><text x=%2210%22 y=%2280%22 fill=%22%231e293b%22>Pehuén</text><text x=%2210%22 y=%22100%22 fill=%22%231e293b%22>Lagos del Sur</text><text x=%2210%22 y=%22120%22 fill=%22%231e293b%22>Limay</text><text x=%2210%22 y=%22140%22 fill=%22%231e293b%22>Vaca Muerta</text><text x=%2210%22 y=%22160%22 fill=%22%231e293b%22>Comarca</text><text x=%2210%22 y=%22180%22 fill=%22%231e293b%22>Confluencia</text></svg>'">
+<img src="RUTA_DE_TU_IMAGEN_REGIONES" alt="Regiones" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22 font-family=%22Arial%22>Regiones</text><text x=%2210%22 y=%2260%22 fill=%22%231e293b%22>Alto Neuquén</text><text x=%2210%22 y=%2280%22 fill=%22%231e293b%22>Pehuén</text><text x=%2210%22 y=%22100%22 fill=%22%231e293b%22>Lagos del Sur</text><text x=%2210%22 y=%22120%22 fill=%22%231e293b%22>Limay</text><text x=%2210%22 y=%22140%22 fill=%22%231e293b%22>Vaca Muerta</text><text x=%2210%22 y=%22160%22 fill=%22%231e293b%22>Comarca</text><text x=%2210%22 y=%22180%22 fill=%22%231e293b%22>Confluencia</text></svg>'">
 <p>Plan Provincial de Regionalización</p>
 </div>
 <div class="gallery-item">
-<img src="RUTA_DE_TU_IMAGEN_CONFLUENCIA" alt="Región Confluencia" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22 font-family=%22Arial%22>Región Confluencia</text><text x=%2210%22 y=%2260%22 fill=%22%231e293b%22>Centenario</text><text x=%2210%22 y=%2280%22 fill=%22%231e293b%22>Neuquén</text><text x=%2210%22 y=%22100%22 fill=%22%231e293b%22>Plottier</text><text x=%2210%22 y=%22120%22 fill=%22%231e293b%22>Senillosa</text><text x=%2210%22 y=%22140%22 fill=%22%231e293b%22>Vista Alegre</text><text x=%2210%22 y=%22160%22 fill=%22%231e293b%22>Villa El Chocón</text></svg>'">
-<p>Región Confluencia - Centenario y Vista Alegre</p>
+<img src="RUTA_DE_TU_IMAGEN_CONFLUENCIA" alt="Confluencia" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22>Confluencia</text><text x=%2210%22 y=%2260%22>Centenario</text><text x=%2210%22 y=%2280%22>Neuquén</text><text x=%2210%22 y=%22100%22>Plottier</text><text x=%2210%22 y=%22120%22>Senillosa</text><text x=%2210%22 y=%22140%22>Vista Alegre</text><text x=%2210%22 y=%22160%22>Villa El Chocón</text></svg>'">
+<p>Región Confluencia</p>
 </div>
 <div class="gallery-item">
-<img src="RUTA_DE_TU_IMAGEN_VACAMUERTA" alt="Vaca Muerta" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22 font-family=%22Arial%22>Vaca Muerta</text><text x=%2210%22 y=%2260%22 fill=%22%231e293b%22>Rincón de los Sauces</text><text x=%2210%22 y=%2280%22 fill=%22%231e293b%22>San Patricio del Chañar</text><text x=%2210%22 y=%22100%22 fill=%22%231e293b%22>Añelo</text><text x=%2210%22 y=%22120%22 fill=%22%231e293b%22>Buta Ranquil</text><text x=%2210%22 y=%22140%22 fill=%22%231e293b%22>Barrancas</text></svg>'">
+<img src="RUTA_DE_TU_IMAGEN_VACAMUERTA" alt="Vaca Muerta" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f0f9ff%22/><text x=%2210%22 y=%2230%22 fill=%22%233b82f6%22>Vaca Muerta</text><text x=%2210%22 y=%2260%22>Rincón de los Sauces</text><text x=%2210%22 y=%2280%22>San Patricio del Chañar</text><text x=%2210%22 y=%22100%22>Añelo</text><text x=%2210%22 y=%22120%22>Buta Ranquil</text><text x=%2210%22 y=%22140%22>Barrancas</text></svg>'">
 <p>Vaca Muerta - Hospital de El Chañar</p>
 </div>
 </div>
 </div>
 
-<!-- Modal para seleccionar sensor en el dashboard -->
+<!-- Modal para seleccionar sensor -->
 <div id="modalSelectorSensores" class="modal-sensores">
 <div class="modal-content">
 <h3>Seleccionar Sensor para Análisis</h3>
@@ -604,26 +588,30 @@ justify-content: flex-end;
 
 <div style="margin-top: 32px; text-align: center;">
 <div style="background-color: #00384d; padding: 6px 16px; border-top: 1px solid var(--border);">
-<img src="logos/footer.jpg" alt="HNB - Provincia del Neuquén" style="max-width: 100%; height: auto; display: inline-block;">
+<img src="logos/footer.jpg" alt="HNB" style="max-width: 100%; height: auto; display: inline-block;" onerror="this.style.display='none'">
 </div>
 </div>
 
-<!-- Panel de Normativa (resumido por brevedad) -->
+<!-- Panel de Normativa -->
 <div id="normativaPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; overflow:auto; padding:20px;">
-<!-- Contenido de normativa (se mantiene igual) -->
+<div style="max-width:900px; margin:0 auto;">
+<div style="text-align:right; margin-bottom:20px;">
+<button onclick="toggleNormativa()" style="padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer;">Cerrar ✕</button>
+</div>
+<h2>Marco Normativo</h2>
+<p>Contenido de normativa...</p>
+</div>
 </div>
 
 <script>
 // ============================================================
-// CONFIGURACIÓN - URL CORREGIDA
+// CONFIGURACIÓN
 // ============================================================
 const MAX = 8.0, MIN = 2.0;
 const WIFI_CUTOFF = 10;
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQ5zIle_WR5O2nJ_wtDh6s31Nu4hPppkWl-g72DTdwXzwu5LEpNcLZM-uiLTBOTz39/exec';
 
-// ¡¡¡ URL CORRECTA DEL SCRIPT !!!
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXrn5AUVkOGPFyrpunfETCW236kI-rULSnJiZ85A8xZOHz0wVCkou5XnsYHmK7L3LF/exec';
-
-// Lista fija de canales
+// Lista de canales
 const CHANNELS = [
 "3016635", "3016636", "3082646", "3125888", "2986932", "2986935",
 "2993812", "2993815", "3102139", "3003527", "3003528", "3015641",
@@ -649,7 +637,6 @@ const API_KEYS = {
 "3090672": "7K994UH4606YRUE1"
 };
 
-// Variables globales
 let chartInstance = null;
 let trendChartInstance = null;
 let currentFeeds = [];
@@ -700,12 +687,7 @@ if (!isTempAmbiente(data.channel.field1)) validFields.push({ key: 'field1', labe
 if (!isTempAmbiente(data.channel.field2)) validFields.push({ key: 'field2', label: data.channel.field2 || 'Campo 2' });
 
 const nameEl = document.querySelector(`#p-${id} .device-name`);
-if (nameEl && !channelName.includes("Sarmiento 1 Farmacia")) {
-nameEl.innerText = channelName;
-} else if (channelName.includes("Sarmiento 1 Farmacia")) {
-document.getElementById(`p-${id}`).style.display = 'none';
-continue;
-}
+if (nameEl) nameEl.innerText = channelName;
 
 const sensors = document.querySelectorAll(`#sensors-${id} .sensor-card`);
 let hasAlert = false;
@@ -715,15 +697,11 @@ if (i < validFields.length) {
 const f = validFields[i];
 const val = parseFloat(feed[f.key]);
 const isDanger = !isNaN(val) && (val < MIN || val > MAX);
-if (isDanger) {
-checkTemperatureAlerts(f.label, val, MIN, MAX, id);
-}
 const valueText = isNaN(val) ? '--' : val.toFixed(1);
 sensors[i].querySelector('.label').innerText = f.label;
 sensors[i].querySelector('.value').innerText = valueText;
 sensors[i].classList.toggle('danger', isDanger);
 sensors[i].querySelector('.value').classList.toggle('danger', isDanger);
-sensors[i].onclick = () => openRep(id, k, f.key);
 sensors[i].querySelector('.btn-hist')?.remove();
 const btn = document.createElement('button');
 btn.className = 'btn-hist';
@@ -739,7 +717,6 @@ sensors[i].style.display = 'none';
 const card = document.getElementById(`p-${id}`);
 if (card) {
 card.classList.toggle('alert', hasAlert);
-card.style.display = validFields.length > 0 ? 'block' : 'none';
 }
 } catch (e) {
 console.warn(`Error al cargar canal ${id}:`, e);
@@ -751,60 +728,23 @@ function init() {
 renderInitialStructure();
 refreshData();
 setInterval(refreshData, 10000);
-
-if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-Notification.requestPermission();
-}
 }
 
 function openRep(id, k, f) {
 window.open(`reporte_individual_inmunizacion_zona1.html?id=${id}&key=${k}&field=${f}&type=vacunas&days=7`, '_blank');
 }
 
-function checkTemperatureAlerts(sensorName, temperature, minTemp, maxTemp, channelId) {
-if (temperature < minTemp || temperature > maxTemp) {
-if ('Notification' in window && Notification.permission === 'granted') {
-new Notification('💉 ZONA 1 - ALERTA DE TEMPERATURA', {
-body: `Canal: ${channelId}\nSensor: ${sensorName}\nTemperatura: ${temperature}°C\nRango: ${minTemp}°C - ${maxTemp}°C`,
-icon: '/icons/icon-192x192.png',
-vibrate: [200, 100, 200],
-requireInteraction: true
-});
-}
-}
-}
-
 // ============================================================
-// FUNCIONES DE NAVEGACIÓN (Estadísticas)
+// FUNCIONES DE NAVEGACIÓN
 // ============================================================
 function toggleNormativa() {
 const panel = document.getElementById('normativaPanel');
 panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
 }
 
-function buscarNorma(query) {
-window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-}
-
-function buscarTodasNormas() {
-if (confirm('¿Desea abrir pestañas para verificar todas las normas?')) {
-const queries = [
-'Ley 27.491 boletinoficial.gob.ar',
-'Resolución 1030/2021 cadena de frío argentina.gob.ar',
-'Disposición 10872/2020 ANMAT productos biológicos argentina.gob.ar',
-'Resolución 1285/2022 cadena de frío inmunización salud.neuquen.gov.ar',
-'Decreto 1874/2023 trazabilidad salud Neuquén neuquen.gov.ar'
-];
-queries.forEach((q, i) => {
-setTimeout(() => window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank'), i * 600);
-});
-}
-}
-
 function mostrarPanelEstadisticas() {
 ocultarTodo();
 document.getElementById('panelEstadisticas').style.display = 'block';
-document.getElementById('app').style.display = 'grid';
 }
 
 function ocultarPanelEstadisticas() {
@@ -824,177 +764,54 @@ document.getElementById('panelEstadisticas').style.display = 'block';
 }
 
 // ============================================================
-// FUNCIONES DE STOCK - VERSIÓN FINAL CONEXIÓN REAL
+// FUNCIONES DE STOCK
 // ============================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQ5zIle_WR5O2nJ_wtDh6s31Nu4hPppkWl-g72DTdwXzwu5LEpNcLZM-uiLTBOTz39/exec';
-
 async function mostrarStock() {
-    ocultarTodo();
-    document.getElementById('stockSection').style.display = 'block';
-    document.getElementById('stockLoader').style.display = 'block';
-    document.getElementById('stockContent').style.display = 'none';
-    document.getElementById('stockContent').innerHTML = '';
-    
-    await cargarStockReal();
+ocultarTodo();
+document.getElementById('stockSection').style.display = 'block';
+document.getElementById('stockLoader').style.display = 'block';
+document.getElementById('stockContent').style.display = 'none';
+await cargarStock();
 }
 
-async function cargarStockReal() {
-    try {
-        console.log('Cargando stock desde:', APPS_SCRIPT_URL + '?action=getStock');
-        
-        const response = await fetch(APPS_SCRIPT_URL + '?action=getStock', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('Datos recibidos:', data);
-        
-        if (data && data.length > 0) {
-            mostrarTablaStockReal(data);
-        } else {
-            throw new Error('No se recibieron datos válidos');
-        }
-        
-    } catch (error) {
-        console.error('Error al cargar stock real:', error);
-        document.getElementById('stockLoader').innerHTML = `
-            <p style="color: #dc2626;">❌ Error al conectar con el servidor de stock.</p>
-            <p style="color: #64748b; margin: 10px 0;">${error.message}</p>
-            <button onclick="cargarStockPrueba()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 10px; cursor: pointer;">
-                📋 Usar datos de prueba
-            </button>
-        `;
-    }
+async function cargarStock() {
+try {
+const response = await fetch(APPS_SCRIPT_URL + '?action=getStock');
+const data = await response.json();
+mostrarTablaStock(data);
+} catch (error) {
+console.error('Error:', error);
+document.getElementById('stockLoader').innerHTML = `
+<p style="color: #dc2626;">Error al cargar stock. Usando datos de prueba.</p>
+<button onclick="cargarStockPrueba()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 10px;">Cargar datos de prueba</button>
+`;
+}
 }
 
-function mostrarTablaStockReal(data) {
-    let html = `
-        <table class="stock-table">
-            <thead>
-                <tr>
-                    <th>Vacuna</th>
-                    <th>Laboratorio</th>
-                    <th>Lote</th>
-                    <th>Vencimiento</th>
-                    <th>Stock</th>
-                    <th>Ubicación</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    // Crear opciones para el selector de vacunas
-    let opcionesVacunas = '';
-    
-    data.forEach(item => {
-        const stockClass = item.stock < 50 ? 'stock-low' : '';
-        html += `
-            <tr>
-                <td>${item.vacuna || ''}</td>
-                <td>${item.laboratorio || ''}</td>
-                <td>${item.lote || ''}</td>
-                <td>${item.vencimiento || ''}</td>
-                <td class="${stockClass}">${item.stock || 0}</td>
-                <td>${item.ubicacion || ''}</td>
-            </tr>
-        `;
-        
-        opcionesVacunas += `<option value="${item.vacuna}">${item.vacuna} (Stock: ${item.stock})</option>`;
-    });
-    
-    html += `
-            </tbody>
-        </table>
-        
-        <div class="egreso-form">
-            <h3>📤 Registrar Egreso de Dosis</h3>
-            <select id="vacunaSelectReal" required>
-                <option value="">Seleccionar vacuna</option>
-                ${opcionesVacunas}
-            </select>
-            <input type="number" id="cantidadEgresoReal" placeholder="Cantidad" min="1" required>
-            <input type="text" id="destinoEgresoReal" placeholder="Destino (ej: CAPS Centro)" required>
-            <input type="text" id="responsableEgresoReal" placeholder="Responsable" required>
-            <button onclick="registrarEgresoReal()" style="background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                ✅ Registrar Egreso
-            </button>
-        </div>
-    `;
-    
-    document.getElementById('stockContent').innerHTML = html;
-    document.getElementById('stockLoader').style.display = 'none';
-    document.getElementById('stockContent').style.display = 'block';
-}
-
-async function registrarEgresoReal() {
-    const vacuna = document.getElementById('vacunaSelectReal').value;
-    const cantidad = document.getElementById('cantidadEgresoReal').value;
-    const destino = document.getElementById('destinoEgresoReal').value;
-    const responsable = document.getElementById('responsableEgresoReal').value;
-    
-    if (!vacuna || !cantidad || !destino || !responsable) {
-        alert('⚠️ Complete todos los campos');
-        return;
-    }
-    
-    try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                vacuna: vacuna,
-                cantidad: parseInt(cantidad),
-                destino: destino,
-                responsable: responsable
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.result) {
-            alert('✅ Egreso registrado correctamente');
-            // Limpiar formulario
-            document.getElementById('cantidadEgresoReal').value = '';
-            document.getElementById('destinoEgresoReal').value = '';
-            document.getElementById('responsableEgresoReal').value = '';
-            // Recargar stock
-            await cargarStockReal();
-        } else {
-            alert('❌ Error: ' + (result.message || 'Error desconocido'));
-        }
-        
-    } catch (error) {
-        console.error('Error al registrar egreso:', error);
-        alert('❌ Error al conectar con el servidor. Intente nuevamente.');
-    }
-}
-
-// Función de respaldo con datos de prueba (por si acaso)
 function cargarStockPrueba() {
-    const datosPrueba = [
-        { vacuna: "BCG", laboratorio: "Laboratorio Público", lote: "BCG-2401", vencimiento: "2025-12-31", stock: 245, ubicacion: "Heladera Principal" },
-        { vacuna: "Hepatitis B", laboratorio: "Sinergium", lote: "HEP-2305", vencimiento: "2025-08-15", stock: 132, ubicacion: "Heladera Principal" },
-        { vacuna: "Pentavalente", laboratorio: "BioCubaFarma", lote: "PENT-2410", vencimiento: "2026-01-20", stock: 78, ubicacion: "Heladera Secundaria" },
-        { vacuna: "Antigripal", laboratorio: "Pfizer", lote: "FLU-2403", vencimiento: "2025-05-30", stock: 56, ubicacion: "Heladera Secundaria" },
-        { vacuna: "COVID-19", laboratorio: "Moderna", lote: "MRNA-2408", vencimiento: "2025-11-15", stock: 320, ubicacion: "Freezer" },
-        { vacuna: "Triple Viral", laboratorio: "MSD", lote: "MMR-2312", vencimiento: "2025-09-10", stock: 95, ubicacion: "Heladera Principal" }
-    ];
-    
-    mostrarTablaStockReal(datosPrueba);
-    document.getElementById('stockLoader').style.display = 'none';
-    document.getElementById('stockContent').style.display = 'block';
+const datosPrueba = [
+{ vacuna: "BCG", laboratorio: "Lab Público", lote: "BCG-2401", vencimiento: "2025-12-31", stock: 245, ubicacion: "Heladera Principal" },
+{ vacuna: "Hepatitis B", laboratorio: "Sinergium", lote: "HEP-2305", vencimiento: "2025-08-15", stock: 132, ubicacion: "Heladera Principal" },
+{ vacuna: "Pentavalente", laboratorio: "BioCubaFarma", lote: "PENT-2410", vencimiento: "2026-01-20", stock: 78, ubicacion: "Heladera Secundaria" },
+{ vacuna: "Antigripal", laboratorio: "Pfizer", lote: "FLU-2403", vencimiento: "2025-05-30", stock: 56, ubicacion: "Heladera Secundaria" },
+{ vacuna: "COVID-19", laboratorio: "Moderna", lote: "MRNA-2408", vencimiento: "2025-11-15", stock: 320, ubicacion: "Freezer" }
+];
+mostrarTablaStock(datosPrueba);
 }
+
+function mostrarTablaStock(data) {
+let html = '<table class="stock-table"><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Stock</th><th>Ubicación</th></tr></thead><tbody>';
+data.forEach(item => {
+html += `<tr><td>${item.vacuna}</td><td>${item.laboratorio}</td><td>${item.lote}</td><td>${item.vencimiento}</td><td>${item.stock}</td><td>${item.ubicacion}</td></tr>`;
+});
+html += '</tbody></table>';
+document.getElementById('stockContent').innerHTML = html;
+document.getElementById('stockLoader').style.display = 'none';
+document.getElementById('stockContent').style.display = 'block';
+}
+
 // ============================================================
-// FUNCIONES DEL DASHBOARD DE SENSORES
+// FUNCIONES DEL DASHBOARD
 // ============================================================
 function mostrarSelectorSensores() {
 document.getElementById('modalSelectorSensores').style.display = 'block';
@@ -1007,14 +824,10 @@ document.getElementById('modalSelectorSensores').style.display = 'none';
 async function cargarSensorEnDashboard() {
 const select = document.getElementById('selectorSensorDashboard');
 const [id, field, key, name] = select.value.split('|');
-
 cerrarModalSelector();
 ocultarTodo();
 document.getElementById('dashboardSensores').style.display = 'block';
-
 document.getElementById('sensorSeleccionado').innerText = name;
-document.getElementById('sensorInfo').innerText = `ID: ${id} | Campo: ${field}`;
-
 await cargarDatosSensor(id, key, field);
 }
 
@@ -1023,77 +836,20 @@ try {
 const url = `https://api.thingspeak.com/channels/${id}/feeds.json?api_key=${key}&results=100`;
 const response = await fetch(url);
 const data = await response.json();
+if (!data.feeds) return;
 
-if (!data.feeds || data.feeds.length === 0) {
-document.getElementById('dashboardAnalisis').innerHTML = '<p>No hay datos disponibles para este sensor.</p>';
-return;
-}
-
-const feeds = data.feeds.filter(f => parseFloat(f[field]) !== -127);
-const valores = feeds.map(f => parseFloat(f[field])).filter(v => !isNaN(v));
-
-if (valores.length === 0) {
-document.getElementById('dashboardAnalisis').innerHTML = '<p>No hay datos válidos.</p>';
-return;
-}
-
+const valores = data.feeds.map(f => parseFloat(f[field])).filter(v => !isNaN(v));
 const max = Math.max(...valores).toFixed(1);
 const min = Math.min(...valores).toFixed(1);
 const prom = (valores.reduce((a,b) => a+b, 0) / valores.length).toFixed(1);
-const fueraRango = valores.filter(v => v > MAX || v < MIN).length;
-const pctFueraRango = ((fueraRango / valores.length) * 100).toFixed(1);
 
 document.getElementById('dashboardAnalisis').innerHTML = `
-<p><strong>Sensor:</strong> ${name}</p>
-<p><strong>Período:</strong> Últimas 100 lecturas</p>
-<p><strong>Temperatura:</strong> Máx ${max}°C | Mín ${min}°C | Prom ${prom}°C</p>
-<p><strong>Confiabilidad:</strong> ${(100 - pctFueraRango).toFixed(1)}% en rango</p>
-<p><strong>Alertas:</strong> ${fueraRango} lecturas fuera de rango (${pctFueraRango}%)</p>
+<p><strong>Máx:</strong> ${max}°C</p>
+<p><strong>Mín:</strong> ${min}°C</p>
+<p><strong>Prom:</strong> ${prom}°C</p>
 `;
-
-document.getElementById('dashboardRecomendaciones').innerHTML = `
-<p>✅ <strong>Recomendaciones:</strong></p>
-<ul style="margin-left: 20px;">
-<li>Mantener registro diario de temperaturas</li>
-${max > 8 ? '<li style="color:#dc2626;">⚠️ ALERTA: Temperaturas altas detectadas</li>' : ''}
-${min < 2 ? '<li style="color:#dc2626;">⚠️ ALERTA: Temperaturas bajas detectadas</li>' : ''}
-<li>Verificar calibración del sensor</li>
-<li>Programar mantenimiento preventivo</li>
-</ul>
-`;
-
-// Gráfico de tendencia
-const ctx = document.getElementById('trendChart').getContext('2d');
-if (trendChartInstance) trendChartInstance.destroy();
-
-trendChartInstance = new Chart(ctx, {
-type: 'line',
-data: {
-labels: feeds.slice(-20).map(f => {
-const d = new Date(f.created_at);
-return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
-}),
-datasets: [{
-label: 'Temperatura (°C)',
-data: valores.slice(-20),
-borderColor: '#8b5cf6',
-backgroundColor: 'rgba(139,92,246,0.1)',
-tension: 0.3,
-fill: true
-}]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false,
-plugins: {
-title: { display: true, text: 'Tendencia (últimas 20 lecturas)' }
-}
-}
-});
-
 } catch (error) {
-console.error('Error al cargar datos del sensor:', error);
-document.getElementById('dashboardAnalisis').innerHTML = '<p style="color: red;">Error al cargar datos.</p>';
+console.error(error);
 }
 }
 
