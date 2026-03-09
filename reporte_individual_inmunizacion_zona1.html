@@ -971,6 +971,25 @@
     let observacionesAlmacenadas = {};
 
     // ============================================================
+    // FUNCIÓN CRÍTICA: Convierte HTML con <br> a líneas para PDF
+    // ============================================================
+    function htmlToLines(html) {
+        if (!html) return [];
+        
+        // Reemplazar <br> con saltos de línea reales
+        let texto = html.replace(/<br\s*\/?>/gi, '\n');
+        
+        // Quitar otras etiquetas HTML
+        texto = texto.replace(/<[^>]*>/g, '');
+        
+        // Reemplazar &nbsp; con espacios
+        texto = texto.replace(/&nbsp;/g, ' ');
+        
+        // Dividir por saltos de línea y filtrar líneas vacías
+        return texto.split('\n').filter(linea => linea.trim() !== '');
+    }
+
+    // ============================================================
     // FUNCIONES AUXILIARES
     // ============================================================
     function generarCodigoUnico(prefijo = 'IT') {
@@ -1019,7 +1038,7 @@
     }
 
     // ============================================================
-    // FUNCIONES DE ANÁLISIS (CON VIÑETAS CORRECTAS)
+    // FUNCIONES DE ANÁLISIS
     // ============================================================
     function generarAnalisisAlertas(eventos) {
         if (!eventos || eventos.length === 0) {
@@ -1768,7 +1787,7 @@
     }
 
     // ============================================================
-    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO
+    // FUNCIÓN PRINCIPAL DE GENERACIÓN DE INFORME TÉCNICO - CORREGIDA
     // ============================================================
     async function generarInformeTecnico() {
         try {
@@ -1923,7 +1942,7 @@
             }
 
             // ============================================================
-            // ANÁLISIS DE ALERTAS - CORREGIDO CON VIÑETAS UNA DEBAJO DE OTRA
+            // ANÁLISIS DE ALERTAS - CORREGIDO CON htmlToLines()
             // ============================================================
             if (yPos > 230) { doc.addPage(); yPos = 45; }
             doc.setFontSize(12);
@@ -1933,30 +1952,26 @@
             yPos += 8;
 
             const analisisAlertasHTML = document.getElementById('analisisAlertasContenido').innerHTML || '';
-            const analisisLines = analisisAlertasHTML
-                .replace(/<[^>]*>/g, '')
-                .split('\n')
-                .filter(line => line.trim() !== '');
+            const analisisLines = htmlToLines(analisisAlertasHTML);
 
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
             doc.setTextColor(30, 41, 59);
 
-            // IMPRIMIR CADA LÍNEA POR SEPARADO PARA QUE LAS VIÑETAS QUEDEN UNA DEBAJO DE OTRA
+            // IMPRIMIR CADA LÍNEA POR SEPARADO
             for (let i = 0; i < analisisLines.length; i++) {
                 if (yPos > 270) {
                     doc.addPage();
                     yPos = 45;
                 }
-                const line = analisisLines[i].trim();
-                if (line) {
-                    // Si la línea empieza con guión, aplicar sangría
-                    if (line.startsWith('-')) {
-                        const bulletLine = doc.splitTextToSize(line, maxLineWidth - 5);
+                const linea = analisisLines[i].trim();
+                if (linea) {
+                    if (linea.startsWith('-')) {
+                        const bulletLine = doc.splitTextToSize(linea, maxLineWidth - 5);
                         doc.text(bulletLine, margin + 5, yPos);
                         yPos += bulletLine.length * 5;
                     } else {
-                        const textLines = doc.splitTextToSize(line, maxLineWidth);
+                        const textLines = doc.splitTextToSize(linea, maxLineWidth);
                         doc.text(textLines, margin, yPos);
                         yPos += textLines.length * 5;
                     }
@@ -1965,7 +1980,7 @@
             yPos += 5;
 
             // ============================================================
-            // RECOMENDACIONES DE ALERTAS - CORREGIDO CON VIÑETAS UNA DEBAJO DE OTRA
+            // RECOMENDACIONES DE ALERTAS - CORREGIDO CON htmlToLines()
             // ============================================================
             if (yPos > 250) { doc.addPage(); yPos = 45; }
             doc.setFontSize(12);
@@ -1975,29 +1990,25 @@
             yPos += 8;
 
             const recomAlertasHTML = document.getElementById('recomendacionesAlertasContenido').innerHTML || '';
-            const recomLines = recomAlertasHTML
-                .replace(/<[^>]*>/g, '')
-                .split('\n')
-                .filter(line => line.trim() !== '');
+            const recomLines = htmlToLines(recomAlertasHTML);
 
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
             doc.setTextColor(30, 41, 59);
 
-            // IMPRIMIR CADA LÍNEA POR SEPARADO
             for (let i = 0; i < recomLines.length; i++) {
                 if (yPos > 270) {
                     doc.addPage();
                     yPos = 45;
                 }
-                const line = recomLines[i].trim();
-                if (line) {
-                    if (line.startsWith('-')) {
-                        const bulletLine = doc.splitTextToSize(line, maxLineWidth - 5);
+                const linea = recomLines[i].trim();
+                if (linea) {
+                    if (linea.startsWith('-')) {
+                        const bulletLine = doc.splitTextToSize(linea, maxLineWidth - 5);
                         doc.text(bulletLine, margin + 5, yPos);
                         yPos += bulletLine.length * 5;
                     } else {
-                        const textLines = doc.splitTextToSize(line, maxLineWidth);
+                        const textLines = doc.splitTextToSize(linea, maxLineWidth);
                         doc.text(textLines, margin, yPos);
                         yPos += textLines.length * 5;
                     }
@@ -2050,7 +2061,7 @@
             }
 
             // ============================================================
-            // ANÁLISIS DE CONECTIVIDAD - CORREGIDO CON VIÑETAS UNA DEBAJO DE OTRA
+            // ANÁLISIS DE CONECTIVIDAD - CORREGIDO CON htmlToLines()
             // ============================================================
             if (yPos > 230) { doc.addPage(); yPos = 45; }
             doc.setFontSize(12);
@@ -2060,10 +2071,7 @@
             yPos += 8;
 
             const analisisEventosHTML = document.getElementById('analisisEventosContenido').innerHTML || '';
-            const analisisEventosLines = analisisEventosHTML
-                .replace(/<[^>]*>/g, '')
-                .split('\n')
-                .filter(line => line.trim() !== '');
+            const analisisEventosLines = htmlToLines(analisisEventosHTML);
 
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
@@ -2074,14 +2082,14 @@
                     doc.addPage();
                     yPos = 45;
                 }
-                const line = analisisEventosLines[i].trim();
-                if (line) {
-                    if (line.startsWith('-')) {
-                        const bulletLine = doc.splitTextToSize(line, maxLineWidth - 5);
+                const linea = analisisEventosLines[i].trim();
+                if (linea) {
+                    if (linea.startsWith('-')) {
+                        const bulletLine = doc.splitTextToSize(linea, maxLineWidth - 5);
                         doc.text(bulletLine, margin + 5, yPos);
                         yPos += bulletLine.length * 5;
                     } else {
-                        const textLines = doc.splitTextToSize(line, maxLineWidth);
+                        const textLines = doc.splitTextToSize(linea, maxLineWidth);
                         doc.text(textLines, margin, yPos);
                         yPos += textLines.length * 5;
                     }
@@ -2090,7 +2098,7 @@
             yPos += 5;
 
             // ============================================================
-            // RECOMENDACIONES DE CONECTIVIDAD - CORREGIDO CON VIÑETAS UNA DEBAJO DE OTRA
+            // RECOMENDACIONES DE CONECTIVIDAD - CORREGIDO CON htmlToLines()
             // ============================================================
             if (yPos > 250) { doc.addPage(); yPos = 45; }
             doc.setFontSize(12);
@@ -2100,10 +2108,7 @@
             yPos += 8;
 
             const recomEventosHTML = document.getElementById('recomendacionesEventosContenido').innerHTML || '';
-            const recomEventosLines = recomEventosHTML
-                .replace(/<[^>]*>/g, '')
-                .split('\n')
-                .filter(line => line.trim() !== '');
+            const recomEventosLines = htmlToLines(recomEventosHTML);
 
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
@@ -2114,14 +2119,14 @@
                     doc.addPage();
                     yPos = 45;
                 }
-                const line = recomEventosLines[i].trim();
-                if (line) {
-                    if (line.startsWith('-')) {
-                        const bulletLine = doc.splitTextToSize(line, maxLineWidth - 5);
+                const linea = recomEventosLines[i].trim();
+                if (linea) {
+                    if (linea.startsWith('-')) {
+                        const bulletLine = doc.splitTextToSize(linea, maxLineWidth - 5);
                         doc.text(bulletLine, margin + 5, yPos);
                         yPos += bulletLine.length * 5;
                     } else {
-                        const textLines = doc.splitTextToSize(line, maxLineWidth);
+                        const textLines = doc.splitTextToSize(linea, maxLineWidth);
                         doc.text(textLines, margin, yPos);
                         yPos += textLines.length * 5;
                     }
