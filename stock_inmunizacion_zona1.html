@@ -5,303 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RSAMIO - Control de Stock de Vacunas</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f8fafc;
-      color: #1e293b;
-      padding: 20px;
-    }
-    
-    .header {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    
-    .logo-bar {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    
-    .logo-item {
-      height: 60px;
-    }
-    
-    .logo-item img {
-      max-height: 100%;
-      object-fit: contain;
-    }
-    
-    .title-section h1 {
-      font-size: 1.6rem;
-      color: #1e293b;
-    }
-    
-    .title-section p {
-      color: #64748b;
-    }
-    
-    .stats-bar {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .stat-card {
-      background: white;
-      border-radius: 10px;
-      padding: 15px 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      flex: 1;
-      min-width: 150px;
-      border-left: 4px solid #3b82f6;
-    }
-    
-    .stat-card .label {
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-    
-    .stat-card .value {
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
-    
-    .controls {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-    
-    .btn-primary {
-      background: #3b82f6;
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background: #2563eb;
-    }
-    
-    .btn-success {
-      background: #10b981;
-      color: white;
-    }
-    
-    .btn-success:hover {
-      background: #059669;
-    }
-    
-    .btn-outline {
-      background: white;
-      border: 1px solid #e2e8f0;
-      color: #1e293b;
-    }
-    
-    .btn-outline:hover {
-      background: #f1f5f9;
-    }
-    
-    .container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      padding: 24px;
-      margin-bottom: 24px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-    
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    
-    th {
-      background: #f1f5f9;
-      font-weight: 600;
-    }
-    
-    .badge {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: inline-block;
-    }
-    
-    .badge-success {
-      background: rgba(16, 185, 129, 0.15);
-      color: #10b981;
-    }
-    
-    .badge-warning {
-      background: rgba(245, 158, 11, 0.15);
-      color: #f59e0b;
-    }
-    
-    .badge-danger {
-      background: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
-    }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(5px);
-      z-index: 10000;
-    }
-    
-    .modal-content {
-      background: white;
-      margin: 5% auto;
-      padding: 0;
-      border-radius: 24px;
-      width: 95%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    
-    .modal-header {
-      background: #00384d;
-      color: white;
-      padding: 20px 25px;
-      border-radius: 24px 24px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .modal-close {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 28px;
-      cursor: pointer;
-    }
-    
-    .modal-body {
-      padding: 30px;
-    }
-    
-    .modal-footer {
-      padding: 20px 30px;
-      border-top: 2px solid #e2e8f0;
-      display: flex;
-      justify-content: flex-end;
-      gap: 16px;
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    
-    .form-label .required {
-      color: #ef4444;
-    }
-    
-    .form-control {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 0.95rem;
-    }
-    
-    .form-control:focus {
-      outline: none;
-      border-color: #3b82f6;
-    }
-    
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 40px;
-    }
-    
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #e2e8f0;
-      border-top-color: #3b82f6;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 16px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .alert {
-      background: #fee2e2;
-      color: #ef4444;
-      padding: 12px;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-    
-    .footer {
-      margin-top: 32px;
-      text-align: center;
-      background: #00384d;
-      padding: 12px;
-      border-radius: 8px;
-    }
-    
-    .footer img {
-      max-width: 100%;
-    }
-    
-    @media (max-width: 600px) {
-      .form-row { grid-template-columns: 1fr; }
-      .stats-bar { flex-direction: column; }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 20px; }
+    .header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .logo-bar { display: flex; gap: 20px; align-items: center; }
+    .logo-item { height: 60px; }
+    .logo-item img { max-height: 100%; object-fit: contain; }
+    .title-section h1 { font-size: 1.6rem; color: #1e293b; }
+    .title-section p { color: #64748b; }
+    .stats-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .stat-card { background: white; border-radius: 10px; padding: 15px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; min-width: 150px; border-left: 4px solid #3b82f6; }
+    .stat-card .label { font-size: 0.85rem; color: #64748b; }
+    .stat-card .value { font-size: 1.8rem; font-weight: 700; }
+    .controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-outline { background: white; border: 1px solid #e2e8f0; color: #1e293b; }
+    .container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f1f5f9; font-weight: 600; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000; }
+    .modal-content { background: white; margin: 5% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { background: #00384d; color: white; padding: 20px 25px; border-radius: 24px 24px 0 0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-close { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+    .modal-body { padding: 30px; }
+    .modal-footer { padding: 20px 30px; border-top: 2px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 16px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-weight: 600; margin-bottom: 8px; }
+    .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; }
+    .loading { text-align: center; padding: 40px; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer { margin-top: 32px; text-align: center; background: #00384d; padding: 12px; border-radius: 8px; }
+    .footer img { max-width: 100%; }
   </style>
 </head>
 <body>
@@ -326,7 +68,8 @@
 
 <div class="controls">
   <button class="btn btn-primary" onclick="cargarStock()">🔄 Actualizar</button>
-  <button class="btn btn-success" onclick="abrirModalEgreso()">📤 Registrar Egreso</button>
+  <button class="btn btn-success" onclick="abrirModalMov('Egreso')">📤 Registrar Egreso</button>
+  <button class="btn btn-primary" style="background:#8b5cf6;" onclick="abrirModalMov('Ingreso')">📥 Registrar Ingreso</button>
   <button class="btn btn-outline" onclick="window.close()">← Volver</button>
 </div>
 
@@ -334,7 +77,7 @@
   <h2>📋 Inventario Actual</h2>
   <div id="loading" class="loading" style="display:none;">
     <div class="spinner"></div>
-    <div>Cargando...</div>
+    <div>Conectando con Google Drive...</div>
   </div>
   <div id="stockContainer">
     <table>
@@ -356,54 +99,42 @@
   </div>
 </div>
 
-<!-- Modal Egreso -->
-<div id="modalEgreso" class="modal">
+<!-- Modal Movimiento (Ingreso/Egreso) -->
+<div id="modalMov" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>📤 Registrar Egreso</h2>
-      <button class="modal-close" onclick="cerrarModalEgreso()">&times;</button>
+      <h2 id="modalTitulo">📤 Registrar Movimiento</h2>
+      <button class="modal-close" onclick="cerrarModalMov()">&times;</button>
     </div>
     <div class="modal-body">
-      <form id="formEgreso" onsubmit="event.preventDefault(); registrarEgreso();">
+      <form id="formMov" onsubmit="event.preventDefault(); registrarMovimiento();">
         <div class="form-group">
-          <label class="form-label">Vacuna <span class="required">*</span></label>
+          <label class="form-label">Vacuna *</label>
           <select id="vacuna" class="form-control" required onchange="cargarLotesPorVacuna()">
             <option value="">Seleccionar</option>
           </select>
         </div>
-        
         <div class="form-group">
-          <label class="form-label">Lote <span class="required">*</span></label>
-          <select id="lote" class="form-control" required onchange="verificarLoteSeleccionado()">
+          <label class="form-label">Lote *</label>
+          <select id="lote" class="form-control" required>
             <option value="">Primero seleccione vacuna</option>
           </select>
-          <small id="infoLote" style="color:#64748b;"></small>
         </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Cantidad <span class="required">*</span></label>
-            <input type="number" id="cantidad" class="form-control" min="1" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Fecha</label>
-            <input type="date" id="fechaEgreso" class="form-control">
-          </div>
-        </div>
-        
         <div class="form-group">
-          <label class="form-label">Responsable <span class="required">*</span></label>
+          <label class="form-label">Cantidad *</label>
+          <input type="number" id="cantidad" class="form-control" min="1" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Responsable *</label>
           <input type="text" id="responsable" class="form-control" required>
         </div>
-        
         <div class="form-group">
           <label class="form-label">Observaciones</label>
           <textarea id="observaciones" class="form-control" rows="2"></textarea>
         </div>
-        
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline" onclick="cerrarModalEgreso()">Cancelar</button>
-          <button type="submit" class="btn btn-success">Registrar</button>
+          <button type="button" class="btn btn-outline" onclick="cerrarModalMov()">Cancelar</button>
+          <button type="submit" id="btnSubmit" class="btn btn-success">Registrar</button>
         </div>
       </form>
     </div>
@@ -417,245 +148,120 @@
       <h2>✅ Éxito</h2>
       <button class="modal-close" onclick="cerrarModalConfirmacion()">&times;</button>
     </div>
-    <div class="modal-body" id="confirmacionMensaje">
-      Egreso registrado correctamente
-    </div>
+    <div class="modal-body" id="confirmacionMensaje">Operación realizada correctamente</div>
     <div class="modal-footer">
       <button class="btn btn-success" onclick="cerrarModalConfirmacion()">Aceptar</button>
     </div>
   </div>
 </div>
 
-<div class="footer">
-  <img src="logos/footer.jpg" alt="HNB - Neuquén">
-</div>
+<div class="footer"><img src="logos/footer.jpg" alt="HNB - Neuquén"></div>
 
 <script>
-  // ============================================
-  // CONFIGURACIÓN - REEMPLAZA CON TU URL
-  // ============================================
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrsmAe_bOdUszsueVKQrWIpcoICrEPMOfmap4xTXAjNoHYQ7IS3PRmchhEGgUcNzC3/exec'; // ← REEMPLAZA ESTO
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwilmQzbZxC6fHBCpohFwcj_0AtQCKFTGdj760u9xFNsXu6bjWDH0Lkoi9GuSJlZsJa/exec'; // <--- PEGA TU URL DE GOOGLE APPS SCRIPT AQUÍ
   
   let stockData = [];
-  let lotesData = [];
+  let modoActual = 'Egreso';
 
-  // Inicializar
-  document.addEventListener('DOMContentLoaded', function() {
-    cargarStock();
-    document.getElementById('fechaEgreso').valueAsDate = new Date();
-  });
+  document.addEventListener('DOMContentLoaded', cargarStock);
 
-  // Cargar stock
   async function cargarStock() {
     mostrarLoading(true);
-    
     try {
       const response = await fetch(APPS_SCRIPT_URL + '?action=getStock');
       const data = await response.json();
-      
       stockData = data;
       renderizarStock(data);
       actualizarEstadisticas(data);
       llenarSelectorVacunas(data);
-      
     } catch (error) {
-      console.error('Error:', error);
-      document.getElementById('stockBody').innerHTML = `
-        <tr><td colspan="7" class="alert">
-          Error al cargar stock. Verifica la URL del script.
-        </td></tr>
-      `;
-    } finally {
-      mostrarLoading(false);
-    }
-  }
-
-  function mostrarLoading(mostrar) {
-    document.getElementById('loading').style.display = mostrar ? 'block' : 'none';
+      document.getElementById('stockBody').innerHTML = `<tr><td colspan="7" style="color:red;text-align:center;">Error al conectar con Google Drive.</td></tr>`;
+    } finally { mostrarLoading(false); }
   }
 
   function renderizarStock(data) {
-    if (!data || data.length === 0) {
-      document.getElementById('stockBody').innerHTML = `
-        <tr><td colspan="7" style="text-align:center;">No hay datos</td></tr>
-      `;
-      return;
-    }
-
     let html = '';
     const hoy = new Date();
-    
     data.forEach(item => {
       const venc = new Date(item.vencimiento);
       const diffDias = Math.ceil((venc - hoy) / (1000*60*60*24));
-      
-      let badgeClass = 'badge-success';
-      let badgeText = 'OK';
-      
-      if (venc < hoy) {
-        badgeClass = 'badge-danger';
-        badgeText = 'VENCIDO';
-      } else if (diffDias <= 30) {
-        badgeClass = 'badge-warning';
-        badgeText = `Vence en ${diffDias} días`;
-      }
+      let bClass = 'badge-success', bText = 'OK';
+      if (venc < hoy) { bClass = 'badge-danger'; bText = 'VENCIDO'; }
+      else if (diffDias <= 30) { bClass = 'badge-warning'; bText = `Vence en ${diffDias} días`; }
       
       html += `<tr>
-        <td>${item.vacuna || ''}</td>
-        <td>${item.laboratorio || ''}</td>
-        <td>${item.lote || ''}</td>
-        <td>${item.vencimiento ? new Date(item.vencimiento).toLocaleDateString('es-AR') : ''}</td>
-        <td><strong>${item.stock || 0}</strong></td>
-        <td>${item.ubicacion || ''}</td>
-        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+        <td>${item.vacuna}</td><td>${item.laboratorio}</td><td>${item.lote}</td>
+        <td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td>
+        <td><strong>${item.stock}</strong></td><td>${item.ubicacion}</td>
+        <td><span class="badge ${bClass}">${bText}</span></td>
       </tr>`;
     });
-    
-    document.getElementById('stockBody').innerHTML = html;
+    document.getElementById('stockBody').innerHTML = html || '<tr><td colspan="7">No hay datos</td></tr>';
   }
 
   function actualizarEstadisticas(data) {
-    let total = 0;
-    let proximos = 0;
-    let vencidos = 0;
+    let total = 0, prox = 0, venc = 0;
     const hoy = new Date();
-    
     data.forEach(item => {
       total += parseInt(item.stock) || 0;
-      const venc = new Date(item.vencimiento);
-      const diffDias = Math.ceil((venc - hoy) / (1000*60*60*24));
-      
-      if (venc < hoy) vencidos++;
-      else if (diffDias <= 30) proximos++;
+      const vDate = new Date(item.vencimiento);
+      if (vDate < hoy) venc++;
+      else if (Math.ceil((vDate - hoy) / (1000*60*60*24)) <= 30) prox++;
     });
-    
     document.getElementById('totalDosis').innerText = total;
-    document.getElementById('proximosVencer').innerText = proximos;
-    document.getElementById('vencidos').innerText = vencidos;
+    document.getElementById('proximosVencer').innerText = prox;
+    document.getElementById('vencidos').innerText = venc;
   }
 
   function llenarSelectorVacunas(data) {
     const select = document.getElementById('vacuna');
     const vacunas = [...new Set(data.map(item => item.vacuna))].sort();
-    
-    select.innerHTML = '<option value="">Seleccionar</option>' + 
-      vacunas.map(v => `<option value="${v}">${v}</option>`).join('');
+    select.innerHTML = '<option value="">Seleccionar</option>' + vacunas.map(v => `<option value="${v}">${v}</option>`).join('');
   }
 
   function cargarLotesPorVacuna() {
-    const vacuna = document.getElementById('vacuna').value;
+    const v = document.getElementById('vacuna').value;
     const selectLote = document.getElementById('lote');
-    const infoLote = document.getElementById('infoLote');
-    
-    if (!vacuna) {
-      selectLote.innerHTML = '<option value="">Primero seleccione vacuna</option>';
-      infoLote.innerText = '';
-      return;
-    }
-    
-    const lotes = stockData.filter(item => item.vacuna === vacuna && item.stock > 0);
-    lotesData = lotes;
-    
-    selectLote.innerHTML = '<option value="">Seleccionar lote</option>' + 
-      lotes.map(item => `<option value="${item.lote}">${item.lote} (Stock: ${item.stock})</option>`).join('');
-    
-    infoLote.innerText = '';
+    const lotes = stockData.filter(item => item.vacuna === v);
+    selectLote.innerHTML = '<option value="">Seleccionar lote</option>' + lotes.map(item => `<option value="${item.lote}">${item.lote} (Stock: ${item.stock})</option>`).join('');
   }
 
-  async function verificarLoteSeleccionado() {
-    const lote = document.getElementById('lote').value;
-    const vacuna = document.getElementById('vacuna').value;
-    const infoLote = document.getElementById('infoLote');
+  function abrirModalMov(modo) {
+    modoActual = modo;
+    document.getElementById('modalMov').style.display = 'block';
+    document.getElementById('modalTitulo').innerText = modo === 'Egreso' ? '📤 Registrar Egreso' : '📥 Registrar Ingreso';
+    const btn = document.getElementById('btnSubmit');
+    btn.innerText = 'Registrar ' + modo;
+    btn.style.background = modo === 'Egreso' ? '#10b981' : '#8b5cf6';
+  }
+
+  async function registrarMovimiento() {
+    const v = document.getElementById('vacuna').value;
+    const l = document.getElementById('lote').value;
+    const c = document.getElementById('cantidad').value;
+    const r = document.getElementById('responsable').value;
+    const o = document.getElementById('observaciones').value;
     
-    if (!lote || !vacuna) return;
+    const url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${modoActual}&vacuna=${encodeURIComponent(v)}&lote=${encodeURIComponent(l)}&cantidad=${c}&responsable=${encodeURIComponent(r)}&observaciones=${encodeURIComponent(o)}`;
     
+    mostrarLoading(true);
     try {
-      const response = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: "verificarLote",
-          lote: lote,
-          vacuna: vacuna
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.exists) {
-        let mensaje = `Stock: ${result.stock} | Vence: ${new Date(result.vencimiento).toLocaleDateString('es-AR')}`;
-        if (result.alerta) mensaje += ` | ${result.alerta}`;
-        infoLote.innerText = mensaje;
-        infoLote.style.color = result.alerta ? '#f59e0b' : '#64748b';
-      } else {
-        infoLote.innerText = result.message;
-        infoLote.style.color = '#ef4444';
-      }
-    } catch (error) {
-      infoLote.innerText = 'Error al verificar lote';
-    }
+      const res = await fetch(url);
+      const result = await res.json();
+      if (result.result) {
+        cerrarModalMov();
+        document.getElementById('confirmacionMensaje').innerText = `✅ ${modoActual} registrado correctamente en la planilla.`;
+        document.getElementById('modalConfirmacion').style.display = 'block';
+        cargarStock();
+      } else { alert('Error: ' + result.message); }
+    } catch (e) { alert('Error de conexión'); }
+    finally { mostrarLoading(false); }
   }
 
-async function registrarEgreso() {
-  const vacuna = document.getElementById('vacuna').value;
-  const lote = document.getElementById('lote').value;
-  const cantidad = document.getElementById('cantidad').value;
-  
-  if (!vacuna || !lote || !cantidad) {
-    alert('Complete los campos');
-    return;
-  }
-  
-  // Construimos la URL con los datos como parámetros
-  const url = `${APPS_SCRIPT_URL}?action=registrarEgreso&vacuna=${encodeURIComponent(vacuna)}&lote=${encodeURIComponent(lote)}&cantidad=${cantidad}`;
-  
-  try {
-    const response = await fetch(url);
-    const result = await response.json();
-    
-    if (result.result) {
-      cerrarModalEgreso();
-      document.getElementById('confirmacionMensaje').innerText = "✅ Egreso registrado correctamente";
-      document.getElementById('modalConfirmacion').style.display = 'block';
-      cargarStock(); // Recargar la tabla
-    } else {
-      alert('Error: ' + result.message);
-    }
-  } catch (error) {
-    alert('Error de conexión. Asegúrate de haber publicado la NUEVA VERSIÓN del script.');
-  }
-}
-
-
-  function abrirModalEgreso() {
-    document.getElementById('modalEgreso').style.display = 'block';
-  }
-
-  function cerrarModalEgreso() {
-    document.getElementById('modalEgreso').style.display = 'none';
-    document.getElementById('formEgreso').reset();
-    document.getElementById('fechaEgreso').valueAsDate = new Date();
-    document.getElementById('infoLote').innerText = '';
-  }
-
-  function cerrarModalConfirmacion() {
-    document.getElementById('modalConfirmacion').style.display = 'none';
-  }
-
-  // Cerrar modales al hacer clic fuera
-  window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-      event.target.style.display = 'none';
-    }
-  };
+  function mostrarLoading(s) { document.getElementById('loading').style.display = s ? 'block' : 'none'; }
+  function cerrarModalMov() { document.getElementById('modalMov').style.display = 'none'; document.getElementById('formMov').reset(); }
+  function cerrarModalConfirmacion() { document.getElementById('modalConfirmacion').style.display = 'none'; }
+  window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 </script>
-
 </body>
-
 </html>
-
-
-
-
-
