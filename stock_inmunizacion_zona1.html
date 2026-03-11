@@ -434,7 +434,7 @@
   // ============================================
   // CONFIGURACIÓN - REEMPLAZA CON TU URL
   // ============================================
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2g_ghon-MnqwhEdv4mbwGqQDbObsHQsUOrngJFXLe7F8UuJKm46MS2Y4wH8wx_Y7d/exec'; // ← REEMPLAZA ESTO
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrsmAe_bOdUszsueVKQrWIpcoICrEPMOfmap4xTXAjNoHYQ7IS3PRmchhEGgUcNzC3/exec'; // ← REEMPLAZA ESTO
   
   let stockData = [];
   let lotesData = [];
@@ -597,51 +597,36 @@
     }
   }
 
-  async function registrarEgreso() {
-    const data = {
-      vacuna: document.getElementById('vacuna').value,
-      lote: document.getElementById('lote').value,
-      cantidad: document.getElementById('cantidad').value,
-      fecha: document.getElementById('fechaEgreso').value,
-      responsable: document.getElementById('responsable').value,
-      observaciones: document.getElementById('observaciones').value,
-      motivo: 'Vacunación',
-      destino: 'Consulta externa'
-    };
-    
-    if (!data.vacuna || !data.lote || !data.cantidad || !data.responsable) {
-      alert('Complete todos los campos obligatorios');
-      return;
-    }
-    
-    try {
-      const response = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: "registrarEgreso",
-          data: data
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.result) {
-        cerrarModalEgreso();
-        document.getElementById('confirmacionMensaje').innerHTML = `
-          <p>✅ Egreso registrado:</p>
-          <p><strong>${data.cantidad} dosis</strong> de ${data.vacuna} (Lote: ${data.lote})</p>
-        `;
-        document.getElementById('modalConfirmacion').style.display = 'block';
-        cargarStock(); // Recargar stock
-      } else {
-        alert('Error: ' + result.message);
-      }
-    } catch (error) {
-      alert('Error al conectar con el servidor');
-    }
+async function registrarEgreso() {
+  const vacuna = document.getElementById('vacuna').value;
+  const lote = document.getElementById('lote').value;
+  const cantidad = document.getElementById('cantidad').value;
+  
+  if (!vacuna || !lote || !cantidad) {
+    alert('Complete los campos');
+    return;
   }
+  
+  // Construimos la URL con los datos como parámetros
+  const url = `${APPS_SCRIPT_URL}?action=registrarEgreso&vacuna=${encodeURIComponent(vacuna)}&lote=${encodeURIComponent(lote)}&cantidad=${cantidad}`;
+  
+  try {
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    if (result.result) {
+      cerrarModalEgreso();
+      document.getElementById('confirmacionMensaje').innerText = "✅ Egreso registrado correctamente";
+      document.getElementById('modalConfirmacion').style.display = 'block';
+      cargarStock(); // Recargar la tabla
+    } else {
+      alert('Error: ' + result.message);
+    }
+  } catch (error) {
+    alert('Error de conexión. Asegúrate de haber publicado la NUEVA VERSIÓN del script.');
+  }
+}
+
 
   function abrirModalEgreso() {
     document.getElementById('modalEgreso').style.display = 'block';
@@ -669,6 +654,7 @@
 </body>
 
 </html>
+
 
 
 
