@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RSAMIO - Control de Stock de Vacunas</title>
+  <title>RSAMIO - Control de Stock Completo</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 20px; }
@@ -31,14 +31,14 @@
     .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
     .badge-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000; }
-    .modal-content { background: white; margin: 5% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-content { background: white; margin: 2% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; max-height: 95vh; overflow-y: auto; }
     .modal-header { background: #00384d; color: white; padding: 20px 25px; border-radius: 24px 24px 0 0; display: flex; justify-content: space-between; align-items: center; }
     .modal-close { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
-    .modal-body { padding: 30px; }
-    .modal-footer { padding: 20px 30px; border-top: 2px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 16px; }
-    .form-group { margin-bottom: 20px; }
-    .form-label { display: block; font-weight: 600; margin-bottom: 8px; }
-    .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; }
+    .modal-body { padding: 25px; }
+    .form-group { margin-bottom: 15px; }
+    .form-label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+    .form-control { width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .loading { text-align: center; padding: 40px; }
     .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -83,13 +83,7 @@
     <table>
       <thead>
         <tr>
-          <th>Vacuna</th>
-          <th>Laboratorio</th>
-          <th>Lote</th>
-          <th>Vencimiento</th>
-          <th>Stock</th>
-          <th>Ubicación</th>
-          <th>Estado</th>
+          <th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Stock</th><th>Ubicación</th><th>Estado</th>
         </tr>
       </thead>
       <tbody id="stockBody">
@@ -99,40 +93,75 @@
   </div>
 </div>
 
-<!-- Modal Movimiento (Ingreso/Egreso) -->
+<!-- Modal Movimiento Completo -->
 <div id="modalMov" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h2 id="modalTitulo">📤 Registrar Movimiento</h2>
+      <h2 id="modalTitulo">Registrar Movimiento</h2>
       <button class="modal-close" onclick="cerrarModalMov()">&times;</button>
     </div>
     <div class="modal-body">
       <form id="formMov" onsubmit="event.preventDefault(); registrarMovimiento();">
-        <div class="form-group">
-          <label class="form-label">Vacuna *</label>
-          <select id="vacuna" class="form-control" required onchange="cargarLotesPorVacuna()">
-            <option value="">Seleccionar</option>
-          </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Vacuna *</label>
+            <select id="vacuna" class="form-control" required onchange="cargarLotesPorVacuna()">
+              <option value="">Seleccionar</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lote *</label>
+            <select id="lote" class="form-control" required>
+              <option value="">Seleccionar lote</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Lote *</label>
-          <select id="lote" class="form-control" required>
-            <option value="">Primero seleccione vacuna</option>
-          </select>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Cantidad *</label>
+            <input type="number" id="cantidad" class="form-control" min="1" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Responsable *</label>
+            <input type="text" id="responsable" class="form-control" required>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Cantidad *</label>
-          <input type="number" id="cantidad" class="form-control" min="1" required>
+
+        <!-- CAMPOS DINÁMICOS PARA EGRESO -->
+        <div id="camposEgreso" style="display:none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Motivo</label>
+              <input type="text" id="motivo" class="form-control" placeholder="Ej: Vacunación">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Destino</label>
+              <input type="text" id="destino" class="form-control" placeholder="Ej: Consulta externa">
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Responsable *</label>
-          <input type="text" id="responsable" class="form-control" required>
+
+        <!-- CAMPOS DINÁMICOS PARA INGRESO -->
+        <div id="camposIngreso" style="display:none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Proveedor</label>
+              <input type="text" id="proveedor" class="form-control" placeholder="Ej: Depósito Central">
+            </div>
+            <div class="form-group">
+              <label class="form-label">N° Documento</label>
+              <input type="text" id="n_doc" class="form-control" placeholder="Ej: Remito 1234">
+            </div>
+          </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Observaciones</label>
           <textarea id="observaciones" class="form-control" rows="2"></textarea>
         </div>
-        <div class="modal-footer">
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
           <button type="button" class="btn btn-outline" onclick="cerrarModalMov()">Cancelar</button>
           <button type="submit" id="btnSubmit" class="btn btn-success">Registrar</button>
         </div>
@@ -158,7 +187,8 @@
 <div class="footer"><img src="logos/footer.jpg" alt="HNB - Neuquén"></div>
 
 <script>
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwilmQzbZxC6fHBCpohFwcj_0AtQCKFTGdj760u9xFNsXu6bjWDH0Lkoi9GuSJlZsJa/exec'; // <--- PEGA TU URL DE GOOGLE APPS SCRIPT AQUÍ
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQ3JBE6i2JQfNLk18HbSCLl9JxNKced7uifEm8lSLXL0qxiOSmIEN0QC51i1JYEuPw/exec
+'; // <--- PEGA TU URL AQUÍ
   
   let stockData = [];
   let modoActual = 'Egreso';
@@ -175,7 +205,7 @@
       actualizarEstadisticas(data);
       llenarSelectorVacunas(data);
     } catch (error) {
-      document.getElementById('stockBody').innerHTML = `<tr><td colspan="7" style="color:red;text-align:center;">Error al conectar con Google Drive.</td></tr>`;
+      document.getElementById('stockBody').innerHTML = `<tr><td colspan="7" style="color:red;text-align:center;">Error de conexión.</td></tr>`;
     } finally { mostrarLoading(false); }
   }
 
@@ -188,13 +218,7 @@
       let bClass = 'badge-success', bText = 'OK';
       if (venc < hoy) { bClass = 'badge-danger'; bText = 'VENCIDO'; }
       else if (diffDias <= 30) { bClass = 'badge-warning'; bText = `Vence en ${diffDias} días`; }
-      
-      html += `<tr>
-        <td>${item.vacuna}</td><td>${item.laboratorio}</td><td>${item.lote}</td>
-        <td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td>
-        <td><strong>${item.stock}</strong></td><td>${item.ubicacion}</td>
-        <td><span class="badge ${bClass}">${bText}</span></td>
-      </tr>`;
+      html += `<tr><td>${item.vacuna}</td><td>${item.laboratorio}</td><td>${item.lote}</td><td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td><td><strong>${item.stock}</strong></td><td>${item.ubicacion}</td><td><span class="badge ${bClass}">${bText}</span></td></tr>`;
     });
     document.getElementById('stockBody').innerHTML = html || '<tr><td colspan="7">No hay datos</td></tr>';
   }
@@ -230,6 +254,8 @@
     modoActual = modo;
     document.getElementById('modalMov').style.display = 'block';
     document.getElementById('modalTitulo').innerText = modo === 'Egreso' ? '📤 Registrar Egreso' : '📥 Registrar Ingreso';
+    document.getElementById('camposEgreso').style.display = modo === 'Egreso' ? 'block' : 'none';
+    document.getElementById('camposIngreso').style.display = modo === 'Ingreso' ? 'block' : 'none';
     const btn = document.getElementById('btnSubmit');
     btn.innerText = 'Registrar ' + modo;
     btn.style.background = modo === 'Egreso' ? '#10b981' : '#8b5cf6';
@@ -242,7 +268,13 @@
     const r = document.getElementById('responsable').value;
     const o = document.getElementById('observaciones').value;
     
-    const url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${modoActual}&vacuna=${encodeURIComponent(v)}&lote=${encodeURIComponent(l)}&cantidad=${c}&responsable=${encodeURIComponent(r)}&observaciones=${encodeURIComponent(o)}`;
+    // Campos dinámicos
+    const mot = document.getElementById('motivo').value || 'Vacunación';
+    const des = document.getElementById('destino').value || 'Consulta externa';
+    const pro = document.getElementById('proveedor').value || 'Depósito Central';
+    const doc = document.getElementById('n_doc').value || 'S/N';
+    
+    const url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${modoActual}&vacuna=${encodeURIComponent(v)}&lote=${encodeURIComponent(l)}&cantidad=${c}&responsable=${encodeURIComponent(r)}&observaciones=${encodeURIComponent(o)}&motivo=${encodeURIComponent(mot)}&destino=${encodeURIComponent(des)}&proveedor=${encodeURIComponent(pro)}&n_doc=${encodeURIComponent(doc)}`;
     
     mostrarLoading(true);
     try {
@@ -250,7 +282,7 @@
       const result = await res.json();
       if (result.result) {
         cerrarModalMov();
-        document.getElementById('confirmacionMensaje').innerText = `✅ ${modoActual} registrado correctamente en la planilla.`;
+        document.getElementById('confirmacionMensaje').innerText = `✅ ${modoActual} registrado correctamente.`;
         document.getElementById('modalConfirmacion').style.display = 'block';
         cargarStock();
       } else { alert('Error: ' + result.message); }
