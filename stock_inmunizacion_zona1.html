@@ -71,6 +71,7 @@
   <button class="btn btn-success" onclick="abrirModalMov('Egreso')">📤 Registrar Egreso</button>
   <button class="btn btn-primary" style="background:#8b5cf6;" onclick="abrirModalMov('Ingreso')">📥 Registrar Ingreso</button>
   <button class="btn btn-outline" onclick="window.close()">← Volver</button>
+  <button class="btn btn-primary" style="background:#6c757d;" onclick="abrirDashboardRegional()">📊 Stock / Ingreso / Egreso</button>
 </div>
 
 <div class="container">
@@ -93,6 +94,61 @@
   </div>
 </div>
 
+<!-- Dashboard Regional -->
+<div id="dashboardRegional" class="container" style="display:none;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>📊 Dashboard Regional</h2>
+    <button class="btn btn-outline" onclick="cerrarDashboardRegional()">← Volver</button>
+  </div>
+  
+  <div class="map-section" style="text-align:center; margin-bottom:20px;">
+    <img src="MAPA_NEUQUEN_BASE64" alt="Mapa de Neuquén" style="max-width:100%; height:auto; border-radius:8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" usemap="#mapaNeuquen">
+    <map name="mapaNeuquen">
+      <!-- Áreas clickeables para las regiones -->
+      <area shape="rect" coords="0,0,100,100" alt="Confluencia" onclick="filtrarPorRegion(\'Confluencia\')">
+      <area shape="rect" coords="101,0,200,100" alt="Vaca Muerta" onclick="filtrarPorRegion(\'Vaca Muerta\')">
+      <!-- Añadir más áreas según las coordenadas de tu mapa -->
+    </map>
+    <div style="margin-top: 15px;">
+      <button class="btn btn-outline" onclick="filtrarPorRegion(\'Confluencia\')">Región Confluencia</button>
+      <button class="btn btn-outline" onclick="filtrarPorRegion(\'Vaca Muerta\')">Región Vaca Muerta</button>
+      <button class="btn btn-outline" onclick="filtrarPorRegion(\'Otra Región\')">Otra Región (Ejemplo)</button>
+    </div>
+  </div>
+
+  <div class="dashboard-tables">
+    <h3>Stock Total por Región</h3>
+    <table id="tablaStockRegional">
+      <thead>
+        <tr><th>Vacuna</th><th>Lote</th><th>Stock</th><th>Vencimiento</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" style="text-align:center;">Cargando datos...</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:20px;">Ingresos Totales por Región</h3>
+    <table id="tablaIngresosRegional">
+      <thead>
+        <tr><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Fecha</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" style="text-align:center;">Cargando datos...</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:20px;">Egresos Totales por Región</h3>
+    <table id="tablaEgresosRegional">
+      <thead>
+        <tr><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Fecha</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" style="text-align:center;">Cargando datos...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <!-- Modal Movimiento Completo -->
 <div id="modalMov" class="modal">
   <div class="modal-content">
@@ -109,13 +165,21 @@
               <option value="">Seleccionar</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="loteContainer">
             <label class="form-label">Lote *</label>
-            <select id="lote" class="form-control" required>
-              <option value="">Seleccionar lote</option>
-            </select>
+              <select id="loteSelect" class="form-control" required>
+                <option value="">Seleccionar lote</option>
+              </select>
+              <input type="text" id="loteInput" class="form-control" style="display:none;" placeholder="Ingresar nuevo lote">
+            </div>
           </div>
-        </div>
+
+          <div class="form-row" id="vencimientoRow" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">Fecha de Vencimiento *</label>
+              <input type="date" id="vencimiento" class="form-control">
+            </div>
+          </div>
 
         <div class="form-row">
           <div class="form-group">
@@ -244,9 +308,14 @@
 
   function cargarLotesPorVacuna() {
     const v = document.getElementById('vacuna').value;
-    const selectLote = document.getElementById('lote');
-    const lotes = stockData.filter(item => item.vacuna === v);
-    selectLote.innerHTML = '<option value="">Seleccionar lote</option>' + lotes.map(item => `<option value="${item.lote}">${item.lote} (Stock: ${item.stock})</option>`).join('');
+    const selectLote = document.getElementById('loteSelect');
+    // Solo cargar lotes si estamos en modo Egreso
+    if (modoActual === 'Egreso') {
+      const lotes = stockData.filter(item => item.vacuna === v);
+      selectLote.innerHTML = '<option value="">Seleccionar lote</option>' + lotes.map(item => `<option value="${item.lote}">${item.lote} (Vence: ${new Date(item.vencimiento).toLocaleDateString('es-AR')})</option>`).join('');
+    } else {
+      selectLote.innerHTML = '<option value="">N/A para Ingreso</option>';
+    }
   }
 
   function abrirModalMov(modo) {
@@ -255,6 +324,34 @@
     document.getElementById('modalTitulo').innerText = modo === 'Egreso' ? '📤 Registrar Egreso' : '📥 Registrar Ingreso';
     document.getElementById('camposEgreso').style.display = modo === 'Egreso' ? 'block' : 'none';
     document.getElementById('camposIngreso').style.display = modo === 'Ingreso' ? 'block' : 'none';
+
+    // Lógica para el campo Lote y Vencimiento
+    const loteSelect = document.getElementById('loteSelect');
+    const loteInput = document.getElementById('loteInput');
+    const vencimientoRow = document.getElementById('vencimientoRow');
+    const vencimientoInput = document.getElementById('vencimiento');
+
+    if (modo === 'Ingreso') {
+      loteSelect.style.display = 'none';
+      loteSelect.removeAttribute('required');
+      loteInput.style.display = 'block';
+      loteInput.setAttribute('required', 'true');
+      vencimientoRow.style.display = 'flex'; // Usar flex para form-row
+      vencimientoInput.setAttribute('required', 'true');
+    } else {
+      loteSelect.style.display = 'block';
+      loteSelect.setAttribute('required', 'true');
+      loteInput.style.display = 'none';
+      loteInput.removeAttribute('required');
+      vencimientoRow.style.display = 'none';
+      vencimientoInput.removeAttribute('required');
+    }
+    // Resetear valores para evitar conflictos
+    loteInput.value = '';
+    vencimientoInput.value = '';
+    loteSelect.value = '';
+    document.getElementById('vacuna').value = '';
+    cargarLotesPorVacuna(); // Para resetear el selector de lotes si estaba en Egreso
     const btn = document.getElementById('btnSubmit');
     btn.innerText = 'Registrar ' + modo;
     btn.style.background = modo === 'Egreso' ? '#10b981' : '#8b5cf6';
@@ -262,7 +359,7 @@
 
   async function registrarMovimiento() {
     const v = document.getElementById('vacuna').value;
-    const l = document.getElementById('lote').value;
+    const l = modoActual === 'Ingreso' ? document.getElementById('loteInput').value : document.getElementById('loteSelect').value;
     const c = document.getElementById('cantidad').value;
     const r = document.getElementById('responsable').value;
     const o = document.getElementById('observaciones').value;
@@ -273,7 +370,11 @@
     const pro = document.getElementById('proveedor').value || 'Depósito Central';
     const doc = document.getElementById('n_doc').value || 'S/N';
     
-    const url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${modoActual}&vacuna=${encodeURIComponent(v)}&lote=${encodeURIComponent(l)}&cantidad=${c}&responsable=${encodeURIComponent(r)}&observaciones=${encodeURIComponent(o)}&motivo=${encodeURIComponent(mot)}&destino=${encodeURIComponent(des)}&proveedor=${encodeURIComponent(pro)}&n_doc=${encodeURIComponent(doc)}`;
+    const venc = document.getElementById('vencimiento').value;
+    let url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${modoActual}&vacuna=${encodeURIComponent(v)}&lote=${encodeURIComponent(l)}&cantidad=${c}&responsable=${encodeURIComponent(r)}&observaciones=${encodeURIComponent(o)}&motivo=${encodeURIComponent(mot)}&destino=${encodeURIComponent(des)}&proveedor=${encodeURIComponent(pro)}&n_doc=${encodeURIComponent(doc)}`;
+    if (modoActual === 'Ingreso') {
+      url += `&vencimiento=${encodeURIComponent(venc)}`;
+    }
     
     mostrarLoading(true);
     try {
@@ -291,8 +392,100 @@
 
   function mostrarLoading(s) { document.getElementById('loading').style.display = s ? 'block' : 'none'; }
   function cerrarModalMov() { document.getElementById('modalMov').style.display = 'none'; document.getElementById('formMov').reset(); }
-  function cerrarModalConfirmacion() { document.getElementById('modalConfirmacion').style.display = 'none'; }
-  window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
+  function cerrarModalConfirmacion() { document.getElementById("modalConfirmacion").style.display = "none"; }
+
+  let dashboardData = { stock: [], ingresos: [], egresos: [] };
+  let currentRegion = null;
+
+  async function cargarDatosDashboardRegional() {
+    // Aquí se debería hacer un fetch a tu Apps Script para obtener los datos de stock, ingresos y egresos
+    // Por ahora, usaremos datos de ejemplo o un mensaje de carga
+    document.getElementById("tablaStockRegional").getElementsByTagName("tbody")[0].innerHTML = `<tr><td colspan="4" style="text-align:center;">Cargando datos del dashboard...</td></tr>`;
+    document.getElementById("tablaIngresosRegional").getElementsByTagName("tbody")[0].innerHTML = `<tr><td colspan="4" style="text-align:center;">Cargando datos del dashboard...</td></tr>`;
+    document.getElementById("tablaEgresosRegional").getElementsByTagName("tbody")[0].innerHTML = `<tr><td colspan="4" style="text-align:center;">Cargando datos del dashboard...</td></tr>`;
+
+    // Simulación de carga de datos
+    try {
+      // Asumimos que el Apps Script tendrá nuevas acciones para obtener estos datos
+      const stockResponse = await fetch(APPS_SCRIPT_URL + "?action=getStockRegional");
+      const ingresosResponse = await fetch(APPS_SCRIPT_URL + "?action=getIngresosRegional");
+      const egresosResponse = await fetch(APPS_SCRIPT_URL + "?action=getEgresosRegional");
+
+      dashboardData.stock = await stockResponse.json();
+      dashboardData.ingresos = await ingresosResponse.json();
+      dashboardData.egresos = await egresosResponse.json();
+
+      renderizarDashboardRegional(dashboardData.stock, dashboardData.ingresos, dashboardData.egresos);
+    } catch (error) {
+      console.error("Error al cargar datos del dashboard regional:", error);
+      document.getElementById("tablaStockRegional").getElementsByTagName("tbody")[0].innerHTML = `<tr><td colspan="4" style="color:red;text-align:center;">Error al cargar stock regional.</td></tr>`;
+      document.getElementById("tablaIngresosRegional").getElementsByTagName("tbody")[0].innerHTML = `<tr><td colspan="4" style="color:red;text-align:center;">Error al cargar ingresos regionales.</td></tr>`;
+      document.getElementById("tablaEgresosRegional").getElementsByTagName("tbody")[0].innerHTML = `<tr><td colspan="4" style="color:red;text-align:center;">Error al cargar egresos regionales.</td></tr>`;
+    }
+  }
+
+  function renderizarDashboardRegional(stock, ingresos, egresos) {
+    let stockHtml = "";
+    stock.forEach(item => {
+      stockHtml += `<tr><td>${item.vacuna}</td><td>${item.lote}</td><td>${item.stock}</td><td>${new Date(item.vencimiento).toLocaleDateString("es-AR")}</td></tr>`;
+    });
+    document.getElementById("tablaStockRegional").getElementsByTagName("tbody")[0].innerHTML = stockHtml || `<tr><td colspan="4" style="text-align:center;">No hay datos de stock.</td></tr>`;
+
+    let ingresosHtml = "";
+    ingresos.forEach(item => {
+      ingresosHtml += `<tr><td>${item.vacuna}</td><td>${item.lote}</td><td>${item.cantidad}</td><td>${new Date(item.fecha).toLocaleDateString("es-AR")}</td></tr>`;
+    });
+    document.getElementById("tablaIngresosRegional").getElementsByTagName("tbody")[0].innerHTML = ingresosHtml || `<tr><td colspan="4" style="text-align:center;">No hay datos de ingresos.</td></tr>`;
+
+    let egresosHtml = "";
+    egresos.forEach(item => {
+      egresosHtml += `<tr><td>${item.vacuna}</td><td>${item.lote}</td><td>${item.cantidad}</td><td>${new Date(item.fecha).toLocaleDateString("es-AR")}</td></tr>`;
+    });
+    document.getElementById("tablaEgresosRegional").getElementsByTagName("tbody")[0].innerHTML = egresosHtml || `<tr><td colspan="4" style="text-align:center;">No hay datos de egresos.</td></tr>`;
+  }
+
+  function filtrarPorRegion(region) {
+    currentRegion = region;
+    let filteredStock = [];
+    let filteredIngresos = [];
+    let filteredEgresos = [];
+
+    if (region === 'Confluencia') {
+      alert("Filtrando por Región Confluencia");
+      // Lógica de filtrado para Confluencia
+      // Por ahora, solo un alert
+      filteredStock = dashboardData.stock.filter(item => item.region === 'Confluencia');
+      filteredIngresos = dashboardData.ingresos.filter(item => item.region === 'Confluencia');
+      filteredEgresos = dashboardData.egresos.filter(item => item.region === 'Confluencia');
+    } else if (region === 'Vaca Muerta') {
+      alert("Filtrando por Región Vaca Muerta");
+      // Lógica de filtrado para Vaca Muerta
+      filteredStock = dashboardData.stock.filter(item => item.region === 'Vaca Muerta');
+      filteredIngresos = dashboardData.ingresos.filter(item => item.region === 'Vaca Muerta');
+      filteredEgresos = dashboardData.egresos.filter(item => item.region === 'Vaca Muerta');
+    } else {
+      alert("Región en construcción");
+      // Si no es una región implementada, mostrar todos los datos o un mensaje
+      filteredStock = dashboardData.stock;
+      filteredIngresos = dashboardData.ingresos;
+      filteredEgresos = dashboardData.egresos;
+    }
+    renderizarDashboardRegional(filteredStock, filteredIngresos, filteredEgresos);
+  }
+
+  function abrirDashboardRegional() {
+    document.getElementById("stockContainer").style.display = "none";
+    document.getElementById("dashboardRegional").style.display = "block";
+    cargarDatosDashboardRegional();
+  }
+
+  function cerrarDashboardRegional() {
+    document.getElementById("dashboardRegional").style.display = "none";
+    document.getElementById("stockContainer").style.display = "block";
+    cargarStock(); // Recargar el stock principal al volver
+  }
+
+  window.onclick = (e) => { if (e.target.classList.contains("modal")) e.target.style.display = "none"; };
 </script>
 </body>
 </html>
