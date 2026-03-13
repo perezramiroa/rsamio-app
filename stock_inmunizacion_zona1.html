@@ -102,22 +102,22 @@
   </div>
   
   <div class="map-section" style="text-align:center; margin-bottom:20px;">
-    <img src="MAPA_NEUQUEN_BASE64" alt="Mapa de Neuquén" style="max-width:100%; height:auto; border-radius:8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" usemap="#mapaNeuquen">
+    <img src="Regiones.png" alt="Mapa de Neuquén" style="max-width:100%; height:auto; border-radius:8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" usemap="#mapaNeuquen">
     <map name="mapaNeuquen">
       <!-- Áreas clickeables para las regiones -->
-      <area shape="rect" coords="0,0,100,100" alt="Confluencia" onclick="filtrarPorRegion(\'Confluencia\')">
-      <area shape="rect" coords="101,0,200,100" alt="Vaca Muerta" onclick="filtrarPorRegion(\'Vaca Muerta\')">
+      <area shape="rect" coords="0,0,100,100" alt="Confluencia" onclick="filtrarPorRegion('Confluencia')">
+      <area shape="rect" coords="101,0,200,100" alt="Vaca Muerta" onclick="filtrarPorRegion('Vaca Muerta')">
       <!-- Añadir más áreas según las coordenadas de tu mapa -->
     </map>
     <div style="margin-top: 15px;">
-      <button class="btn btn-outline" onclick="filtrarPorRegion(\'Confluencia\')">Región Confluencia</button>
-      <button class="btn btn-outline" onclick="filtrarPorRegion(\'Vaca Muerta\')">Región Vaca Muerta</button>
-      <button class="btn btn-outline" onclick="filtrarPorRegion(\'Otra Región\')">Otra Región (Ejemplo)</button>
+      <button class="btn btn-outline" onclick="filtrarPorRegion('Confluencia')">Región Confluencia</button>
+      <button class="btn btn-outline" onclick="filtrarPorRegion('Vaca Muerta')">Región Vaca Muerta</button>
+      <button class="btn btn-outline" onclick="filtrarPorRegion('Otra Región')">Otra Región (Ejemplo)</button>
     </div>
   </div>
 
   <div class="dashboard-tables">
-    <h3>Stock Total por Región</h3>
+    <h3 style="display:flex; justify-content:space-between; align-items:center;">Stock Total por Región <button class="btn btn-outline" onclick="exportarTablaAPDF(\'tablaStockRegional\', \'stock_regional.pdf\')">Descargar PDF</button></h3>
     <table id="tablaStockRegional">
       <thead>
         <tr><th>Vacuna</th><th>Lote</th><th>Stock</th><th>Vencimiento</th></tr>
@@ -127,7 +127,7 @@
       </tbody>
     </table>
 
-    <h3 style="margin-top:20px;">Ingresos Totales por Región</h3>
+    <h3 style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">Ingresos Totales por Región <button class="btn btn-outline" onclick="exportarTablaAPDF(\'tablaIngresosRegional\', \'ingresos_regional.pdf\')">Descargar PDF</button></h3>
     <table id="tablaIngresosRegional">
       <thead>
         <tr><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Fecha</th></tr>
@@ -137,7 +137,7 @@
       </tbody>
     </table>
 
-    <h3 style="margin-top:20px;">Egresos Totales por Región</h3>
+    <h3 style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">Egresos Totales por Región <button class="btn btn-outline" onclick="exportarTablaAPDF(\'tablaEgresosRegional\', \'egresos_regional.pdf\')">Descargar PDF</button></h3>
     <table id="tablaEgresosRegional">
       <thead>
         <tr><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Fecha</th></tr>
@@ -250,7 +250,8 @@
 
 <div class="footer"><img src="logos/footer.jpg" alt="HNB - Neuquén"></div>
 
-<script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymiY2-DueE7HipP_KTdzGOQ5823WQybfw1vZcfsK-UshqcnyRIV03kRddP2AhooCNl/exec'; // <--- PEGA TU URL AQUÍ
   
   let stockData = [];
@@ -483,6 +484,17 @@
     document.getElementById("dashboardRegional").style.display = "none";
     document.getElementById("stockContainer").style.display = "block";
     cargarStock(); // Recargar el stock principal al volver
+  }
+
+  function exportarTablaAPDF(tableId, filename) {
+    const element = document.getElementById(tableId);
+    html2pdf().from(element).set({
+      margin: 10,
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).save();
   }
 
   window.onclick = (e) => { if (e.target.classList.contains("modal")) e.target.style.display = "none"; };
