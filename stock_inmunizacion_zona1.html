@@ -74,6 +74,23 @@
   <button class="btn btn-primary" style="background:#6c757d;" onclick="abrirDashboardRegional()">📊 Stock / Ingreso / Egreso</button>
 </div>
 
+<!-- NUEVOS FILTROS -->
+
+<div class="container">
+
+<h3>Filtros de ubicación</h3>
+
+<label>Región</label>
+<select id="filtroRegion"></select>
+
+<label>Localidad</label>
+<select id="filtroLocalidad"></select>
+
+<label>Establecimiento</label>
+<select id="filtroEstablecimiento"></select>
+
+</div>
+
 <div class="container">
   <h2>📋 Inventario Actual</h2>
   <div id="loading" class="loading" style="display:none;">
@@ -252,12 +269,18 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXTGyeQB4eys1hLY-uTxt_JAsxK9-Su_AcexpGMWbTI0X_GsUKCl6-t8eYW1iKxOpV/exec'; // <--- PEGA TU URL AQUÍ
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIeMty3-tkd7fx1iBhz7BCZDPHziot4LQb29GpLBttSeLAgbPxmjZHimseIHwPQbw/exec'; // <--- PEGA TU URL AQUÍ
   
   let stockData = [];
   let modoActual = 'Egreso';
 
   document.addEventListener('DOMContentLoaded', cargarStock);
+  document.addEventListener('DOMContentLoaded', () => {
+
+cargarStock();
+cargarRegiones();
+
+});
 
   async function cargarStock() {
     mostrarLoading(true);
@@ -272,6 +295,95 @@
       document.getElementById('stockBody').innerHTML = `<tr><td colspan="7" style="color:red;text-align:center;">Error de conexión.</td></tr>`;
     } finally { mostrarLoading(false); }
   }
+
+async function cargarRegiones(){
+const res = await fetch(APPS_SCRIPT_URL+"?action=getRegiones");
+const regiones = await res.json();
+
+const select = document.getElementById("filtroRegion");
+
+select.innerHTML="<option value=''>Todas</option>";
+
+regiones.forEach(r=>{
+
+const op=document.createElement("option");
+op.value=r.id;
+op.textContent=r.region;
+
+select.appendChild(op);
+
+});
+
+}
+
+async function cargarLocalidades(){
+
+const region = document.getElementById("filtroRegion").value;
+
+const res = await fetch(APPS_SCRIPT_URL+"?action=getLocalidades");
+const localidades = await res.json();
+
+const select=document.getElementById("filtroLocalidad");
+
+select.innerHTML="<option value=''>Todas</option>";
+
+localidades.forEach(l=>{
+
+if(region=="" || l.region==region){
+
+const op=document.createElement("option");
+op.value=l.id;
+op.textContent=l.localidad;
+
+select.appendChild(op);
+
+}
+
+});
+
+}
+
+async function cargarEstablecimientos(){
+
+const localidad = document.getElementById("filtroLocalidad").value;
+
+const res = await fetch(APPS_SCRIPT_URL+"?action=getEstablecimientos");
+const establecimientos = await res.json();
+
+const select=document.getElementById("filtroEstablecimiento");
+
+select.innerHTML="<option value=''>Todos</option>";
+
+establecimientos.forEach(e=>{
+
+if(localidad=="" || e.localidad==localidad){
+
+const op=document.createElement("option");
+op.value=e.establecimiento;
+op.textContent=e.establecimiento;
+
+select.appendChild(op);
+
+}
+
+});
+
+}
+
+document.getElementById("filtroRegion")
+.addEventListener("change",()=>{
+
+cargarLocalidades();
+cargarEstablecimientos();
+
+});
+
+document.getElementById("filtroLocalidad")
+.addEventListener("change",()=>{
+
+cargarEstablecimientos();
+
+});
 
   function renderizarStock(data) {
     let html = '';
