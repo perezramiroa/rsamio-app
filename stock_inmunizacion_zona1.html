@@ -370,18 +370,24 @@ select.appendChild(op);
 
 }
 
-document.getElementById("filtroRegion")
-.addEventListener("change",()=>{
+document.getElementById("filtroRegion").addEventListener("change", () => {
 
 cargarLocalidades();
 cargarEstablecimientos();
+filtrarStock();
 
 });
 
-document.getElementById("filtroLocalidad")
-.addEventListener("change",()=>{
+document.getElementById("filtroLocalidad").addEventListener("change", () => {
 
 cargarEstablecimientos();
+filtrarStock();
+
+});
+
+document.getElementById("filtroEstablecimiento").addEventListener("change", () => {
+
+filtrarStock();
 
 });
 
@@ -398,6 +404,27 @@ cargarEstablecimientos();
     });
     document.getElementById('stockBody').innerHTML = html || '<tr><td colspan="7">No hay datos</td></tr>';
   }
+
+    function filtrarStock(){
+
+let region = document.getElementById("filtroRegion").value;
+let localidad = document.getElementById("filtroLocalidad").value;
+let establecimiento = document.getElementById("filtroEstablecimiento").value;
+
+let filtrado = stockData.filter(item => {
+
+return (
+(region=="" || item.region==region) &&
+(localidad=="" || item.localidad==localidad) &&
+(establecimiento=="" || item.ubicacion==establecimiento)
+
+);
+
+});
+
+renderStock(filtrado);
+
+}
 
   function actualizarEstadisticas(data) {
     let total = 0, prox = 0, venc = 0;
