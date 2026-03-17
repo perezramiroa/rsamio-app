@@ -652,12 +652,46 @@ function seleccionarLocalidad(localidad) {
   alert("Has seleccionado: " + localidad + ". Iniciando monitoreo de red de frío...");
 }
 
-function mostrarConstruccion(nombre) {
-  const aviso = document.getElementById('avisoConstruccion');
-  document.getElementById('textoConstruccion').innerText = `🚧 ${nombre} en Construcción`;
-  aviso.style.display = 'block';
-  setTimeout(() => { aviso.style.display = 'none'; }, 2000);
-}    
+function seleccionarLocalidad(localidad) {
+  console.log("Solicitando datos para:", localidad);
+  
+  // Opcional: Mostrar un cartel de "Cargando..."
+  document.getElementById('tituloNavegacion').innerText = `⌛ Cargando datos de ${localidad}...`;
+
+  // Llamada al servidor de Google
+  google.script.run
+    .withSuccessHandler(function(response) {
+       document.getElementById('tituloNavegacion').innerText = `📊 Reporte: ${response.localidad}`;
+       renderizarTablas(response); // Esta función dibujará los datos en pantalla
+    })
+    .withFailureHandler(err => alert("Error al conectar con la base de datos"))
+    .obtenerDatosPorLocalidad(localidad);
+}
+
+function renderizarTablasFiltradas(response) {
+    console.log("Datos recibidos del servidor:", response);
+    
+    const cuerpoStock = document.getElementById('cuerpoTablaStock'); 
+    // Asegurate de que en tu HTML el <tbody> tenga id="cuerpoTablaStock"
+    
+    cuerpoStock.innerHTML = ""; // Limpiamos la tabla antes de cargar los nuevos datos
+
+    if (!response.stock || response.stock.length === 0) {
+        cuerpoStock.innerHTML = "<tr><td colspan='4' class='text-center'>No hay stock disponible en esta ubicación.</td></tr>";
+        return;
+    }
+
+    // Recorremos los datos que vienen del .gs (Stock)
+    response.stock.forEach(item => {
+        let fila = `<tr>
+            <td>${item.vacuna}</td>
+            <td>${item.lote}</td>
+            <td>${new Date(item.vencimiento).toLocaleDateString()}</td>
+            <td><span class="badge badge-info">${item.stock}</span></td>
+        </tr>`;
+        cuerpoStock.innerHTML += fila;
+    });
+}
 
 // Función para navegar entre capas
 function mostrarCapa(idCapa) {
@@ -684,12 +718,18 @@ function irANivel2(region) {
 }
 
 function irANivel3(id, nombre) {
+    // 1. Cambios visuales que ya tenías
     document.getElementById('nombre-establecimiento').innerText = "🏥 " + nombre;
     mostrarCapa('capa-datos');
     
-    // Aquí es donde llamas a tus funciones de carga de datos reales
-    // cargarDatosDesdeGoogle(id); 
-    // consultarThingSpeak(id);
+    // 2. Llamada real a Google Apps Script
+    // Usamos el 'nombre' (ej: Centenario) para filtrar en el Excel
+    console.log("Solicitando datos para:", nombre);
+    
+    google.script.run
+        .withSuccessHandler(renderizarTablasFiltradas)
+        .withFailureHandler(err => console.error("Error:", err))
+        .obtenerDatosPorLocalidad(nombre); 
 }
 
 function mensajeConstruccion() {
