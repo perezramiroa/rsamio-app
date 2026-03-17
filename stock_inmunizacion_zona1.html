@@ -44,9 +44,70 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .footer { margin-top: 32px; text-align: center; background: #00384d; padding: 12px; border-radius: 8px; }
     .footer img { max-width: 100%; }
+  
+ .nivel-vista {
+    transition: all 0.3s ease;
+}
+
+.map-container {
+    position: relative;
+    display: inline-block;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.img-mapa {
+    display: block;
+    max-width: 100%; /* Importante para que sea responsive */
+    height: auto;
+}
+
+area {
+    cursor: pointer;
+} 
+  
   </style>
 </head>
 <body>
+
+  <div id="contenedor-interactivo" class="container mt-4">
+    
+    <div id="capa-provincial" class="nivel-vista">
+        <h3>📍 Selección de Región - Provincia de Neuquén</h3>
+        <div class="map-container">
+            <img src="TU_BASE64_MAPA_NEUQUEN" usemap="#mapa-neuquen" class="img-mapa">
+            <map name="mapa-neuquen">
+                <area shape="poly" coords="150,300,..." alt="Confluencia" onclick="irANivel2('Confluencia')">
+                <area shape="poly" coords="..." alt="Norte" onclick="mensajeConstruccion()">
+            </map>
+        </div>
+    </div>
+
+    <div id="capa-regional" class="nivel-vista" style="display:none;">
+        <h3 id="titulo-region">Región Seleccionada</h3>
+        <button onclick="irANivel1()" class="btn btn-secondary btn-sm mb-2">⬅ Volver al Mapa Provincial</button>
+        
+        <div class="map-container">
+            <img id="img-region-detalle" src="TU_BASE64_REGION_CONFLUENCIA" usemap="#mapa-localidades" class="img-mapa">
+            <map name="mapa-localidades" id="mapa-localidades">
+                <area shape="circle" coords="120,150,15" alt="Hosp. Natalio Burd" onclick="irANivel3('HNB', 'Centenario')">
+                <area shape="circle" coords="200,180,15" alt="S.P. del Chañar" onclick="irANivel3('SPCH', 'El Chañar')">
+            </map>
+        </div>
+    </div>
+
+    <div id="capa-datos" class="nivel-vista" style="display:none;">
+        <div class="d-flex justify-content-between">
+            <h3 id="nombre-establecimiento">Establecimiento</h3>
+            <button onclick="irANivel2()" class="btn btn-outline-primary btn-sm">📍 Cambiar Localidad</button>
+        </div>
+        
+        <div id="tabla-stock-real"> 
+            </div>
+    </div>
+
+</div>
 
 <div class="header">
   <div class="logo-bar">
@@ -596,6 +657,44 @@ function mostrarConstruccion(nombre) {
   aviso.style.display = 'block';
   setTimeout(() => { aviso.style.display = 'none'; }, 2000);
 }    
+
+// Función para navegar entre capas
+function mostrarCapa(idCapa) {
+    // Oculta todas las capas
+    document.querySelectorAll('.nivel-vista').forEach(capa => {
+        capa.style.display = 'none';
+    });
+    // Muestra la seleccionada
+    document.getElementById(idCapa).style.display = 'block';
+}
+
+// Lógica de navegación
+function irANivel1() {
+    mostrarCapa('capa-provincial');
+}
+
+function irANivel2(region) {
+    if(region === 'Confluencia') {
+        document.getElementById('titulo-region').innerText = "Región Confluencia - Vaca Muerta";
+        mostrarCapa('capa-regional');
+    } else {
+        mensajeConstruccion();
+    }
+}
+
+function irANivel3(id, nombre) {
+    document.getElementById('nombre-establecimiento').innerText = "🏥 " + nombre;
+    mostrarCapa('capa-datos');
+    
+    // Aquí es donde llamas a tus funciones de carga de datos reales
+    // cargarDatosDesdeGoogle(id); 
+    // consultarThingSpeak(id);
+}
+
+function mensajeConstruccion() {
+    alert("🚧 Etapa 1.3: Esta región se encuentra en proceso de mapeo.");
+}
+    
 </script>
 </body>
 </html>
