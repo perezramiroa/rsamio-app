@@ -635,12 +635,13 @@ function navegarARegion(region) {
   if (region === 'Confluencia') {
     img.src = IMAGENES_MAPA.CONFLUENCIA;
     mapa.innerHTML = `
-      <area shape="circle" coords="200,200,50" alt="Centenario" onclick="seleccionarLocalidad('Centenario')">
+      <area shape="rect" coords="229,158,346,174" alt="Centenario" onclick="seleccionarLocalidad('Centenario')">
+      <area shape="rect" coords="229,269,352,287" alt="Vista Alegre" onclick="seleccionarLocalidad('Vista Alegre')">
     `;
   } else if (region === 'Vaca Muerta') {
     img.src = IMAGENES_MAPA.VACA_MUERTA;
     mapa.innerHTML = `
-      <area shape="circle" coords="200,200,50" alt="San Patricio del Chañar" onclick="seleccionarLocalidad('San Patricio del Chañar')">
+      <area shape="rect" coords="333,227,469,204" alt="San Patricio del Chañar" onclick="seleccionarLocalidad('San Patricio del Chañar')">
     `;
   }
 }
