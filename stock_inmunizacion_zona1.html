@@ -252,7 +252,7 @@
 
           <div class="form-group">
             <label class="form-label">Región *</label>
-            <select id="regionMov" class="form-control" required onchange="actualizarLocalidades()">
+            <select id="regionMov" class="form-control" required onchange="navegarARegion(this.value); actualizarLocalidades();">
               <option value="">Seleccionar región</option>
               <option>Confluencia</option>
               <option>Vaca Muerta</option>
@@ -328,6 +328,183 @@
       }
     };
 
+    // ============================================================================
+    // Implementar actualizarLocalidades()
+    // ============================================================================ 
+
+    function actualizarLocalidades() {
+    const region = document.getElementById('regionMov').value;
+    const localidadSelect = document.getElementById('localidadMov');
+    
+    // Limpiar opciones existentes
+    localidadSelect.innerHTML = '<option value="">Seleccionar localidad</option>';
+    
+    if (region && ESTRUCTURA_GEOGRAFICA[region]) {
+        const localidades = Object.keys(ESTRUCTURA_GEOGRAFICA[region]);
+        localidades.forEach(localidad => {
+            const option = document.createElement('option');
+            option.value = localidad;
+            option.textContent = localidad;
+            localidadSelect.appendChild(option);
+        });
+        localidadSelect.disabled = false;
+    } else {
+        localidadSelect.disabled = true;
+    }
+    
+    // También resetear establecimientos
+    document.getElementById('establecimientoMov').innerHTML = '<option value="">Seleccionar establecimiento</option>';
+    document.getElementById('establecimientoMov').disabled = true;
+}
+
+    // ============================================================================
+    // Implementar actualizarEstablecimientos()
+    // ============================================================================
+
+    function actualizarEstablecimientos() {
+    const region = document.getElementById('regionMov').value;
+    const localidad = document.getElementById('localidadMov').value;
+    const establecimientoSelect = document.getElementById('establecimientoMov');
+    
+    // Limpiar opciones existentes
+    establecimientoSelect.innerHTML = '<option value="">Seleccionar establecimiento</option>';
+    
+    if (region && localidad && ESTRUCTURA_GEOGRAFICA[region] && ESTRUCTURA_GEOGRAFICA[region][localidad]) {
+        const establecimientos = ESTRUCTURA_GEOGRAFICA[region][localidad];
+        establecimientos.forEach(establecimiento => {
+            const option = document.createElement('option');
+            option.value = establecimiento;
+            option.textContent = establecimiento;
+            establecimientoSelect.appendChild(option);
+        });
+        establecimientoSelect.disabled = false;
+    } else {
+        establecimientoSelect.disabled = true;
+    }
+}
+
+    // ============================================================================
+    // Implementar renderizarTablasNivel1(data)
+    // ============================================================================
+
+    function renderizarTablasNivel1(data) {
+    const stock = data.stock || [];
+    
+    // Agrupar datos por región
+    const porRegion = {};
+    stock.forEach(item => {
+        const key = item.region || 'Sin Región';
+        if (!porRegion[key]) porRegion[key] = [];
+        porRegion[key].push(item);
+    });
+    
+    // Contenedor principal de tablas
+    let html = '';
+    
+    Object.keys(porRegion).forEach(region => {
+        const regionSlug = region.toLowerCase().replace(/\s+/g, '-');
+        html += `<div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📍 ${region}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tabla-${regionSlug}">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Vacuna</th>
+                                <th>Laboratorio</th>
+                                <th>Lote</th>
+                                <th>Vencimiento</th>
+                                <th>Stock</th>
+                                <th>Localidad</th>
+                                <th>Establecimiento</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+        
+        porRegion[region].forEach(item => {
+            const estado = obtenerEstadoVencimiento(item.vencimiento);
+            html += `<tr>
+                <td>${item.vacuna || '-'}</td>
+                <td>${item.laboratorio || '-'}</td>
+                <td>${item.lote || '-'}</td>
+                <td>${item.vencimiento ? formatearFecha(item.vencimiento) : '-'}</td>
+                <td><strong>${item.stock || 0}</strong></td>
+                <td>${item.localidad || '-'}</td>
+                <td>${item.establecimiento || '-'}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="descargarReporte('${item.vacuna}','${item.lote}','${item.establecimiento}')">📄</button>
+                </td>
+            </tr>`;
+        });
+        
+        html += `</tbody></table></div></div></div>`;
+    });
+    
+    // Insertar en el DOM - AJUSTA EL ID SEGÚN TU ESTRUCTURA
+    const contenedor = document.getElementById('contenedorTablasRegion') || document.querySelector('.vista-geografica');
+    if (contenedor) {
+        contenedor.innerHTML = html || '<p class="text-muted">No hay datos para mostrar</p>';
+    }
+}
+
+// Funciones auxiliares
+function obtenerEstadoVencimiento(fecha) {
+    if (!fecha) return 'info';
+    const venc = new Date(fecha);
+    const hoy = new Date();
+    const dias = Math.ceil((venc - hoy) / (1000 * 60 * 60 * 24));
+    
+    if (dias < 0) return 'danger'; // Vencido
+    if (dias <= 30) return 'warning'; // Próximo a vencer
+    return 'success'; // Vigente
+}
+
+function formatearFecha(fecha) {
+    if (!fecha) return '-';
+    return new Date(fecha).toLocaleDateString('es-AR');
+}
+
+    // ============================================================================
+    // Mejorar manejo de errores (opcional pero recomendado)
+    // ============================================================================
+
+    async function cargarDatosNivelProvincia() {
+    mostrarLoading(true);
+    try {
+        const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        renderizarTablasNivel1(data);
+        
+    } catch (error) {
+        console.error('❌ Error al cargar datos:', error);
+        alert('⚠️ Error al conectar con el servidor:\n\n' + error.message);
+        
+        // Mostrar mensaje en la UI
+        const contenedor = document.getElementById('contenedorTablasRegion');
+        if (contenedor) {
+            contenedor.innerHTML = `<div class="alert alert-danger">
+                <strong>Error de conexión:</strong> ${error.message}
+                <br><small>Verifica que la URL del Apps Script sea correcta y que el Web App esté desplegado.</small>
+            </div>`;
+        }
+    } finally {
+        mostrarLoading(false);
+    }
+}
+    
     // ============================================================================
     // FUNCIONES DE NAVEGACIÓN ENTRE VISTAS
     // ============================================================================
