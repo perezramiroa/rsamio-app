@@ -851,13 +851,17 @@
         const response = await fetch(url);
         const result = await response.json();
 
-        if (result.result) {
+        if (result && result.success) {
           cerrarModalMov();
           document.getElementById('confirmacionMensaje').innerText = `✅ ${estadoActual.modoMovimiento} registrado correctamente.\nID Trazabilidad: ${idTrazabilidad}`;
           document.getElementById('modalConfirmacion').style.display = 'block';
           cargarDatos();
-        } else {
+        } else if (result && result.error) {
+          alert('Error: ' + result.error);
+        } else if (result && result.message) {
           alert('Error: ' + result.message);
+        } else {
+          alert('Error: Respuesta inválida del servidor');
         }
       } catch (error) {
         alert('Error de conexión: ' + error);
