@@ -1,886 +1,578 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RSAMIO - Control de Stock Completo</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 20px; }
-    
-    .header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-    .logo-bar { display: flex; gap: 20px; align-items: center; }
-    .logo-item { height: 60px; }
-    .logo-item img { max-height: 100%; object-fit: contain; }
-    .title-section h1 { font-size: 1.6rem; color: #1e293b; }
-    .title-section p { color: #64748b; }
-    
-    .stats-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-    .stat-card { background: white; border-radius: 10px; padding: 15px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; min-width: 150px; border-left: 4px solid #3b82f6; }
-    .stat-card .label { font-size: 0.85rem; color: #64748b; }
-    .stat-card .value { font-size: 1.8rem; font-weight: 700; }
-    
-    .controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-    .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-    .btn-primary { background: #3b82f6; color: white; }
-    .btn-primary:hover { background: #2563eb; }
-    .btn-success { background: #10b981; color: white; }
-    .btn-success:hover { background: #059669; }
-    .btn-outline { background: white; border: 1px solid #e2e8f0; color: #1e293b; }
-    .btn-outline:hover { background: #f1f5f9; }
-    
-    .container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 24px; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-    th { background: #f1f5f9; font-weight: 600; }
-    
-    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
-    .badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-    .badge-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-    
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000; }
-    .modal-content { background: white; margin: 2% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; max-height: 95vh; overflow-y: auto; }
-    .modal-header { background: #00384d; color: white; padding: 20px 25px; border-radius: 24px 24px 0 0; display: flex; justify-content: space-between; align-items: center; }
-    .modal-close { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
-    .modal-body { padding: 25px; }
-    .form-group { margin-bottom: 15px; }
-    .form-label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
-    .form-control { width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    
-    .loading { text-align: center; padding: 40px; }
-    .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    .footer { margin-top: 32px; text-align: center; background: #00384d; padding: 12px; border-radius: 8px; }
-    .footer img { max-width: 100%; }
-    
-    .view { display: none; }
-    .view.active { display: block; }
-    
-    .map-container { position: relative; display: inline-block; border: 2px solid #ddd; border-radius: 8px; overflow: hidden; width: 100%; margin-bottom: 20px; }
-    .img-mapa { display: block; max-width: 100%; height: auto; }
-    
-    .breadcrumb { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .breadcrumb-item { padding: 8px 12px; background: #f1f5f9; border-radius: 6px; font-size: 0.9rem; }
-    .breadcrumb-item.active { background: #3b82f6; color: white; }
-    
-    .establecimientos-menu { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-    .establecimiento-btn { padding: 8px 16px; background: #dbeafe; border: 1px solid #bfdbfe; color: #1d4ed8; border-radius: 6px; cursor: pointer; font-weight: 600; }
-    .establecimiento-btn:hover { background: #bfdbfe; }
-    .establecimiento-btn.active { background: #3b82f6; color: white; }
-    
-    .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
-    
-    @media (max-width: 768px) {
-      .form-row { grid-template-columns: 1fr; }
-      .controls { flex-direction: column; }
-      .btn { width: 100%; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSAMIO - Stock Inmunización Zona 1</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --light-bg: #f8f9fa;
+        }
+        body { background-color: var(--light-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { background-color: var(--primary-color); color: white; }
+        .card { border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .map-container { position: relative; text-align: center; background: white; padding: 20px; border-radius: 15px; }
+        .map-image { max-width: 100%; height: auto; border: 1px solid #ddd; }
+        .status-badge { font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; }
+        .btn-action { border-radius: 25px; padding: 10px 25px; font-weight: bold; transition: all 0.3s; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .normativa-section { background: #e9ecef; padding: 20px; border-radius: 10px; margin-top: 30px; }
+        area { cursor: pointer; }
+        .breadcrumb-item a { text-decoration: none; color: var(--primary-color); }
+    </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo-bar">
-      <div class="logo-item"><img src="logos/logo_hnb_oscuro.jpg" alt="HNB"></div>
-      <div class="logo-item"><img src="logos/logo_rih.jpg" alt="RIH"></div>
-      <div class="logo-item"><img src="logos/logo_hnb_blanco.jpg" alt="HNB"></div>
+<div id="loading-overlay">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
     </div>
-    <div class="title-section">
-      <h1>Control de Stock de Vacunas</h1>
-      <p>Inmunización Zona 1</p>
-    </div>
-  </div>
+</div>
 
-  <!-- STATS BAR -->
-  <div class="stats-bar">
-    <div class="stat-card"><div class="label">Total Dosis</div><div class="value" id="totalDosis">0</div></div>
-    <div class="stat-card" style="border-left-color: #f59e0b;"><div class="label">Próximos a Vencer</div><div class="value" id="proximosVencer">0</div></div>
-    <div class="stat-card" style="border-left-color: #ef4444;"><div class="label">Vencidos</div><div class="value" id="vencidos">0</div></div>
-  </div>
-
-  <!-- CONTROLS -->
-  <div class="controls">
-    <button class="btn btn-primary" onclick="cargarDatos()">🔄 Actualizar</button>
-    <button class="btn btn-success" onclick="abrirModalMov('Egreso')">📤 Registrar Egreso</button>
-    <button class="btn btn-primary" style="background:#8b5cf6;" onclick="abrirModalMov('Ingreso')">📥 Registrar Ingreso</button>
-    <button class="btn btn-primary" style="background:#00384d;" onclick="mostrarVistaGeografica()">📍 Regiones/Localidades/Establecimientos</button>
-    <button class="btn btn-outline" onclick="window.close()">← Volver</button>
-  </div>
-
-  <!-- ========================================
-       VISTA 1: INVENTARIO PRINCIPAL
-       ======================================== -->
-  <div id="vistaInventario" class="view active">
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container">
-      <h2>📋 Inventario Actual - Todas las Regiones</h2>
-      <div id="loading" class="loading" style="display:none;">
-        <div class="spinner"></div>
-        <div>Conectando con Google Drive...</div>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
+        <a class="navbar-brand" href="index.html"><i class="fas fa-clinic-medical me-2"></i>RSAMIO - Gestión de Stock</a>
+        <button class="btn btn-outline-light btn-sm" onclick="showNormativa()"><i class="fas fa-gavel me-1"></i>Normativas</button>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Navegación Geográfica -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card p-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0" id="breadcrumb-nav">
+                        <li class="breadcrumb-item"><a href="#" onclick="navigateTo('provincia')">Provincia (Neuquén)</a></li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Panel Izquierdo: Mapas y Filtros -->
+        <div class="col-lg-5">
+            <div class="card map-container" id="map-view">
+                <h5 id="map-title">Mapa de Neuquén - Seleccione Región</h5>
+                <img src="" id="active-map" class="map-image" usemap="#nav-map">
+                <map name="nav-map" id="nav-map">
+                    <!-- Coordenadas dinámicas se cargan por JS -->
+                </map>
+                <div id="map-legend" class="mt-3 text-muted small"></div>
+            </div>
+
+            <div class="card p-3 mt-3" id="establecimiento-selector" style="display:none;">
+                <h5>Establecimientos en <span id="current-loc-name"></span></h5>
+                <div class="d-grid gap-2" id="btn-group-establecimientos">
+                    <!-- Botones dinámicos -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Tablas y Acciones -->
+        <div class="col-lg-7">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 id="table-title">Stock General - Provincia</h4>
+                <div>
+                    <button class="btn btn-success btn-sm me-2" onclick="openModal('Ingreso')"><i class="fas fa-plus me-1"></i>Ingreso</button>
+                    <button class="btn btn-danger btn-sm" onclick="openModal('Egreso')"><i class="fas fa-minus me-1"></i>Egreso</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Inventario Actual</span>
+                    <button class="btn btn-outline-primary btn-sm" onclick="downloadPDF('stock-table')"><i class="fas fa-file-pdf"></i></button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="stock-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Vacuna</th>
+                                <th>Laboratorio</th>
+                                <th>Lote</th>
+                                <th>Venc.</th>
+                                <th>Stock</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-body">
+                            <!-- Datos dinámicos -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Últimos Movimientos</span>
+                    <button class="btn btn-outline-primary btn-sm" onclick="downloadPDF('movimientos-table')"><i class="fas fa-file-pdf"></i></button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm" id="movimientos-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Vacuna</th>
+                                <th>Lote</th>
+                                <th>Cant.</th>
+                                <th>Trazabilidad</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movimientos-body">
+                            <!-- Datos dinámicos -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Registro -->
+<div class="modal fade" id="registroModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Registrar Movimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="registroForm">
+                    <input type="hidden" id="form-tipo">
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Región</label>
+                            <select class="form-select" id="form-region" required onchange="updateLocalidades()"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Localidad</label>
+                            <select class="form-select" id="form-localidad" required onchange="updateEstablecimientos()"></select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Establecimiento</label>
+                        <select class="form-select" id="form-establecimiento" required></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Vacuna</label>
+                        <select class="form-select" id="form-vacuna" required onchange="updateLaboratorios()"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Laboratorio</label>
+                        <select class="form-select" id="form-laboratorio" required></select>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Lote</label>
+                            <div id="lote-container">
+                                <input type="text" class="form-control" id="form-lote-text" placeholder="Ingrese lote">
+                                <select class="form-select" id="form-lote-select" style="display:none;"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" id="form-cantidad" required min="1">
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="vencimiento-group">
+                        <label class="form-label">Fecha de Vencimiento</label>
+                        <input type="date" class="form-control" id="form-vencimiento">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Responsable</label>
+                        <input type="text" class="form-control" id="form-responsable" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-submit-registro" onclick="submitRegistro()">Confirmar Registro</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Normativas -->
+<div class="modal fade" id="normativaModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Marco Normativo y Trazabilidad</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Nacional</h6>
+                <ul>
+                    <li><strong>Ley 27.491:</strong> Control de enfermedades prevenibles por vacunación.</li>
+                    <li><strong>Resolución 773/2021:</strong> Lineamientos técnicos para la Campaña Nacional de Vacunación.</li>
+                </ul>
+                <h6>Provincial (Neuquén)</h6>
+                <ul>
+                    <li><strong>Ley 2570:</strong> Adhesión a la normativa nacional de inmunizaciones.</li>
+                </ul>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Todos los registros en este sistema cumplen con los estándares de trazabilidad exigidos por el Ministerio de Salud de la Nación.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // CONFIGURACIÓN Y DATOS
+    const APPS_SCRIPT_URL = 'TU_URL_DE_APPS_SCRIPT'; // REEMPLAZAR
+    
+    const MAPAS_BASE64 = {
+        PROVINCIA: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...', // Cargar desde archivo
+        CONFLUENCIA: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...', // Cargar desde archivo
+        VACA_MUERTA: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...'  // Cargar desde archivo
+    };
+
+    const CATALOGO = {
+        vacunas: [
+            "Antigripal Adulto", "Antigripal Pediátrica", "COVID-19 Pfizer", "COVID-19 Moderna", 
+            "COVID-19 Sputnik V", "Hepatitis B", "Doble Adultos", "Triple Viral", "Quíntuple", "Neumococo 13"
+        ],
+        laboratorios: {
+            "Antigripal Adulto": ["Sinergium Biotech", "Sanofi"],
+            "COVID-19 Pfizer": ["Pfizer-BioNTech"],
+            "COVID-19 Moderna": ["Moderna Inc."],
+            "COVID-19 Sputnik V": ["Gamaleya"],
+            "DEFAULT": ["GSK", "MSD", "Pfizer", "Moderna", "Sinergium", "Gamaleya", "AstraZeneca"]
+        }
+    };
+
+    const GEOGRAFIA = {
+        "Confluencia": {
+            localidades: {
+                "Centenario": ["Hospital Centenario", "CAPS Sarmiento", "CAPS Sayhueque"],
+                "Vista Alegre": ["CAPS Vista Alegre Sur", "CAPS Vista Alegre Norte"],
+                "Neuquén Capital": ["Zona Sanitaria Confluencia", "Depósito Central"]
+            }
+        },
+        "Vaca Muerta": {
+            localidades: {
+                "San Patricio del Chañar": ["Hospital Chañar", "Puesto Sanitario"]
+            }
+        },
+        "Sur": { status: "construccion" },
+        "Norte": { status: "construccion" },
+        "Centro": { status: "construccion" }
+    };
+
+    let currentState = {
+        view: 'provincia',
+        region: null,
+        localidad: null,
+        establecimiento: null
+    };
+
+    let allStockData = [];
+
+    // INICIALIZACIÓN
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+        renderMap('provincia');
+        populateSelects();
+    });
+
+    function loadData() {
+        showLoading(true);
+        const params = new URLSearchParams({
+            action: 'getDatosAgregados',
+            region: currentState.region || '',
+            localidad: currentState.localidad || '',
+            establecimiento: currentState.establecimiento || ''
+        });
+
+        fetch(`${APPS_SCRIPT_URL}?${params}`)
+            .then(res => res.json())
+            .then(data => {
+                allStockData = data.stock;
+                renderTables(data);
+                showLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                showLoading(false);
+            });
+    }
+
+    function renderTables(data) {
+        const stockBody = document.getElementById('stock-body');
+        stockBody.innerHTML = data.stock.map(item => `
             <tr>
-              <th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Stock</th><th>Región</th><th>Localidad</th><th>Establecimiento</th><th>Estado</th>
+                <td>${item.vacuna}</td>
+                <td>${item.laboratorio}</td>
+                <td>${item.lote}</td>
+                <td>${formatDate(item.vencimiento)}</td>
+                <td><strong>${item.stock}</strong></td>
+                <td>${getStatusBadge(item.stock)}</td>
             </tr>
-          </thead>
-          <tbody id="stockBodyInventario">
-            <tr><td colspan="9" style="text-align:center;">Cargando datos...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+        `).join('') || '<tr><td colspan="6" class="text-center">No hay datos disponibles</td></tr>';
 
-  <!-- ========================================
-       VISTA 2: NAVEGADOR GEOGRÁFICO
-       ======================================== -->
-  <div id="vistaGeografica" class="view">
-    <div class="breadcrumb">
-      <span class="breadcrumb-item active">Provincia</span>
-      <span class="breadcrumb-item" id="breadcrumbRegion" style="display:none;">Región</span>
-      <span class="breadcrumb-item" id="breadcrumbLocalidad" style="display:none;">Localidad</span>
-    </div>
+        const movBody = document.getElementById('movimientos-body');
+        const allMovs = [...data.ingresos.map(i => ({...i, tipo: 'Ingreso'})), ...data.egresos.map(e => ({...e, tipo: 'Egreso'}))];
+        allMovs.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-    <button class="btn btn-outline" onclick="volverVistaInventario()" style="margin-bottom: 20px;">← Volver a Inventario</button>
-
-    <!-- NIVEL PROVINCIA -->
-    <div id="nivelProvincia" class="container">
-      <h2>🗺️ Seleccione una Región</h2>
-      <div class="map-container">
-        <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
-        <map name="mapaRegiones">
-          <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
-          <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
-        </map>
-      </div>
-      <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-        <button class="btn btn-outline" onclick="navegarARegion('Confluencia')">Región Confluencia</button>
-        <button class="btn btn-outline" onclick="navegarARegion('Vaca Muerta')">Región Vaca Muerta</button>
-      </div>
-      <div id="tablasNivel1" style="margin-top: 30px;"></div>
-    </div>
-
-    <!-- NIVEL REGIÓN -->
-    <div id="nivelRegion" class="container" style="display:none;">
-      <h2 id="tituloRegion">Región Seleccionada</h2>
-      <button class="btn btn-outline" onclick="volverANivelProvincia()" style="margin-bottom: 20px;">← Volver a Provincia</button>
-      <div id="tablasNivel2"></div>
-    </div>
-
-    <!-- NIVEL LOCALIDAD -->
-    <div id="nivelLocalidad" class="container" style="display:none;">
-      <h2 id="tituloLocalidad">Localidad Seleccionada</h2>
-      <button class="btn btn-outline" onclick="volverANivelRegion()" style="margin-bottom: 20px;">← Volver a Región</button>
-      <div id="establecimientos-menu" class="establecimientos-menu"></div>
-      <div id="tablasNivel3"></div>
-    </div>
-  </div>
-
-  <!-- MODAL MOVIMIENTO -->
-  <div id="modalMov" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span id="modalTitulo">Registrar Movimiento</span>
-        <button class="modal-close" onclick="cerrarModalMov()">✕</button>
-      </div>
-      <div class="modal-body">
-        <form id="formMov" onsubmit="registrarMovimiento(event)">
-          <div class="form-group">
-            <label class="form-label">Vacuna *</label>
-            <select id="vacuna" class="form-control" required onchange="cargarLotesPorVacuna()">
-              <option value="">Seleccionar vacuna</option>
-              <option>BCG</option>
-              <option>Hepatitis B</option>
-              <option>Pentavalente</option>
-              <option>Antigripal</option>
-              <option>COVID-19</option>
-              <option>Triple Viral</option>
-              <option>Varicela</option>
-              <option>SRP</option>
-              <option>Sabin</option>
-              <option>Fiebre Amarilla</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Laboratorio *</label>
-            <select id="laboratorio" class="form-control" required>
-              <option value="">Seleccionar laboratorio</option>
-              <option>Pfizer</option>
-              <option>AstraZeneca</option>
-              <option>Moderna</option>
-              <option>Sinopharm</option>
-              <option>Janssen</option>
-              <option>Covaxin</option>
-              <option>Sinergium</option>
-              <option>BioCubaFarma</option>
-              <option>MSD</option>
-              <option>BioManguinhos</option>
-              <option>Laboratorio Publico</option>              
-            </select>
-          </div>
-
-          <div class="form-group" id="camposEgreso">
-            <label class="form-label">Lote (Egreso) *</label>
-            <select id="loteSelect" class="form-control">
-              <option value="">Seleccionar lote</option>
-            </select>
-          </div>
-
-          <div class="form-group" id="camposIngreso" style="display:none;">
-            <label class="form-label">Lote (Ingreso) *</label>
-            <input type="text" id="loteInput" class="form-control" placeholder="Ej: ABC123456">
-          </div>
-
-          <div class="form-group" id="vencimientoRow" style="display:none;">
-            <label class="form-label">Vencimiento (Ingreso) *</label>
-            <input type="date" id="vencimiento" class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Cantidad *</label>
-            <input type="number" id="cantidad" class="form-control" min="1" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Responsable *</label>
-            <input type="text" id="responsable" class="form-control" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Región *</label>
-            <select id="regionMov" class="form-control" required>
-              <option value="">Seleccionar región</option>
-              <option>Confluencia</option>
-              <option>Vaca Muerta</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Localidad *</label>
-            <input type="text" id="localidadMov" class="form-control" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Establecimiento *</label>
-            <input type="text" id="establecimientoMov" class="form-control" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Observaciones</label>
-            <textarea id="observaciones" class="form-control" rows="3"></textarea>
-          </div>
-
-          <button type="submit" id="btnSubmit" class="btn btn-primary" style="width: 100%;">Registrar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL CONFIRMACIÓN -->
-  <div id="modalConfirmacion" class="modal">
-    <div class="modal-content" style="width: 90%; max-width: 400px;">
-      <div class="modal-header">
-        <span>Confirmación</span>
-        <button class="modal-close" onclick="cerrarModalConfirmacion()">✕</button>
-      </div>
-      <div class="modal-body" style="text-align: center;">
-        <p id="confirmacionMensaje" style="font-size: 1.1rem; margin-bottom: 20px;"></p>
-        <button class="btn btn-primary" onclick="cerrarModalConfirmacion()" style="width: 100%;">Aceptar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    <img src="logos/footer.jpg" alt="HNB - Provincia del Neuquén" style="max-width: 100%; height: auto;">
-  </div>
-
-  <script>
-    // ============================================================================
-    // CONFIGURACIÓN GLOBAL
-    // ============================================================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwvpkhJjtJICI7L1D5k48sawMSzsjJwVtYSFhsPJcR2ow7kXncueIOzNrU33wU7f62/exec'; // Reemplazar con tu URL real
-    let estadoActual = {
-      vista: 'inventario',
-      region: null,
-      localidad: null,
-      establecimiento: null,
-      modoMovimiento: null
-    };
-
-    // Estructura de regiones, localidades y establecimientos
-    const ESTRUCTURA_GEOGRAFICA = {
-      'Confluencia': {
-        'Zona Sanitaria Confluencia': ['Depósito Zona Sanitaria Confluencia 1', 'Depósito Zona Sanitaria Confluencia 2'],
-        'Centenario': ['Hospital Centenario', 'CAPS Sarmiento 1', 'CAPS Sarmiento 2', 'CAPS Villa Obrera', 'CAPS Nueva España', 'CAPS 11 de Octubre'],
-        'Vista Alegre': ['CAPS Vista Alegre Norte', 'CAPS Vista Alegre Sur', 'CAPS Costa de Reyes']
-      },
-      'Vaca Muerta': {
-        'San Patricio del Chañar': ['Hospital San Patricio del Chañar']
-      }
-    };
-
-    // ============================================================================
-    // FUNCIONES DE NAVEGACIÓN ENTRE VISTAS
-    // ============================================================================
-
-    function mostrarVistaGeografica() {
-      document.getElementById('vistaInventario').classList.remove('active');
-      document.getElementById('vistaGeografica').classList.add('active');
-      cargarDatosNivelProvincia();
+        movBody.innerHTML = allMovs.slice(0, 10).map(m => `
+            <tr>
+                <td>${formatDate(m.fecha)}</td>
+                <td><span class="badge bg-${m.tipo === 'Ingreso' ? 'success' : 'danger'}">${m.tipo}</span></td>
+                <td>${m.vacuna}</td>
+                <td>${m.lote}</td>
+                <td>${m.cantidad}</td>
+                <td><small class="text-muted">${m.id}</small></td>
+            </tr>
+        `).join('') || '<tr><td colspan="6" class="text-center">Sin movimientos recientes</td></tr>';
     }
 
-    function volverVistaInventario() {
-      document.getElementById('vistaGeografica').classList.remove('active');
-      document.getElementById('vistaInventario').classList.add('active');
-      cargarDatos();
-    }
-
-    function volverANivelProvincia() {
-      document.getElementById('nivelRegion').style.display = 'none';
-      document.getElementById('nivelLocalidad').style.display = 'none';
-      document.getElementById('nivelProvincia').style.display = 'block';
-      document.getElementById('breadcrumbRegion').style.display = 'none';
-      document.getElementById('breadcrumbLocalidad').style.display = 'none';
-      estadoActual.region = null;
-      estadoActual.localidad = null;
-      estadoActual.establecimiento = null;
-    }
-
-    function volverANivelRegion() {
-      document.getElementById('nivelLocalidad').style.display = 'none';
-      document.getElementById('nivelRegion').style.display = 'block';
-      document.getElementById('breadcrumbLocalidad').style.display = 'none';
-      estadoActual.localidad = null;
-      estadoActual.establecimiento = null;
-    }
-
-    // ============================================================================
-    // FUNCIONES DE CARGA DE DATOS
-    // ============================================================================
-
-    async function cargarDatos() {
-      mostrarLoading(true);
-      try {
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados`);
-        const data = await response.json();
-        renderizarTablaInventario(data);
-        actualizarEstadisticas(data.stock);
-      } catch (error) {
-        console.error('Error al cargar datos:', error);
-        alert('Error al conectar con el servidor');
-      } finally {
-        mostrarLoading(false);
-      }
-    }
-
-    async function cargarDatosNivelProvincia() {
-      mostrarLoading(true);
-      try {
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados`);
-        const data = await response.json();
-        renderizarTablasNivel1(data);
-      } catch (error) {
-        console.error('Error al cargar datos:', error);
-      } finally {
-        mostrarLoading(false);
-      }
-    }
-
-    async function navegarARegion(region) {
-      estadoActual.region = region;
-      document.getElementById('nivelProvincia').style.display = 'none';
-      document.getElementById('nivelRegion').style.display = 'block';
-      document.getElementById('tituloRegion').textContent = `Región: ${region}`;
-      document.getElementById('breadcrumbRegion').style.display = 'inline-block';
-      document.getElementById('breadcrumbRegion').textContent = region;
-
-      mostrarLoading(true);
-      try {
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados&region=${encodeURIComponent(region)}`);
-        const data = await response.json();
-        renderizarTablasNivel2(data, region);
-      } catch (error) {
-        console.error('Error al cargar datos de región:', error);
-      } finally {
-        mostrarLoading(false);
-      }
-    }
-
-    async function navegarALocalidad(region, localidad) {
-      estadoActual.localidad = localidad;
-      document.getElementById('nivelRegion').style.display = 'none';
-      document.getElementById('nivelLocalidad').style.display = 'block';
-      document.getElementById('tituloLocalidad').textContent = `${region} - ${localidad}`;
-      document.getElementById('breadcrumbLocalidad').style.display = 'inline-block';
-      document.getElementById('breadcrumbLocalidad').textContent = localidad;
-
-      // Mostrar botones de establecimientos
-      const establecimientos = ESTRUCTURA_GEOGRAFICA[region][localidad] || [];
-      const menuHTML = establecimientos.map(est => 
-        `<button class="establecimiento-btn" onclick="navegarAEstablecimiento('${region}', '${localidad}', '${est}')">${est}</button>`
-      ).join('');
-      document.getElementById('establecimientos-menu').innerHTML = menuHTML;
-
-      // Cargar datos de la localidad
-      mostrarLoading(true);
-      try {
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}`);
-        const data = await response.json();
-        renderizarTablasNivel3(data, region, localidad, null);
-      } catch (error) {
-        console.error('Error al cargar datos de localidad:', error);
-      } finally {
-        mostrarLoading(false);
-      }
-    }
-
-    async function navegarAEstablecimiento(region, localidad, establecimiento) {
-      estadoActual.establecimiento = establecimiento;
-      
-      // Actualizar botones de establecimiento
-      document.querySelectorAll('.establecimiento-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-
-      mostrarLoading(true);
-      try {
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}&establecimiento=${encodeURIComponent(establecimiento)}`);
-        const data = await response.json();
-        renderizarTablasNivel3(data, region, localidad, establecimiento);
-      } catch (error) {
-        console.error('Error al cargar datos de establecimiento:', error);
-      } finally {
-        mostrarLoading(false);
-      }
-    }
-
-    // ============================================================================
-    // FUNCIONES DE RENDERIZADO
-    // ============================================================================
-
-    function renderizarTablaInventario(data) {
-      const tbody = document.getElementById('stockBodyInventario');
-      if (!data.stock || data.stock.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No hay datos disponibles</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = data.stock.map(item => {
-        const vencimiento = new Date(item.vencimiento);
-        const hoy = new Date();
-        let estado = 'Disponible';
-        let badgeClass = 'badge-success';
-
-        if (vencimiento < hoy) {
-          estado = 'Vencido';
-          badgeClass = 'badge-danger';
-        } else if ((vencimiento - hoy) / (1000 * 60 * 60 * 24) <= 30) {
-          estado = 'Próximo a Vencer';
-          badgeClass = 'badge-warning';
-        }
-
-        return `
-          <tr>
-            <td>${item.vacuna}</td>
-            <td>${item.laboratorio}</td>
-            <td>${item.lote}</td>
-            <td>${vencimiento.toLocaleDateString('es-AR')}</td>
-            <td>${item.stock}</td>
-            <td>${item.region || '-'}</td>
-            <td>${item.localidad || '-'}</td>
-            <td>${item.establecimiento || '-'}</td>
-            <td><span class="badge ${badgeClass}">${estado}</span></td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function renderizarTablasNivel1(data) {
-      const html = `
-        <div style="margin-top: 30px;">
-          <h3>📊 Stock Total - Provincia</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Región</th><th>Localidad</th></tr>
-              </thead>
-              <tbody>
-                ${data.stock.map(item => `
-                  <tr>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.stock}</td>
-                    <td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td>
-                    <td>${item.region}</td>
-                    <td>${item.localidad}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaStock1', 'stock_provincia.pdf')">📥 Descargar Stock en PDF</button>
-        </div>
-
-        <div style="margin-top: 30px;">
-          <h3>📥 Ingresos Totales - Provincia</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Responsable</th></tr>
-              </thead>
-              <tbody>
-                ${data.ingresos.map(item => `
-                  <tr>
-                    <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.cantidad}</td>
-                    <td>${item.responsable}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaIngresos1', 'ingresos_provincia.pdf')">📥 Descargar Ingresos en PDF</button>
-        </div>
-
-        <div style="margin-top: 30px;">
-          <h3>📤 Egresos Totales - Provincia</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Responsable</th></tr>
-              </thead>
-              <tbody>
-                ${data.egresos.map(item => `
-                  <tr>
-                    <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.cantidad}</td>
-                    <td>${item.responsable}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaEgresos1', 'egresos_provincia.pdf')">📥 Descargar Egresos en PDF</button>
-        </div>
-      `;
-      document.getElementById('tablasNivel1').innerHTML = html;
-    }
-
-    function renderizarTablasNivel2(data, region) {
-      const html = `
-        <div style="margin-top: 30px;">
-          <h3>📊 Stock - ${region}</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Localidad</th><th>Establecimiento</th></tr>
-              </thead>
-              <tbody>
-                ${data.stock.map(item => `
-                  <tr>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.stock}</td>
-                    <td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td>
-                    <td>${item.localidad}</td>
-                    <td>${item.establecimiento}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaStock2', 'stock_${region.toLowerCase()}.pdf')">📥 Descargar en PDF</button>
-        </div>
-
-        <div style="margin-top: 30px;">
-          <h3>📥 Ingresos - ${region}</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Localidad</th></tr>
-              </thead>
-              <tbody>
-                ${data.ingresos.map(item => `
-                  <tr>
-                    <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.cantidad}</td>
-                    <td>${item.localidad}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaIngresos2', 'ingresos_${region.toLowerCase()}.pdf')">📥 Descargar en PDF</button>
-        </div>
-
-        <div style="margin-top: 30px;">
-          <h3>📤 Egresos - ${region}</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Localidad</th></tr>
-              </thead>
-              <tbody>
-                ${data.egresos.map(item => `
-                  <tr>
-                    <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.cantidad}</td>
-                    <td>${item.localidad}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaEgresos2', 'egresos_${region.toLowerCase()}.pdf')">📥 Descargar en PDF</button>
-        </div>
-
-        <div style="margin-top: 30px;">
-          <h3>🏥 Seleccione una Localidad</h3>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            ${Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {}).map(localidad => 
-              `<button class="btn btn-outline" onclick="navegarALocalidad('${region}', '${localidad}')">${localidad}</button>`
-            ).join('')}
-          </div>
-        </div>
-      `;
-      document.getElementById('tablasNivel2').innerHTML = html;
-    }
-
-    function renderizarTablasNivel3(data, region, localidad, establecimiento) {
-      const titulo = establecimiento ? `${region} - ${localidad} - ${establecimiento}` : `${region} - ${localidad}`;
-      const html = `
-        <div style="margin-top: 30px;">
-          <h3>📊 Stock - ${titulo}</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Establecimiento</th></tr>
-              </thead>
-              <tbody>
-                ${data.stock.map(item => `
-                  <tr>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.stock}</td>
-                    <td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td>
-                    <td>${item.establecimiento}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaStock3', 'stock_${localidad.toLowerCase()}.pdf')">📥 Descargar en PDF</button>
-        </div>
-
-        <div style="margin-top: 30px;">
-          <h3>📥 Ingresos - ${titulo}</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th></tr>
-              </thead>
-              <tbody>
-                ${data.ingresos.map(item => `
-                  <tr>
-                    <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.cantidad}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaIngresos3', 'ingresos_${localidad.toLowerCase()}.pdf')">📥 Descargar en PDF</button>
-        </div>
-
-        <div style="margin-top: 30px;">
-          <h3>📤 Egresos - ${titulo}</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th></tr>
-              </thead>
-              <tbody>
-                ${data.egresos.map(item => `
-                  <tr>
-                    <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
-                    <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
-                    <td>${item.lote}</td>
-                    <td>${item.cantidad}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          <button class="btn btn-outline" onclick="descargarPDF('tablaEgresos3', 'egresos_${localidad.toLowerCase()}.pdf')">📥 Descargar en PDF</button>
-        </div>
-      `;
-      document.getElementById('tablasNivel3').innerHTML = html;
-    }
-
-    function actualizarEstadisticas(stock) {
-      const hoy = new Date();
-      let totalDosis = 0;
-      let proximosVencer = 0;
-      let vencidos = 0;
-
-      stock.forEach(item => {
-        totalDosis += parseInt(item.stock) || 0;
-        const vencimiento = new Date(item.vencimiento);
-        if (vencimiento < hoy) {
-          vencidos += parseInt(item.stock) || 0;
-        } else if ((vencimiento - hoy) / (1000 * 60 * 60 * 24) <= 30) {
-          proximosVencer += parseInt(item.stock) || 0;
-        }
-      });
-
-      document.getElementById('totalDosis').textContent = totalDosis;
-      document.getElementById('proximosVencer').textContent = proximosVencer;
-      document.getElementById('vencidos').textContent = vencidos;
-    }
-
-    // ============================================================================
-    // FUNCIONES DE MOVIMIENTOS
-    // ============================================================================
-
-    function abrirModalMov(modo) {
-      estadoActual.modoMovimiento = modo;
-      document.getElementById('modalMov').style.display = 'block';
-      document.getElementById('modalTitulo').innerText = modo === 'Egreso' ? '📤 Registrar Egreso' : '📥 Registrar Ingreso';
-      document.getElementById('camposEgreso').style.display = modo === 'Egreso' ? 'block' : 'none';
-      document.getElementById('camposIngreso').style.display = modo === 'Ingreso' ? 'block' : 'none';
-      document.getElementById('vencimientoRow').style.display = modo === 'Ingreso' ? 'flex' : 'none';
-      document.getElementById('btnSubmit').style.background = modo === 'Egreso' ? '#10b981' : '#8b5cf6';
-    }
-
-    function cerrarModalMov() {
-      document.getElementById('modalMov').style.display = 'none';
-      document.getElementById('formMov').reset();
-    }
-
-    function cerrarModalConfirmacion() {
-      document.getElementById('modalConfirmacion').style.display = 'none';
-    }
-
-    async function registrarMovimiento(event) {
-      event.preventDefault();
-      const vacuna = document.getElementById('vacuna').value;
-      const laboratorio = document.getElementById('laboratorio').value;
-      const cantidad = document.getElementById('cantidad').value;
-      const responsable = document.getElementById('responsable').value;
-      const region = document.getElementById('regionMov').value;
-      const localidad = document.getElementById('localidadMov').value;
-      const establecimiento = document.getElementById('establecimientoMov').value;
-      const observaciones = document.getElementById('observaciones').value;
-
-      let lote, vencimiento;
-      if (estadoActual.modoMovimiento === 'Ingreso') {
-        lote = document.getElementById('loteInput').value;
-        vencimiento = document.getElementById('vencimiento').value;
-      } else {
-        lote = document.getElementById('loteSelect').value;
-      }
-
-      if (!vacuna || !laboratorio || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
-        alert('Por favor completa todos los campos requeridos');
-        return;
-      }
-
-      mostrarLoading(true);
-      try {
-        let url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${estadoActual.modoMovimiento}&vacuna=${encodeURIComponent(vacuna)}&laboratorio=${encodeURIComponent(laboratorio)}&lote=${encodeURIComponent(lote)}&cantidad=${cantidad}&responsable=${encodeURIComponent(responsable)}&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}&establecimiento=${encodeURIComponent(establecimiento)}&observaciones=${encodeURIComponent(observaciones)}`;
+    // NAVEGACIÓN
+    function renderMap(level) {
+        const mapImg = document.getElementById('active-map');
+        const mapNav = document.getElementById('nav-map');
+        const title = document.getElementById('map-title');
         
-        if (estadoActual.modoMovimiento === 'Ingreso') {
-          url += `&vencimiento=${encodeURIComponent(vencimiento)}`;
+        mapNav.innerHTML = '';
+        
+        if (level === 'provincia') {
+            mapImg.src = MAPAS_BASE64.PROVINCIA;
+            title.innerText = "Mapa de Neuquén - Seleccione Región";
+            mapNav.innerHTML = `
+                <area shape="poly" coords="300,400,450,400,450,500,300,500" onclick="selectRegion('Confluencia')" alt="Confluencia">
+                <area shape="poly" coords="300,300,450,300,450,380,300,380" onclick="selectRegion('Vaca Muerta')" alt="Vaca Muerta">
+                <area shape="poly" coords="100,100,250,100,250,250,100,250" onclick="alert('Región Norte en construcción')" alt="Norte">
+            `;
+        } else if (level === 'region') {
+            mapImg.src = currentState.region === 'Confluencia' ? MAPAS_BASE64.CONFLUENCIA : MAPAS_BASE64.VACA_MUERTA;
+            title.innerText = `Región ${currentState.region} - Seleccione Localidad`;
+            if (currentState.region === 'Confluencia') {
+                mapNav.innerHTML = `
+                    <area shape="circle" coords="150,150,30" onclick="selectLocalidad('Centenario')" alt="Centenario">
+                    <area shape="circle" coords="250,250,30" onclick="selectLocalidad('Vista Alegre')" alt="Vista Alegre">
+                `;
+            }
         }
+    }
 
-        const response = await fetch(url);
-        const result = await response.json();
+    function selectRegion(region) {
+        if (GEOGRAFIA[region].status === 'construccion') {
+            alert("Esta región se encuentra actualmente en construcción.");
+            return;
+        }
+        currentState.region = region;
+        currentState.view = 'region';
+        updateBreadcrumb();
+        renderMap('region');
+        loadData();
+    }
 
-        if (result.result) {
-          cerrarModalMov();
-          document.getElementById('confirmacionMensaje').innerText = `✅ ${estadoActual.modoMovimiento} registrado correctamente.`;
-          document.getElementById('modalConfirmacion').style.display = 'block';
-          cargarDatos();
+    function selectLocalidad(loc) {
+        currentState.localidad = loc;
+        currentState.view = 'localidad';
+        updateBreadcrumb();
+        document.getElementById('establecimiento-selector').style.display = 'block';
+        document.getElementById('current-loc-name').innerText = loc;
+        
+        const btnGroup = document.getElementById('btn-group-establecimientos');
+        btnGroup.innerHTML = GEOGRAFIA[currentState.region].localidades[loc].map(est => `
+            <button class="btn btn-outline-primary btn-sm" onclick="selectEstablecimiento('${est}')">${est}</button>
+        `).join('');
+        loadData();
+    }
+
+    function selectEstablecimiento(est) {
+        currentState.establecimiento = est;
+        updateBreadcrumb();
+        loadData();
+    }
+
+    function navigateTo(level) {
+        if (level === 'provincia') {
+            currentState = { view: 'provincia', region: null, localidad: null, establecimiento: null };
+            document.getElementById('establecimiento-selector').style.display = 'none';
+        }
+        updateBreadcrumb();
+        renderMap(level === 'provincia' ? 'provincia' : 'region');
+        loadData();
+    }
+
+    // FORMULARIO Y REGISTRO
+    function openModal(tipo) {
+        document.getElementById('form-tipo').value = tipo;
+        document.getElementById('modalTitle').innerText = `Registrar ${tipo}`;
+        document.getElementById('vencimiento-group').style.display = tipo === 'Ingreso' ? 'block' : 'none';
+        
+        if (tipo === 'Ingreso') {
+            document.getElementById('form-lote-text').style.display = 'block';
+            document.getElementById('form-lote-select').style.display = 'none';
         } else {
-          alert('Error: ' + result.message);
+            document.getElementById('form-lote-text').style.display = 'none';
+            document.getElementById('form-lote-select').style.display = 'block';
+            populateLotes();
         }
-      } catch (error) {
-        alert('Error de conexión: ' + error);
-      } finally {
-        mostrarLoading(false);
-      }
+
+        const modal = new bootstrap.Modal(document.getElementById('registroModal'));
+        modal.show();
     }
 
-    function cargarLotesPorVacuna() {
-      // Implementar lógica para cargar lotes disponibles
+    function populateLotes() {
+        const vac = document.getElementById('form-vacuna').value;
+        const est = document.getElementById('form-establecimiento').value;
+        const loteSelect = document.getElementById('form-lote-select');
+        
+        const lotesDisponibles = allStockData.filter(s => s.vacuna === vac && s.stock > 0);
+        loteSelect.innerHTML = '<option value="">Seleccione Lote</option>' + 
+            lotesDisponibles.map(l => `<option value="${l.lote}">${l.lote} (Stock: ${l.stock})</option>`).join('');
     }
 
-    // ============================================================================
-    // FUNCIONES DE DESCARGA DE PDF
-    // ============================================================================
+    function submitRegistro() {
+        const btn = document.getElementById('btn-submit-registro');
+        btn.disabled = true;
+        showLoading(true);
 
-    function descargarPDF(tableId, nombreArchivo) {
-      const element = document.querySelector(`#${tableId}`);
-      if (!element) {
-        alert('No se encontró la tabla');
-        return;
-      }
+        const data = {
+            action: 'registrarMovimiento',
+            tipoMovimiento: document.getElementById('form-tipo').value,
+            region: document.getElementById('form-region').value,
+            localidad: document.getElementById('form-localidad').value,
+            establecimiento: document.getElementById('form-establecimiento').value,
+            vacuna: document.getElementById('form-vacuna').value,
+            laboratorio: document.getElementById('form-laboratorio').value,
+            lote: document.getElementById('form-tipo').value === 'Ingreso' ? 
+                  document.getElementById('form-lote-text').value : 
+                  document.getElementById('form-lote-select').value,
+            cantidad: document.getElementById('form-cantidad').value,
+            vencimiento: document.getElementById('form-vencimiento').value,
+            responsable: document.getElementById('form-responsable').value
+        };
 
-      html2pdf().set({
-        margin: 10,
-        filename: nombreArchivo,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, logging: false, dpi: 192, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).from(element).save().then(() => {
-        guardarPDFEnDrive(nombreArchivo);
-      });
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.success) {
+                alert(`Registro exitoso. ID Trazabilidad: ${result.idTrazabilidad}`);
+                bootstrap.Modal.getInstance(document.getElementById('registroModal')).hide();
+                loadData();
+            }
+            btn.disabled = false;
+            showLoading(false);
+        })
+        .catch(err => {
+            alert("Error al registrar");
+            btn.disabled = false;
+            showLoading(false);
+        });
     }
 
-    async function guardarPDFEnDrive(nombreArchivo) {
-      // Implementar lógica para guardar en Drive
-      console.log(`Guardando ${nombreArchivo} en Drive...`);
+    // UTILIDADES
+    function showLoading(show) {
+        document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
     }
 
-    // ============================================================================
-    // FUNCIONES AUXILIARES
-    // ============================================================================
-
-    function mostrarLoading(mostrar) {
-      document.getElementById('loading').style.display = mostrar ? 'block' : 'none';
+    function downloadPDF(tableId) {
+        const element = document.getElementById(tableId);
+        if (!element) {
+            alert("No se encontró la tabla para exportar.");
+            return;
+        }
+        const opt = {
+            margin: 1,
+            filename: `reporte_${tableId}_${new Date().getTime()}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
     }
 
-    // Cargar datos al iniciar
-    window.onload = () => {
-      cargarDatos();
-    };
-  </script>
+    function showNormativa() {
+        new bootstrap.Modal(document.getElementById('normativaModal')).show();
+    }
 
+    function getStatusBadge(stock) {
+        if (stock <= 0) return '<span class="status-badge bg-danger text-white">Agotado</span>';
+        if (stock < 50) return '<span class="status-badge bg-warning text-dark">Crítico</span>';
+        return '<span class="status-badge bg-success text-white">Suficiente</span>';
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('es-AR');
+    }
+
+    function updateBreadcrumb() {
+        const nav = document.getElementById('breadcrumb-nav');
+        let html = `<li class="breadcrumb-item"><a href="#" onclick="navigateTo('provincia')">Provincia</a></li>`;
+        if (currentState.region) html += `<li class="breadcrumb-item"><a href="#" onclick="navigateTo('region')">${currentState.region}</a></li>`;
+        if (currentState.localidad) html += `<li class="breadcrumb-item active">${currentState.localidad}</li>`;
+        if (currentState.establecimiento) html += `<li class="breadcrumb-item active">${currentState.establecimiento}</li>`;
+        nav.innerHTML = html;
+    }
+
+    function populateSelects() {
+        const regSelect = document.getElementById('form-region');
+        regSelect.innerHTML = '<option value="">Seleccione Región</option>' + 
+            Object.keys(GEOGRAFIA).map(r => `<option value="${r}">${r}</option>`).join('');
+
+        const vacSelect = document.getElementById('form-vacuna');
+        vacSelect.innerHTML = '<option value="">Seleccione Vacuna</option>' + 
+            CATALOGO.vacunas.map(v => `<option value="${v}">${v}</option>`).join('');
+    }
+
+    function updateLocalidades() {
+        const reg = document.getElementById('form-region').value;
+        const locSelect = document.getElementById('form-localidad');
+        if (!reg || !GEOGRAFIA[reg].localidades) {
+            locSelect.innerHTML = '<option value="">N/A</option>';
+            return;
+        }
+        locSelect.innerHTML = '<option value="">Seleccione Localidad</option>' + 
+            Object.keys(GEOGRAFIA[reg].localidades).map(l => `<option value="${l}">${l}</option>`).join('');
+    }
+
+    function updateEstablecimientos() {
+        const reg = document.getElementById('form-region').value;
+        const loc = document.getElementById('form-localidad').value;
+        const estSelect = document.getElementById('form-establecimiento');
+        if (!reg || !loc) {
+            estSelect.innerHTML = '<option value="">N/A</option>';
+            return;
+        }
+        estSelect.innerHTML = '<option value="">Seleccione Establecimiento</option>' + 
+            GEOGRAFIA[reg].localidades[loc].map(e => `<option value="${e}">${e}</option>`).join('');
+    }
+
+    function updateLaboratorios() {
+        const vac = document.getElementById('form-vacuna').value;
+        const labSelect = document.getElementById('form-laboratorio');
+        const labs = CATALOGO.laboratorios[vac] || CATALOGO.laboratorios["DEFAULT"];
+        labSelect.innerHTML = labs.map(l => `<option value="${l}">${l}</option>`).join('');
+    }
+</script>
 </body>
 </html>
