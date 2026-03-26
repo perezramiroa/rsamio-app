@@ -307,7 +307,7 @@
     // ============================================================================
     // CONFIGURACIÓN GLOBAL
     // ============================================================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyj9v8C1bLhIHfgAVS9k9i4gUMfgCkZ-d8VcGR8xLolyimrh9clOaAttn1bQSBEEmE3/exec'; // Reemplazar con tu URL real
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbynev58h0IcMKQu-YFdEsqXk6zyd9ouGDGk8aPZ8v5BHfd__PiJQ8jOYgXPo_swckxz/exec'; // Reemplazar con tu URL real
     let estadoActual = {
       vista: 'inventario',
       region: null,
@@ -443,7 +443,7 @@
       // Mostrar botones de establecimientos
       const establecimientos = ESTRUCTURA_GEOGRAFICA[region][localidad] || [];
       const menuHTML = establecimientos.map(est => 
-        `<button class="establecimiento-btn" onclick="navegarAEstablecimiento('${region}', '${localidad}', '${est}')">${est}</button>`
+      `<button class="establecimiento-btn" onclick="navegarAEstablecimiento('${region}', '${localidad}', '${est}', event)">${est}</button>`
       ).join('');
       document.getElementById('establecimientos-menu').innerHTML = menuHTML;
 
@@ -460,24 +460,27 @@
       }
     }
 
-    async function navegarAEstablecimiento(region, localidad, establecimiento) {
-      estadoActual.establecimiento = establecimiento;
-      
-      // Actualizar botones de establecimiento
-      document.querySelectorAll('.establecimiento-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+  async function navegarAEstablecimiento(region, localidad, establecimiento, event) {
+  estadoActual.establecimiento = establecimiento;
+  
+  // Actualizar botones de establecimiento - USANDO event.target
+  document.querySelectorAll('.establecimiento-btn').forEach(btn => btn.classList.remove('active'));
+  if (event && event.target) {
+    event.target.classList.add('active');
+  }
 
-      mostrarLoading(true);
-      try {
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}&establecimiento=${encodeURIComponent(establecimiento)}`);
-        const data = await response.json();
-        renderizarTablasNivel3(data, region, localidad, establecimiento);
-      } catch (error) {
-        console.error('Error al cargar datos de establecimiento:', error);
-      } finally {
-        mostrarLoading(false);
-      }
-    }
+  mostrarLoading(true);
+  try {
+    const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados&api_key=${API_KEY}&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}&establecimiento=${encodeURIComponent(establecimiento)}`);
+    const data = await response.json();
+    renderizarTablasNivel3(data, region, localidad, establecimiento);
+  } catch (error) {
+    console.error('Error al cargar datos de establecimiento:', error);
+    alert('Error al cargar los datos');
+  } finally {
+    mostrarLoading(false);
+  }
+}
 
     // ============================================================================
     // FUNCIONES DE RENDERIZADO
@@ -879,54 +882,103 @@
     // FUNCIONES DE DESCARGA DE PDF
     // ============================================================================
 
-    function descargarPDF(tableId, nombreArchivo) {
-      // Buscar todas las tablas visibles
-      const tables = Array.from(document.querySelectorAll('table')).filter(t => t.offsetParent !== null);
-      
-      if (tables.length === 0) {
-        alert('No se encontró ninguna tabla para exportar');
-        return;
-      }
+   async function descargarPDF(tableId, nombreArchivo) {
+  // Buscar la tabla específica por su ID
+  const element = document.getElementById(tableId);
+  
+  if (!element) {
+    alert(`No se encontró la tabla con ID: ${tableId}`);
+    return;
+  }
 
-      // Usar la última tabla visible
-      const element = tables[tables.length - 1];
-      
-      // Crear un contenedor temporal con título y fecha
-      const tempContainer = document.createElement('div');
-      tempContainer.style.padding = '20px';
-      tempContainer.innerHTML = `
-        <h2>${nombreArchivo.replace(/_/g, ' ').replace('.pdf', '').toUpperCase()}</h2>
-        <p><strong>Fecha de Generación:</strong> ${new Date().toLocaleDateString('es-AR')} ${new Date().toLocaleTimeString('es-AR')}</p>
-        <p><strong>Sistema:</strong> RSAMIO - Control de Stock de Vacunas</p>
-        <hr style="margin: 20px 0;">
-      `;
-      
-      // Clonar la tabla para no afectar el DOM original
-      const tableClone = element.cloneNode(true);
-      tempContainer.appendChild(tableClone);
-      
-      // Agregar al DOM temporalmente
-      const originalDisplay = tempContainer.style.display;
-      tempContainer.style.display = 'none';
-      document.body.appendChild(tempContainer);
+  // Crear un contenedor temporal con título y fecha
+  const tempContainer = document.createElement('div');
+  tempContainer.style.padding = '20px';
+  tempContainer.style.backgroundColor = 'white';
+  tempContainer.innerHTML = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h2 style="color: #00384d;">${nombreArchivo.replace(/_/g, ' ').replace('.pdf', '').toUpperCase()}</h2>
+      <p><strong>Fecha de Generación:</strong> ${new Date().toLocaleDateString('es-AR')} ${new Date().toLocaleTimeString('es-AR')}</p>
+      <p><strong>Sistema:</strong> RSAMIO - Control de Stock de Vacunas</p>
+      <hr style="margin: 20px 0;">
+    </div>
+  `;
+  
+  // Clonar la tabla para no afectar el DOM original
+  const tableClone = element.cloneNode(true);
+  tempContainer.appendChild(tableClone);
+  
+  // Agregar al DOM temporalmente
+  document.body.appendChild(tempContainer);
+  
+  try {
+    // Generar PDF como blob
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: nombreArchivo,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, logging: false, dpi: 192, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    // Usar html2pdf con promesa para obtener el blob
+    const pdfBlob = await html2pdf().set(opt).from(tempContainer).outputPdf('blob');
+    
+    // Descargar localmente
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(pdfBlob);
+    link.href = url;
+    link.download = nombreArchivo;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Convertir blob a base64 para enviar a Drive
+    const reader = new FileReader();
+    reader.onloadend = function() {
+      const base64Data = reader.result;
+      // Enviar al backend para guardar en Drive
+      guardarPDFEnDrive(nombreArchivo, base64Data);
+    };
+    reader.readAsDataURL(pdfBlob);
+    
+    alert('PDF descargado correctamente');
+    
+  } catch (error) {
+    console.error('Error en PDF:', error);
+    alert('Error al generar PDF: ' + error.message);
+  } finally {
+    // Limpiar el DOM
+    document.body.removeChild(tempContainer);
+  }
+}
 
-      // Generar PDF
-      html2pdf().set({
-        margin: [10, 10, 10, 10],
-        filename: nombreArchivo,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, logging: false, dpi: 192, letterRendering: true, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).from(tempContainer).save().then(() => {
-        document.body.removeChild(tempContainer);
-        guardarPDFEnDrive(nombreArchivo);
-        alert('PDF descargado correctamente');
-      }).catch(error => {
-        console.error('Error en PDF:', error);
-        document.body.removeChild(tempContainer);
-        alert('Error al generar PDF: ' + error.message);
-      });
+// Nueva función para guardar en Drive
+async function guardarPDFEnDrive(nombreArchivo, base64Data) {
+  try {
+    // Usar POST para enviar datos grandes
+    const response = await fetch(`${APPS_SCRIPT_URL}?action=guardarPDFEnDrive&api_key=TU_CLAVE_AQUI`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nombreArchivo: nombreArchivo,
+        pdfData: base64Data
+      })
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      console.log(`✓ ${nombreArchivo} guardado en Google Drive: ${result.fileUrl}`);
+    } else {
+      console.log(`⚠️ No se pudo guardar en Drive: ${result.error}`);
     }
+  } catch (error) {
+    console.log(`Nota: PDF descargado localmente. Error al guardar en Drive: ${error.message}`);
+  }
+}
 
     async function guardarPDFEnDrive(nombreArchivo) {
       try {
