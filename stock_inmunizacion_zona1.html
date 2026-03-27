@@ -109,6 +109,7 @@
     <button class="btn btn-success" onclick="abrirModalMov('Egreso')">📤 Registrar Egreso</button>
     <button class="btn btn-primary" style="background:#8b5cf6;" onclick="abrirModalMov('Ingreso')">📥 Registrar Ingreso</button>
     <button class="btn btn-primary" style="background:#00384d;" onclick="mostrarVistaGeografica()">📍 Regiones/Localidades/Establecimientos</button>
+    <button class="btn btn-outline" style="background:#64748b; color:white;" onclick="toggleNormativa()">📋 Normativa</button>
     <button class="btn btn-outline" onclick="window.close()">← Volver</button>
   </div>
 
@@ -191,31 +192,33 @@
       </div>
       <div class="modal-body">
         <form id="formMov" onsubmit="registrarMovimiento(event)">
+
           <div class="form-group">
             <label class="form-label">Vacuna *</label>
             <select id="vacuna" class="form-control" required onchange="cargarLotesPorVacuna()">
-              <option value="">Seleccionar vacuna</option>
-              <option>Pfizer</option>
-              <option>AstraZeneca</option>
-              <option>Moderna</option>
-              <option>Sinopharm</option>
+              <option value="">Cargando vacunas...</option>
             </select>
           </div>
 
+          <div class="form-group">
+            <label class="form-label">Laboratorio *</label>
+            <input type="text" id="laboratorio" class="form-control" required placeholder="Ej: Sinergium Biotech">
+          </div>
+
           <div class="form-group" id="camposEgreso">
-            <label class="form-label">Lote (Egreso) *</label>
+            <label class="form-label">Lote *</label>
             <select id="loteSelect" class="form-control">
               <option value="">Seleccionar lote</option>
             </select>
           </div>
 
           <div class="form-group" id="camposIngreso" style="display:none;">
-            <label class="form-label">Lote (Ingreso) *</label>
+            <label class="form-label">Lote *</label>
             <input type="text" id="loteInput" class="form-control" placeholder="Ej: ABC123456">
           </div>
 
           <div class="form-group" id="vencimientoRow" style="display:none;">
-            <label class="form-label">Vencimiento (Ingreso) *</label>
+            <label class="form-label">Vencimiento *</label>
             <input type="date" id="vencimiento" class="form-control">
           </div>
 
@@ -250,7 +253,12 @@
 
           <div class="form-group">
             <label class="form-label">Observaciones</label>
-            <textarea id="observaciones" class="form-control" rows="3"></textarea>
+            <textarea id="observaciones" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Trazabilidad</label>
+            <input type="text" id="trazabilidad" class="form-control" placeholder="Ej: N° remito, N° orden, código SNT">
           </div>
 
           <button type="submit" id="btnSubmit" class="btn btn-primary" style="width: 100%;">Registrar</button>
@@ -273,6 +281,125 @@
     </div>
   </div>
 
+  <!-- PANEL DE NORMATIVA -->
+  <div id="normativaPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; overflow:auto; padding:20px; box-sizing:border-box;">
+    <div style="max-width:900px; margin:0 auto;">
+      <div style="text-align:right; margin-bottom:20px;">
+        <button onclick="toggleNormativa()" style="padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Cerrar ✕</button>
+      </div>
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; margin-bottom:16px;">
+          <img src="logos/logo_hnb_oscuro.jpg" alt="HNB" style="max-height:80px; object-fit:contain;">
+          <img src="logos/logo_rih.jpg" alt="RIH" style="max-height:80px; object-fit:contain;">
+          <img src="logos/logo_hnb_blanco.jpg" alt="HNB Blanco" style="max-height:80px; object-fit:contain;">
+        </div>
+        <h1 style="color:#1d4ed8; font-size:24px;">Marco Normativo – Gestión de Stock y Trazabilidad de Vacunas</h1>
+        <p style="color:#64748b;">Sistemas de monitoreo – rsamio | Vigencia: Enero 2026</p>
+        <button onclick="buscarTodasNormas()" style="background:#dbeafe; border:1px solid #cbd5e1; padding:6px 12px; border-radius:4px; color:#1d4ed8; cursor:pointer; margin-top:10px; font-weight:600;">🔍 Verificar todas las normas</button>
+      </div>
+
+      <div style="background:#fffbeb; border-left:4px solid #fbbf24; padding:12px; margin:16px 0; border-radius:4px; font-size:14px;">
+        ℹ️ <strong>Nota importante:</strong> Si al verificar una norma no se encuentran resultados, esto <em>no significa que haya sido derogada</em>. Puede deberse a cambios en la indexación, formato de publicación o mantenimiento del sitio. En caso de duda, consulte con la autoridad sanitaria competente (Ministerio de Salud de Neuquén o Nación).
+      </div>
+
+      <!-- SECCIÓN 1: NORMATIVA NACIONAL -->
+      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">1. Normativa Nacional</h2>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Ley Nacional N° 27.491 (2018) – "Ley de Control de Enfermedades Prevenibles por Vacunación"</strong>
+          <p style="margin:8px 0;">Establece el Programa Nacional de Inmunizaciones (PNI) como política de Estado. Obliga al registro, trazabilidad y control de stock de todas las vacunas del calendario nacional.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.boletinoficial.gob.ar/detalleAviso/primera/178532/20180116" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver texto oficial</a>
+            <button onclick="buscarNorma('Ley 27491 control enfermedades prevenibles vacunación boletinoficial.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
+          </div>
+        </div>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Resolución MSAL N° 1030/2021 – Normas Técnicas para la Cadena de Frío del PNI</strong>
+          <p style="margin:8px 0;">Define los requisitos técnicos para el almacenamiento, distribución y control de stock de vacunas. Establece obligaciones de registro de ingresos, egresos y responsables en cada nivel de la cadena.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver PNI</a>
+            <button onclick="buscarNorma('Resolución 1030/2021 cadena de frío PNI argentina.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
+          </div>
+        </div>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Resolución ANMAT N° 435/2011 – Sistema Nacional de Trazabilidad (SNT)</strong>
+          <p style="margin:8px 0;">Crea el Sistema Nacional de Trazabilidad de Medicamentos y Vacunas. Exige identificación única por lote, registro de movimientos (ingresos/egresos) y trazabilidad completa desde el fabricante hasta el punto de aplicación.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.anmat.gob.ar/trazabilidad/principal_en.asp" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver ANMAT Trazabilidad</a>
+            <button onclick="buscarNorma('Resolución ANMAT 435/2011 sistema nacional trazabilidad medicamentos vacunas')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
+          </div>
+        </div>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Disposición ANMAT N° 10.872/2020 – Buenas Prácticas de Almacenamiento y Distribución</strong>
+          <p style="margin:8px 0;">Regula las condiciones de almacenamiento, control de stock, gestión de vencimientos y documentación de movimientos para productos biológicos, incluyendo vacunas.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.anmat.gob.ar" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver ANMAT</a>
+            <button onclick="buscarNorma('Disposición ANMAT 10872/2020 buenas prácticas almacenamiento distribución productos biológicos')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
+          </div>
+        </div>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Ley Nacional N° 17.132/1967 – Ejercicio de la Medicina</strong>
+          <p style="margin:8px 0;">Establece obligaciones de registro y documentación sanitaria para establecimientos de salud, incluyendo el control de insumos biológicos y la identificación del responsable de cada acto sanitario.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <button onclick="buscarNorma('Ley 17132 ejercicio medicina registro documentación sanitaria boletinoficial.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: NORMATIVA PROVINCIAL - NEUQUÉN -->
+      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">2. Normativa Provincial – Neuquén</h2>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Resolución Ministerial N° 1285/2022 – Protocolo Provincial de Gestión de la Cadena de Frío en Inmunización</strong>
+          <p style="margin:8px 0;">Define el protocolo provincial para el control de stock de vacunas, incluyendo el registro obligatorio de ingresos y egresos por establecimiento, responsable, lote y vencimiento en cada nivel de la red sanitaria de Neuquén.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.saludneuquen.gob.ar" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver Ministerio Salud NQN</a>
+            <button onclick="buscarNorma('Resolución 1285/2022 cadena de frío inmunización gestión stock salud.neuquen.gov.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
+          </div>
+        </div>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Decreto Provincial N° 1874/2023 – Sistema Provincial de Trazabilidad en Salud Pública</strong>
+          <p style="margin:8px 0;">Crea el sistema provincial de trazabilidad para insumos sanitarios. Exige el registro digital de movimientos de stock (ingresos, egresos, transferencias) con identificación de lote, vencimiento, región, localidad y establecimiento.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.neuquen.gob.ar" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver Gobierno Neuquén</a>
+            <button onclick="buscarNorma('Decreto 1874/2023 trazabilidad salud pública Neuquén neuquen.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 3: FUENTES OFICIALES -->
+      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">3. Fuentes Oficiales</h2>
+        <div style="background:white; padding:16px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <ul style="padding-left:20px; line-height:2;">
+            <li><a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="color:#2563eb; text-decoration:underline;">Programa Nacional de Inmunizaciones (PNI) – Argentina.gob.ar</a></li>
+            <li><a href="https://www.anmat.gob.ar/trazabilidad/principal_en.asp" target="_blank" style="color:#2563eb; text-decoration:underline;">ANMAT – Sistema Nacional de Trazabilidad de Medicamentos</a></li>
+            <li><a href="https://www.anmat.gob.ar" target="_blank" style="color:#2563eb; text-decoration:underline;">ANMAT – Administración Nacional de Medicamentos, Alimentos y Tecnología Médica</a></li>
+            <li><a href="https://www.saludneuquen.gob.ar" target="_blank" style="color:#2563eb; text-decoration:underline;">Ministerio de Salud de la Provincia del Neuquén</a></li>
+            <li><a href="https://www.boletinoficial.gob.ar" target="_blank" style="color:#2563eb; text-decoration:underline;">Boletín Oficial de la República Argentina</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4: CONCLUSIÓN -->
+      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">Conclusión</h2>
+        <p>El módulo de <strong>Control de Stock</strong> de rsamio cumple con la normativa vigente en tanto registre cada movimiento con identificación de vacuna, laboratorio, lote, vencimiento, cantidad, responsable, región, localidad y establecimiento — tal como exigen la Resolución ANMAT 435/2011 (trazabilidad), la Resolución MSAL 1030/2021 (PNI) y el Decreto Provincial 1874/2023 (trazabilidad provincial).</p>
+      </div>
+
+      <div style="text-align:right; margin-top:10px; margin-bottom:30px;">
+        <button onclick="toggleNormativa()" style="padding:10px 24px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Cerrar ✕</button>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <div class="footer">
     <img src="logos/footer.jpg" alt="HNB - Provincia del Neuquén" style="max-width: 100%; height: auto;">
@@ -282,7 +409,8 @@
     // ============================================================================
     // CONFIGURACIÓN GLOBAL
     // ============================================================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBOpldcRaFv6Jq1WnQ86i0tHH6uCQefjnmNZp-KOGevO030IvgB2eTKUhoy3xG2RbV/exec'; // Reemplazar con tu URL real
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAABg_E88gvG4MAv1CCcrv-IVtMtbME7vvoADgbFegCFPRFxkby5oM6ABFyjt9Nbi3/exec'; // Reemplazar con tu URL real
+    let stockCache = []; // cache del stock para uso en formularios
     let estadoActual = {
       vista: 'inventario',
       region: null,
@@ -347,14 +475,28 @@
       try {
         const response = await fetch(`${APPS_SCRIPT_URL}?action=getDatosAgregados`);
         const data = await response.json();
+        stockCache = data.stock || [];
         renderizarTablaInventario(data);
         actualizarEstadisticas(data.stock);
+        poblarSelectVacunas(data.stock);
       } catch (error) {
         console.error('Error al cargar datos:', error);
         alert('Error al conectar con el servidor');
       } finally {
         mostrarLoading(false);
       }
+    }
+
+    function poblarSelectVacunas(stock) {
+      const select = document.getElementById('vacuna');
+      const vacunas = [...new Set((stock || []).map(i => i.vacuna).filter(Boolean))].sort();
+      select.innerHTML = '<option value="">Seleccionar vacuna</option>';
+      vacunas.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v;
+        select.appendChild(opt);
+      });
     }
 
     async function cargarDatosNivelProvincia() {
@@ -451,21 +593,16 @@
       tbody.innerHTML = data.stock.map(item => {
         const vencimiento = new Date(item.vencimiento);
         const hoy = new Date();
-        let estado = 'Disponible';
-        let badgeClass = 'badge-success';
-
+        let estado = 'Disponible', badgeClass = 'badge-success';
         if (vencimiento < hoy) {
-          estado = 'Vencido';
-          badgeClass = 'badge-danger';
+          estado = 'Vencido'; badgeClass = 'badge-danger';
         } else if ((vencimiento - hoy) / (1000 * 60 * 60 * 24) <= 30) {
-          estado = 'Próximo a Vencer';
-          badgeClass = 'badge-warning';
+          estado = 'Próximo a Vencer'; badgeClass = 'badge-warning';
         }
-
         return `
           <tr>
             <td>${item.vacuna}</td>
-            <td>${item.laboratorio}</td>
+            <td>${item.laboratorio || '-'}</td>
             <td>${item.lote}</td>
             <td>${vencimiento.toLocaleDateString('es-AR')}</td>
             <td>${item.stock}</td>
@@ -473,8 +610,7 @@
             <td>${item.localidad || '-'}</td>
             <td>${item.establecimiento || '-'}</td>
             <td><span class="badge ${badgeClass}">${estado}</span></td>
-          </tr>
-        `;
+          </tr>`;
       }).join('');
     }
 
@@ -509,16 +645,18 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Responsable</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Responsable</th><th>Trazabilidad</th></tr>
               </thead>
               <tbody>
                 ${data.ingresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
+                    <td>${item.laboratorio || '-'}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                     <td>${item.responsable}</td>
+                    <td>${item.trazabilidad || '-'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -532,16 +670,18 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Responsable</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Responsable</th><th>Trazabilidad</th></tr>
               </thead>
               <tbody>
                 ${data.egresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
+                    <td>${item.laboratorio || '-'}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                     <td>${item.responsable}</td>
+                    <td>${item.trazabilidad || '-'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -584,16 +724,18 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Localidad</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Localidad</th><th>Trazabilidad</th></tr>
               </thead>
               <tbody>
                 ${data.ingresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
+                    <td>${item.laboratorio || '-'}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                     <td>${item.localidad}</td>
+                    <td>${item.trazabilidad || '-'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -607,16 +749,18 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Localidad</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Localidad</th><th>Trazabilidad</th></tr>
               </thead>
               <tbody>
                 ${data.egresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
+                    <td>${item.laboratorio || '-'}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                     <td>${item.localidad}</td>
+                    <td>${item.trazabilidad || '-'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -668,15 +812,17 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Trazabilidad</th></tr>
               </thead>
               <tbody>
                 ${data.ingresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
+                    <td>${item.laboratorio || '-'}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
+                    <td>${item.trazabilidad || '-'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -690,15 +836,17 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Trazabilidad</th></tr>
               </thead>
               <tbody>
                 ${data.egresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
+                    <td>${item.laboratorio || '-'}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
+                    <td>${item.trazabilidad || '-'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -756,37 +904,50 @@
 
     async function registrarMovimiento(event) {
       event.preventDefault();
-      const vacuna = document.getElementById('vacuna').value;
-      const cantidad = document.getElementById('cantidad').value;
-      const responsable = document.getElementById('responsable').value;
-      const region = document.getElementById('regionMov').value;
-      const localidad = document.getElementById('localidadMov').value;
+      const vacuna          = document.getElementById('vacuna').value;
+      const laboratorio     = document.getElementById('laboratorio').value;
+      const cantidad        = document.getElementById('cantidad').value;
+      const responsable     = document.getElementById('responsable').value;
+      const region          = document.getElementById('regionMov').value;
+      const localidad       = document.getElementById('localidadMov').value;
       const establecimiento = document.getElementById('establecimientoMov').value;
-      const observaciones = document.getElementById('observaciones').value;
+      const observaciones   = document.getElementById('observaciones').value;
+      const trazabilidad    = document.getElementById('trazabilidad').value;
 
       let lote, vencimiento;
       if (estadoActual.modoMovimiento === 'Ingreso') {
-        lote = document.getElementById('loteInput').value;
+        lote       = document.getElementById('loteInput').value;
         vencimiento = document.getElementById('vencimiento').value;
       } else {
         lote = document.getElementById('loteSelect').value;
       }
 
-      if (!vacuna || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
+      if (!vacuna || !laboratorio || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
         alert('Por favor completa todos los campos requeridos');
         return;
       }
 
       mostrarLoading(true);
       try {
-        let url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${estadoActual.modoMovimiento}&vacuna=${encodeURIComponent(vacuna)}&lote=${encodeURIComponent(lote)}&cantidad=${cantidad}&responsable=${encodeURIComponent(responsable)}&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}&establecimiento=${encodeURIComponent(establecimiento)}&observaciones=${encodeURIComponent(observaciones)}`;
-        
+        let url = `${APPS_SCRIPT_URL}?action=registrarMovimiento`
+          + `&tipo=${estadoActual.modoMovimiento}`
+          + `&vacuna=${encodeURIComponent(vacuna)}`
+          + `&laboratorio=${encodeURIComponent(laboratorio)}`
+          + `&lote=${encodeURIComponent(lote)}`
+          + `&cantidad=${cantidad}`
+          + `&responsable=${encodeURIComponent(responsable)}`
+          + `&region=${encodeURIComponent(region)}`
+          + `&localidad=${encodeURIComponent(localidad)}`
+          + `&establecimiento=${encodeURIComponent(establecimiento)}`
+          + `&observaciones=${encodeURIComponent(observaciones)}`
+          + `&trazabilidad=${encodeURIComponent(trazabilidad)}`;
+
         if (estadoActual.modoMovimiento === 'Ingreso') {
           url += `&vencimiento=${encodeURIComponent(vencimiento)}`;
         }
 
         const response = await fetch(url);
-        const result = await response.json();
+        const result   = await response.json();
 
         if (result.result) {
           cerrarModalMov();
@@ -804,7 +965,31 @@
     }
 
     function cargarLotesPorVacuna() {
-      // Implementar lógica para cargar lotes disponibles
+      const vacuna = document.getElementById('vacuna').value;
+      const select = document.getElementById('loteSelect');
+      select.innerHTML = '<option value="">Seleccionar lote</option>';
+      if (!vacuna || !stockCache) return;
+
+      // Filtrar lotes del stock real para esa vacuna con stock > 0
+      const lotes = stockCache
+        .filter(item => item.vacuna === vacuna && parseInt(item.stock) > 0)
+        .map(item => `${item.lote} (Stock: ${item.stock} | Vence: ${new Date(item.vencimiento).toLocaleDateString('es-AR')})`);
+
+      if (lotes.length === 0) {
+        select.innerHTML = '<option value="">Sin stock disponible</option>';
+        return;
+      }
+      lotes.forEach(l => {
+        const opt = document.createElement('option');
+        // valor real = solo el lote
+        opt.value = stockCache.find(i => i.vacuna === vacuna && l.startsWith(i.lote)).lote;
+        opt.textContent = l;
+        select.appendChild(opt);
+      });
+
+      // Autocompletar laboratorio si hay un único laboratorio para esa vacuna
+      const labs = [...new Set(stockCache.filter(i => i.vacuna === vacuna).map(i => i.laboratorio))];
+      if (labs.length === 1) document.getElementById('laboratorio').value = labs[0];
     }
 
     // ============================================================================
@@ -840,6 +1025,37 @@
 
     function mostrarLoading(mostrar) {
       document.getElementById('loading').style.display = mostrar ? 'block' : 'none';
+    }
+
+    // ============================================================================
+    // FUNCIONES DE NORMATIVA
+    // ============================================================================
+
+    function toggleNormativa() {
+      const panel = document.getElementById('normativaPanel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      if (panel.style.display === 'block') panel.scrollTop = 0;
+    }
+
+    function buscarNorma(query) {
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+    }
+
+    function buscarTodasNormas() {
+      if (confirm('¿Desea abrir pestañas para verificar todas las normas?')) {
+        const queries = [
+          'Ley 27491 control enfermedades prevenibles vacunación boletinoficial.gob.ar',
+          'Resolución 1030/2021 cadena de frío PNI argentina.gob.ar',
+          'Resolución ANMAT 435/2011 sistema nacional trazabilidad medicamentos vacunas',
+          'Disposición ANMAT 10872/2020 buenas prácticas almacenamiento distribución productos biológicos',
+          'Ley 17132 ejercicio medicina registro documentación sanitaria boletinoficial.gob.ar',
+          'Resolución 1285/2022 cadena de frío inmunización gestión stock salud.neuquen.gov.ar',
+          'Decreto 1874/2023 trazabilidad salud pública Neuquén neuquen.gob.ar'
+        ];
+        queries.forEach((q, i) => {
+          setTimeout(() => window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank'), i * 600);
+        });
+      }
     }
 
     // Cargar datos al iniciar
