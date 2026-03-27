@@ -256,11 +256,6 @@
             <textarea id="observaciones" class="form-control" rows="2"></textarea>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Trazabilidad</label>
-            <input type="text" id="trazabilidad" class="form-control" placeholder="Ej: N° remito, N° orden, código SNT">
-          </div>
-
           <button type="submit" id="btnSubmit" class="btn btn-primary" style="width: 100%;">Registrar</button>
         </form>
       </div>
@@ -409,7 +404,7 @@
     // ============================================================================
     // CONFIGURACIÓN GLOBAL
     // ============================================================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAABg_E88gvG4MAv1CCcrv-IVtMtbME7vvoADgbFegCFPRFxkby5oM6ABFyjt9Nbi3/exec'; // Reemplazar con tu URL real
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-fYekBQtl4Jdw11gIYbLXp3e8IR6A58JM26en_WO0GykmhxOUtBiGE2lnH2Bd9o0O/exec'; // Reemplazar con tu URL real
     let stockCache = []; // cache del stock para uso en formularios
     let estadoActual = {
       vista: 'inventario',
@@ -910,20 +905,24 @@
       const responsable     = document.getElementById('responsable').value;
       const region          = document.getElementById('regionMov').value;
       const localidad       = document.getElementById('localidadMov').value;
+      const laboratorio     = document.getElementById('laboratorio').value;
+      const cantidad        = document.getElementById('cantidad').value;
+      const responsable     = document.getElementById('responsable').value;
+      const region          = document.getElementById('regionMov').value;
+      const localidad       = document.getElementById('localidadMov').value;
       const establecimiento = document.getElementById('establecimientoMov').value;
       const observaciones   = document.getElementById('observaciones').value;
-      const trazabilidad    = document.getElementById('trazabilidad').value;
 
-      let lote, vencimiento;
+      let lote, vencimiento = '';
       if (estadoActual.modoMovimiento === 'Ingreso') {
-        lote       = document.getElementById('loteInput').value;
+        lote        = document.getElementById('loteInput').value;
         vencimiento = document.getElementById('vencimiento').value;
       } else {
         lote = document.getElementById('loteSelect').value;
       }
 
       if (!vacuna || !laboratorio || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
-        alert('Por favor completa todos los campos requeridos');
+        alert('Por favor completá todos los campos requeridos');
         return;
       }
 
@@ -940,16 +939,7 @@
           + `&localidad=${encodeURIComponent(localidad)}`
           + `&establecimiento=${encodeURIComponent(establecimiento)}`
           + `&observaciones=${encodeURIComponent(observaciones)}`
-          + `&trazabilidad=${encodeURIComponent(trazabilidad)}`;
-
-        if (estadoActual.modoMovimiento === 'Ingreso') {
-          url += `&vencimiento=${encodeURIComponent(vencimiento)}`;
-        }
-
-        const response = await fetch(url);
-        const result   = await response.json();
-
-        if (result.result) {
+          + `&vencimiento=${encodeURIComponent(vencimiento)}`;f (result.result) {
           cerrarModalMov();
           document.getElementById('confirmacionMensaje').innerText = `✅ ${estadoActual.modoMovimiento} registrado correctamente.`;
           document.getElementById('modalConfirmacion').style.display = 'block';
@@ -973,15 +963,129 @@
       // Filtrar lotes del stock real para esa vacuna con stock > 0
       const lotes = stockCache
         .filter(item => item.vacuna === vacuna && parseInt(item.stock) > 0)
-        .map(item => `${item.lote} (Stock: ${item.stock} | Vence: ${new Date(item.vencimiento).toLocaleDateString('es-AR')})`);
+    // ============================================================================
+    // DATOS ESTÁTICOS — Calendario Nacional PNI 2026 + Estructura Geográfica
+    // ============================================================================
 
+    const VACUNAS_LABORATORIOS = {
+      'BCG':                         ['Serum Institute of India', 'Biológico Veterinario (SENASA)'],
+      'Hepatitis B':                 ['Sinergium Biotech', 'GSK'],
+      'Salk (IPV)':                  ['Sanofi Pasteur'],
+      'Quíntuple / Pentavalente':    ['Sinergium Biotech'],
+      'Neumocócica Conjugada 13v':   ['Pfizer'],
+      'Rotavirus':                   ['GSK (Rotarix)'],
+      'Meningocócica Conjugada':     ['Pfizer', 'GSK'],
+      'Triple Viral (SRP)':          ['Serum Institute of India', 'Sinergium Biotech'],
+      'Varicela':                    ['GSK', 'MSD'],
+      'Hepatitis A':                 ['GSK', 'Sanofi Pasteur'],
+      'Antigripal':                  ['Sinergium Biotech', 'Sanofi Pasteur', 'Abbott'],
+      'VPH (Papiloma Humano)':       ['MSD (Gardasil)', 'GSK (Cervarix)'],
+      'Triple Bacteriana Acelular':  ['Sanofi Pasteur', 'GSK'],
+      'Doble Bacteriana (dT)':       ['Sinergium Biotech', 'Sanofi Pasteur'],
+      'VSR (Virus Sincicial Resp.)': ['AstraZeneca (Beyfortus)', 'Pfizer (Abrysvo)']
+    };
+
+    // ============================================================================
+    // CASCADA: Vacuna → Laboratorio → Lote / Región → Localidad → Establecimiento
+    // ============================================================================
+
+    function onVacunaChange() {
+      const vacuna = document.getElementById('vacuna').value;
+      const selLab = document.getElementById('laboratorio');
+      selLab.innerHTML = '<option value="">Seleccionar laboratorio</option>';
+      if (!vacuna) return;
+
+      const labs = VACUNAS_LABORATORIOS[vacuna] || [];
+      labs.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l; opt.textContent = l;
+        selLab.appendChild(opt);
+      });
+      if (labs.length === 1) selLab.value = labs[0];
+
+      document.getElementById('loteSelect').innerHTML = '<option value="">Seleccionar lote</option>';
+    }
+
+    function onLaboratorioChange() {
+      if (estadoActual.modoMovimiento !== 'Egreso') return;
+      const vacuna = document.getElementById('vacuna').value;
+      const lab    = document.getElementById('laboratorio').value;
+      const select = document.getElementById('loteSelect');
+      select.innerHTML = '<option value="">Seleccionar lote</option>';
+      if (!vacuna || !lab || !stockCache) return;
+
+      const lotes = stockCache.filter(i =>
+        i.vacuna === vacuna && i.laboratorio === lab && parseInt(i.stock) > 0
+      );
       if (lotes.length === 0) {
         select.innerHTML = '<option value="">Sin stock disponible</option>';
         return;
       }
-      lotes.forEach(l => {
+      lotes.forEach(i => {
         const opt = document.createElement('option');
-        // valor real = solo el lote
+        opt.value = i.lote;
+        opt.textContent = `${i.lote} — Stock: ${i.stock} | Vence: ${new Date(i.vencimiento).toLocaleDateString('es-AR')}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function onRegionChange() {
+      const region = document.getElementById('regionMov').value;
+      const selLoc = document.getElementById('localidadMov');
+      const selEst = document.getElementById('establecimientoMov');
+      selLoc.innerHTML = '<option value="">Seleccionar localidad</option>';
+      selEst.innerHTML = '<option value="">Primero seleccioná una localidad</option>';
+      if (!region) return;
+
+      Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {}).forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l; opt.textContent = l;
+        selLoc.appendChild(opt);
+      });
+    }
+
+    function onLocalidadChange() {
+      const region    = document.getElementById('regionMov').value;
+      const localidad = document.getElementById('localidadMov').value;
+      const selEst    = document.getElementById('establecimientoMov');
+      selEst.innerHTML = '<option value="">Seleccionar establecimiento</option>';
+      if (!region || !localidad) return;
+
+      ((ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || []).forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e; opt.textContent = e;
+        selEst.appendChild(opt);
+      });
+    }
+
+    // ============================================================================
+    // FUNCIONES DE MOVIMIENTOS
+    // ============================================================================
+
+    function abrirModalMov(modo) {
+      estadoActual.modoMovimiento = modo;
+      document.getElementById('modalMov').style.display = 'block';
+      document.getElementById('modalTitulo').innerText = modo === 'Egreso' ? '📤 Registrar Egreso' : '📥 Registrar Ingreso';
+      document.getElementById('camposEgreso').style.display = modo === 'Egreso' ? 'block' : 'none';
+      document.getElementById('camposIngreso').style.display = modo === 'Ingreso' ? 'block' : 'none';
+      document.getElementById('vencimientoRow').style.display = modo === 'Ingreso' ? 'block' : 'none';
+      document.getElementById('btnSubmit').style.background = modo === 'Egreso' ? '#10b981' : '#8b5cf6';
+
+      // Poblar vacunas del calendario nacional
+      const selVac = document.getElementById('vacuna');
+      selVac.innerHTML = '<option value="">Seleccionar vacuna</option>';
+      Object.keys(VACUNAS_LABORATORIOS).forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v; opt.textContent = v;
+        selVac.appendChild(opt);
+      });
+      // Reset cascadas
+      document.getElementById('laboratorio').innerHTML = '<option value="">Primero seleccioná una vacuna</option>';
+      document.getElementById('loteSelect').innerHTML  = '<option value="">Seleccionar lote</option>';
+      document.getElementById('regionMov').value       = '';
+      document.getElementById('localidadMov').innerHTML    = '<option value="">Primero seleccioná una región</option>';
+      document.getElementById('establecimientoMov').innerHTML = '<option value="">Primero seleccioná una localidad</option>';
+    }
         opt.value = stockCache.find(i => i.vacuna === vacuna && l.startsWith(i.lote)).lote;
         opt.textContent = l;
         select.appendChild(opt);
