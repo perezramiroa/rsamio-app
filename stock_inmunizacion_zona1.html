@@ -872,7 +872,36 @@
     }
 
     function cargarLotesPorVacuna() {
-      // Implementar lógica para cargar lotes disponibles
+      const vacuna = document.getElementById('vacuna').value;
+      const region = document.getElementById('regionMov').value;
+      const localidad = document.getElementById('localidadMov').value;
+      const establecimiento = document.getElementById('establecimientoMov').value;
+      const loteSelect = document.getElementById('loteSelect');
+      
+      if (!vacuna || !establecimiento) {
+        loteSelect.innerHTML = '<option value="">Seleccionar lote</option>';
+        return;
+      }
+      
+      // Obtener datos del stock para cargar lotes disponibles
+      const url = `${APPS_SCRIPT_URL}?action=getDatosAgregados&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}&establecimiento=${encodeURIComponent(establecimiento)}`;
+      
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const lotes = data.stock
+            .filter(item => item.vacuna === vacuna && item.stock > 0)
+            .map(item => item.lote);
+          
+          loteSelect.innerHTML = '<option value="">Seleccionar lote</option>';
+          lotes.forEach(lote => {
+            const option = document.createElement('option');
+            option.value = lote;
+            option.textContent = lote;
+            loteSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Error al cargar lotes:', error));
     }
 
     // ============================================================================
@@ -1037,14 +1066,14 @@
             <div class="modal-body">
               <h4>Normativas Nacionales</h4>
               <ul>
-                <li><strong>Ley 27.491:</strong> Control de enfermedades prevenibles por vacunación.</li>
-                <li><strong>Resolución 773/2021:</strong> Lineamientos técnicos para la Campaña Nacional de Vacunación.</li>
-                <li><strong>Resolución 1480/2021:</strong> Directrices de vacunación en contexto de pandemia COVID-19.</li>
+                <li><strong><a href="https://www.boletinoficial.gob.ar/detalleAviso/primera/239474/20210804" target="_blank" style="color: #3b82f6; text-decoration: underline;">Ley 27.491</a>:</strong> Control de enfermedades prevenibles por vacunación.</li>
+                <li><strong><a href="https://www.boletinoficial.gob.ar/detalleAviso/primera/245449/20210909" target="_blank" style="color: #3b82f6; text-decoration: underline;">Resolución 773/2021</a>:</strong> Lineamientos técnicos para la Campaña Nacional de Vacunación.</li>
+                <li><strong><a href="https://www.boletinoficial.gob.ar/detalleAviso/primera/244325/20210827" target="_blank" style="color: #3b82f6; text-decoration: underline;">Resolución 1480/2021</a>:</strong> Directrices de vacunación en contexto de pandemia COVID-19.</li>
               </ul>
               <h4>Normativas Provinciales (Neuquén)</h4>
               <ul>
-                <li><strong>Ley 2570:</strong> Adhesión a la normativa nacional de inmunizaciones.</li>
-                <li><strong>Decreto Provincial:</strong> Regulación de almacenamiento en cadena de frío.</li>
+                <li><strong><a href="https://www.legislaturaeuquen.gob.ar/" target="_blank" style="color: #3b82f6; text-decoration: underline;">Ley 2570</a>:</strong> Adhesión a la normativa nacional de inmunizaciones.</li>
+                <li><strong><a href="https://www.neuquen.gov.ar/" target="_blank" style="color: #3b82f6; text-decoration: underline;">Decreto Provincial</a>:</strong> Regulación de almacenamiento en cadena de frío.</li>
               </ul>
               <h4>Trazabilidad</h4>
               <p>Todos los registros en este sistema generan un ID de trazabilidad único (formato: TRZ-TIMESTAMP-RANDOM) que permite auditar y rastrear cada movimiento de vacunas en cumplimiento con los estándares sanitarios nacionales.</p>
