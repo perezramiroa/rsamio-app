@@ -202,19 +202,6 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Laboratorio *</label>
-            <select id="laboratorio" class="form-control" required>
-              <option value="">Seleccionar laboratorio</option>
-              <option>Pfizer</option>
-              <option>AstraZeneca</option>
-              <option>Moderna</option>
-              <option>Sinopharm</option>
-              <option>Janssen</option>
-              <option>Covaxin</option>
-            </select>
-          </div>
-
           <div class="form-group" id="camposEgreso">
             <label class="form-label">Lote (Egreso) *</label>
             <select id="loteSelect" class="form-control">
@@ -295,7 +282,7 @@
     // ============================================================================
     // CONFIGURACIÓN GLOBAL
     // ============================================================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzboffRxe2ZSUnA-oYAB0rvW0WwPkEvUb7qYo-5eJi7cESXFA_bFy3RFXqiJXlF8CFF/exec'; // Reemplazar con tu URL real
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBOpldcRaFv6Jq1WnQ86i0tHH6uCQefjnmNZp-KOGevO030IvgB2eTKUhoy3xG2RbV/exec'; // Reemplazar con tu URL real
     let estadoActual = {
       vista: 'inventario',
       region: null,
@@ -498,13 +485,12 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Región</th><th>Localidad</th></tr>
+                <tr><th>Vacuna</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Región</th><th>Localidad</th></tr>
               </thead>
               <tbody>
                 ${data.stock.map(item => `
                   <tr>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.stock}</td>
                     <td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td>
@@ -523,14 +509,13 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Responsable</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Responsable</th></tr>
               </thead>
               <tbody>
                 ${data.ingresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                     <td>${item.responsable}</td>
@@ -547,14 +532,13 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Responsable</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Responsable</th></tr>
               </thead>
               <tbody>
                 ${data.egresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                     <td>${item.responsable}</td>
@@ -576,13 +560,12 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Localidad</th><th>Establecimiento</th></tr>
+                <tr><th>Vacuna</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Localidad</th><th>Establecimiento</th></tr>
               </thead>
               <tbody>
                 ${data.stock.map(item => `
                   <tr>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.stock}</td>
                     <td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td>
@@ -601,14 +584,13 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Localidad</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Localidad</th></tr>
               </thead>
               <tbody>
                 ${data.ingresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                     <td>${item.localidad}</td>
@@ -625,14 +607,13 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Localidad</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th><th>Localidad</th></tr>
               </thead>
               <tbody>
                 ${data.egresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                     <td>${item.localidad}</td>
@@ -664,13 +645,12 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Establecimiento</th></tr>
+                <tr><th>Vacuna</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Establecimiento</th></tr>
               </thead>
               <tbody>
                 ${data.stock.map(item => `
                   <tr>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.stock}</td>
                     <td>${new Date(item.vencimiento).toLocaleDateString('es-AR')}</td>
@@ -688,14 +668,13 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th></tr>
               </thead>
               <tbody>
                 ${data.ingresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                   </tr>
@@ -711,14 +690,13 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th></tr>
+                <tr><th>Fecha</th><th>Vacuna</th><th>Lote</th><th>Cantidad</th></tr>
               </thead>
               <tbody>
                 ${data.egresos.map(item => `
                   <tr>
                     <td>${new Date(item.fecha).toLocaleDateString('es-AR')}</td>
                     <td>${item.vacuna}</td>
-                    <td>${item.laboratorio}</td>
                     <td>${item.lote}</td>
                     <td>${item.cantidad}</td>
                   </tr>
@@ -779,7 +757,6 @@
     async function registrarMovimiento(event) {
       event.preventDefault();
       const vacuna = document.getElementById('vacuna').value;
-      const laboratorio = document.getElementById('laboratorio').value;
       const cantidad = document.getElementById('cantidad').value;
       const responsable = document.getElementById('responsable').value;
       const region = document.getElementById('regionMov').value;
@@ -795,14 +772,14 @@
         lote = document.getElementById('loteSelect').value;
       }
 
-      if (!vacuna || !laboratorio || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
+      if (!vacuna || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
         alert('Por favor completa todos los campos requeridos');
         return;
       }
 
       mostrarLoading(true);
       try {
-        let url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${estadoActual.modoMovimiento}&vacuna=${encodeURIComponent(vacuna)}&laboratorio=${encodeURIComponent(laboratorio)}&lote=${encodeURIComponent(lote)}&cantidad=${cantidad}&responsable=${encodeURIComponent(responsable)}&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}&establecimiento=${encodeURIComponent(establecimiento)}&observaciones=${encodeURIComponent(observaciones)}`;
+        let url = `${APPS_SCRIPT_URL}?action=registrarMovimiento&tipo=${estadoActual.modoMovimiento}&vacuna=${encodeURIComponent(vacuna)}&lote=${encodeURIComponent(lote)}&cantidad=${cantidad}&responsable=${encodeURIComponent(responsable)}&region=${encodeURIComponent(region)}&localidad=${encodeURIComponent(localidad)}&establecimiento=${encodeURIComponent(establecimiento)}&observaciones=${encodeURIComponent(observaciones)}`;
         
         if (estadoActual.modoMovimiento === 'Ingreso') {
           url += `&vencimiento=${encodeURIComponent(vencimiento)}`;
