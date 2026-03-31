@@ -8,16 +8,19 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 20px; }
+    
     .header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
     .logo-bar { display: flex; gap: 20px; align-items: center; }
     .logo-item { height: 60px; }
     .logo-item img { max-height: 100%; object-fit: contain; }
     .title-section h1 { font-size: 1.6rem; color: #1e293b; }
     .title-section p { color: #64748b; }
+    
     .stats-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
     .stat-card { background: white; border-radius: 10px; padding: 15px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; min-width: 150px; border-left: 4px solid #3b82f6; }
     .stat-card .label { font-size: 0.85rem; color: #64748b; }
     .stat-card .value { font-size: 1.8rem; font-weight: 700; }
+    
     .controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
     .btn-primary { background: #3b82f6; color: white; }
@@ -26,14 +29,17 @@
     .btn-success:hover { background: #059669; }
     .btn-outline { background: white; border: 1px solid #e2e8f0; color: #1e293b; }
     .btn-outline:hover { background: #f1f5f9; }
+    
     .container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 24px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
     th { background: #f1f5f9; font-weight: 600; }
+    
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
-    .badge-success { background: rgba(16,185,129,0.15); color: #10b981; }
-    .badge-warning { background: rgba(245,158,11,0.15); color: #f59e0b; }
-    .badge-danger { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000; }
     .modal-content { background: white; margin: 2% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; max-height: 95vh; overflow-y: auto; }
     .modal-header { background: #00384d; color: white; padding: 20px 25px; border-radius: 24px 24px 0 0; display: flex; justify-content: space-between; align-items: center; }
@@ -42,24 +48,34 @@
     .form-group { margin-bottom: 15px; }
     .form-label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
     .form-control { width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    
     .loading { text-align: center; padding: 40px; }
     .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    
     .footer { margin-top: 32px; text-align: center; background: #00384d; padding: 12px; border-radius: 8px; }
     .footer img { max-width: 100%; }
+    
     .view { display: none; }
     .view.active { display: block; }
+    
     .map-container { position: relative; display: inline-block; border: 2px solid #ddd; border-radius: 8px; overflow: hidden; width: 100%; margin-bottom: 20px; }
     .img-mapa { display: block; max-width: 100%; height: auto; }
+    
     .breadcrumb { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
     .breadcrumb-item { padding: 8px 12px; background: #f1f5f9; border-radius: 6px; font-size: 0.9rem; }
     .breadcrumb-item.active { background: #3b82f6; color: white; }
+    
     .establecimientos-menu { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
     .establecimiento-btn { padding: 8px 16px; background: #dbeafe; border: 1px solid #bfdbfe; color: #1d4ed8; border-radius: 6px; cursor: pointer; font-weight: 600; }
     .establecimiento-btn:hover { background: #bfdbfe; }
     .establecimiento-btn.active { background: #3b82f6; color: white; }
+    
     .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
+    
     @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
       .controls { flex-direction: column; }
       .btn { width: 100%; }
     }
@@ -76,31 +92,33 @@
     </div>
     <div class="title-section">
       <h1>Control de Stock de Vacunas</h1>
-      <p>Inmunizacion Zona 1</p>
+      <p>Inmunización Zona 1</p>
     </div>
   </div>
 
-  <!-- STATS -->
+  <!-- STATS BAR -->
   <div class="stats-bar">
     <div class="stat-card"><div class="label">Total Dosis</div><div class="value" id="totalDosis">0</div></div>
-    <div class="stat-card" style="border-left-color:#f59e0b;"><div class="label">Proximos a Vencer</div><div class="value" id="proximosVencer">0</div></div>
-    <div class="stat-card" style="border-left-color:#ef4444;"><div class="label">Vencidos</div><div class="value" id="vencidos">0</div></div>
+    <div class="stat-card" style="border-left-color: #f59e0b;"><div class="label">Próximos a Vencer</div><div class="value" id="proximosVencer">0</div></div>
+    <div class="stat-card" style="border-left-color: #ef4444;"><div class="label">Vencidos</div><div class="value" id="vencidos">0</div></div>
   </div>
 
   <!-- CONTROLS -->
   <div class="controls">
-    <button class="btn btn-primary" onclick="cargarDatos()">Actualizar</button>
-    <button class="btn btn-success" onclick="abrirModalMov('Egreso')">Registrar Egreso</button>
-    <button class="btn btn-primary" style="background:#8b5cf6;" onclick="abrirModalMov('Ingreso')">Registrar Ingreso</button>
-    <button class="btn btn-primary" style="background:#00384d;" onclick="mostrarVistaGeografica()">Regiones/Localidades/Establecimientos</button>
-    <button class="btn btn-outline" style="background:#64748b;color:white;" onclick="toggleNormativa()">Normativa</button>
-    <button class="btn btn-outline" onclick="window.close()">Volver</button>
+    <button class="btn btn-primary" onclick="cargarDatos()">🔄 Actualizar</button>
+    <button class="btn btn-success" onclick="abrirModalMov('Egreso')">📤 Registrar Egreso</button>
+    <button class="btn btn-primary" style="background:#8b5cf6;" onclick="abrirModalMov('Ingreso')">📥 Registrar Ingreso</button>
+    <button class="btn btn-primary" style="background:#00384d;" onclick="mostrarVistaGeografica()">📍 Regiones/Localidades/Establecimientos</button>
+    <button class="btn btn-outline" style="background:#64748b; color:white;" onclick="toggleNormativa()">📋 Normativa</button>
+    <button class="btn btn-outline" onclick="window.close()">← Volver</button>
   </div>
 
-  <!-- VISTA INVENTARIO -->
+  <!-- ========================================
+       VISTA 1: INVENTARIO PRINCIPAL
+       ======================================== -->
   <div id="vistaInventario" class="view active">
     <div class="container">
-      <h2>Inventario Actual - Todas las Regiones</h2>
+      <h2>📋 Inventario Actual - Todas las Regiones</h2>
       <div id="loading" class="loading" style="display:none;">
         <div class="spinner"></div>
         <div>Conectando con Google Drive...</div>
@@ -108,7 +126,9 @@
       <div class="table-wrapper">
         <table>
           <thead>
-            <tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Stock</th><th>Region</th><th>Localidad</th><th>Establecimiento</th><th>Estado</th></tr>
+            <tr>
+              <th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Stock</th><th>Región</th><th>Localidad</th><th>Establecimiento</th><th>Estado</th>
+            </tr>
           </thead>
           <tbody id="stockBodyInventario">
             <tr><td colspan="9" style="text-align:center;">Cargando datos...</td></tr>
@@ -118,40 +138,46 @@
     </div>
   </div>
 
-  <!-- VISTA GEOGRAFICA -->
+  <!-- ========================================
+       VISTA 2: NAVEGADOR GEOGRÁFICO
+       ======================================== -->
   <div id="vistaGeografica" class="view">
     <div class="breadcrumb">
       <span class="breadcrumb-item active">Provincia</span>
-      <span class="breadcrumb-item" id="breadcrumbRegion" style="display:none;"></span>
-      <span class="breadcrumb-item" id="breadcrumbLocalidad" style="display:none;"></span>
+      <span class="breadcrumb-item" id="breadcrumbRegion" style="display:none;">Región</span>
+      <span class="breadcrumb-item" id="breadcrumbLocalidad" style="display:none;">Localidad</span>
     </div>
-    <button class="btn btn-outline" onclick="volverVistaInventario()" style="margin-bottom:20px;">Volver a Inventario</button>
 
+    <button class="btn btn-outline" onclick="volverVistaInventario()" style="margin-bottom: 20px;">← Volver a Inventario</button>
+
+    <!-- NIVEL PROVINCIA -->
     <div id="nivelProvincia" class="container">
-      <h2>Seleccione una Region</h2>
+      <h2>🗺️ Seleccione una Región</h2>
       <div class="map-container">
-        <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquen">
+        <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
         <map name="mapaRegiones">
           <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
           <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
         </map>
       </div>
-      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-outline" onclick="navegarARegion('Confluencia')">Region Confluencia</button>
-        <button class="btn btn-outline" onclick="navegarARegion('Vaca Muerta')">Region Vaca Muerta</button>
+      <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-outline" onclick="navegarARegion('Confluencia')">Región Confluencia</button>
+        <button class="btn btn-outline" onclick="navegarARegion('Vaca Muerta')">Región Vaca Muerta</button>
       </div>
-      <div id="tablasNivel1" style="margin-top:30px;"></div>
+      <div id="tablasNivel1" style="margin-top: 30px;"></div>
     </div>
 
+    <!-- NIVEL REGIÓN -->
     <div id="nivelRegion" class="container" style="display:none;">
-      <h2 id="tituloRegion"></h2>
-      <button class="btn btn-outline" onclick="volverANivelProvincia()" style="margin-bottom:20px;">Volver a Provincia</button>
+      <h2 id="tituloRegion">Región Seleccionada</h2>
+      <button class="btn btn-outline" onclick="volverANivelProvincia()" style="margin-bottom: 20px;">← Volver a Provincia</button>
       <div id="tablasNivel2"></div>
     </div>
 
+    <!-- NIVEL LOCALIDAD -->
     <div id="nivelLocalidad" class="container" style="display:none;">
-      <h2 id="tituloLocalidad"></h2>
-      <button class="btn btn-outline" onclick="volverANivelRegion()" style="margin-bottom:20px;">Volver a Region</button>
+      <h2 id="tituloLocalidad">Localidad Seleccionada</h2>
+      <button class="btn btn-outline" onclick="volverANivelRegion()" style="margin-bottom: 20px;">← Volver a Región</button>
       <div id="establecimientos-menu" class="establecimientos-menu"></div>
       <div id="tablasNivel3"></div>
     </div>
@@ -162,44 +188,52 @@
     <div class="modal-content">
       <div class="modal-header">
         <span id="modalTitulo">Registrar Movimiento</span>
-        <button class="modal-close" onclick="cerrarModalMov()">X</button>
+        <button class="modal-close" onclick="cerrarModalMov()">✕</button>
       </div>
       <div class="modal-body">
         <form id="formMov" onsubmit="registrarMovimiento(event)">
+
           <div class="form-group">
             <label class="form-label">Vacuna *</label>
             <select id="vacuna" class="form-control" required onchange="onVacunaChange()">
               <option value="">Seleccionar vacuna</option>
             </select>
           </div>
+
           <div class="form-group">
             <label class="form-label">Laboratorio *</label>
             <select id="laboratorio" class="form-control" required onchange="onLaboratorioChange()">
-              <option value="">Primero selecciona una vacuna</option>
+              <option value="">Primero seleccioná una vacuna</option>
             </select>
           </div>
+
           <div class="form-group" id="camposEgreso">
             <label class="form-label">Lote *</label>
-            <select id="loteSelect" class="form-control">
+            <select id="loteSelect" class="form-control" required>
               <option value="">Seleccionar lote</option>
             </select>
           </div>
+
           <div class="form-group" id="camposIngreso" style="display:none;">
             <label class="form-label">Lote *</label>
             <input type="text" id="loteInput" class="form-control" placeholder="Ej: ABC123456">
           </div>
+
           <div class="form-group" id="vencimientoRow" style="display:none;">
             <label class="form-label">Vencimiento *</label>
             <input type="date" id="vencimiento" class="form-control">
           </div>
+
           <div class="form-group">
             <label class="form-label">Cantidad *</label>
             <input type="number" id="cantidad" class="form-control" min="1" required>
           </div>
+
           <div class="form-group">
             <label class="form-label">Responsable *</label>
             <input type="text" id="responsable" class="form-control" required>
           </div>
+
           <div class="form-group">
             <label class="form-label">Region *</label>
             <select id="regionMov" class="form-control" required onchange="onRegionChange()">
@@ -208,231 +242,275 @@
               <option>Vaca Muerta</option>
             </select>
           </div>
+
           <div class="form-group">
             <label class="form-label">Localidad *</label>
             <select id="localidadMov" class="form-control" required onchange="onLocalidadChange()">
               <option value="">Primero selecciona una region</option>
             </select>
           </div>
+
           <div class="form-group">
             <label class="form-label">Establecimiento *</label>
             <select id="establecimientoMov" class="form-control" required>
               <option value="">Primero selecciona una localidad</option>
             </select>
           </div>
+
           <div class="form-group">
             <label class="form-label">Observaciones</label>
             <textarea id="observaciones" class="form-control" rows="2" placeholder="Opcional"></textarea>
           </div>
-          <button type="submit" id="btnSubmit" class="btn btn-primary" style="width:100%;">Registrar</button>
+
+          <button type="submit" id="btnSubmit" class="btn btn-primary" style="width: 100%;">Registrar</button>
+        </form>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- MODAL CONFIRMACION -->
+  <!-- MODAL CONFIRMACIÓN -->
   <div id="modalConfirmacion" class="modal">
-    <div class="modal-content" style="width:90%;max-width:400px;">
-      <div class="modal-header"><span>Confirmacion</span><button class="modal-close" onclick="cerrarModalConfirmacion()">X</button></div>
-      <div class="modal-body" style="text-align:center;">
-        <p id="confirmacionMensaje" style="font-size:1.1rem;margin-bottom:20px;"></p>
-        <button class="btn btn-primary" onclick="cerrarModalConfirmacion()" style="width:100%;">Aceptar</button>
+    <div class="modal-content" style="width: 90%; max-width: 400px;">
+      <div class="modal-header">
+        <span>Confirmación</span>
+        <button class="modal-close" onclick="cerrarModalConfirmacion()">✕</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <p id="confirmacionMensaje" style="font-size: 1.1rem; margin-bottom: 20px;"></p>
+        <button class="btn btn-primary" onclick="cerrarModalConfirmacion()" style="width: 100%;">Aceptar</button>
       </div>
     </div>
   </div>
 
+  <!-- PANEL DE NORMATIVA -->
+  <div id="normativaPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; overflow:auto; padding:20px; box-sizing:border-box;">
+    <div style="max-width:900px; margin:0 auto;">
+      <div style="text-align:right; margin-bottom:20px;">
+        <button onclick="toggleNormativa()" style="padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Cerrar ✕</button>
+      </div>
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; margin-bottom:16px;">
+          <img src="logos/logo_hnb_oscuro.jpg" alt="HNB" style="max-height:80px; object-fit:contain;">
+          <img src="logos/logo_rih.jpg" alt="RIH" style="max-height:80px; object-fit:contain;">
+          <img src="logos/logo_hnb_blanco.jpg" alt="HNB Blanco" style="max-height:80px; object-fit:contain;">
+        </div>
+        <h1 style="color:#1d4ed8; font-size:24px;">Marco Normativo – Gestión de Stock y Trazabilidad de Vacunas</h1>
+        <p style="color:#64748b;">Sistemas de monitoreo – rsamio | Vigencia: Enero 2026</p>
+        <button onclick="buscarTodasNormas()" style="background:#dbeafe; border:1px solid #cbd5e1; padding:6px 12px; border-radius:4px; color:#1d4ed8; cursor:pointer; margin-top:10px; font-weight:600;">🔍 Verificar todas las normas</button>
+      </div>
 
-  <!-- PANEL NORMATIVA -->
-  <div id="normativaPanel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:1000;overflow:auto;padding:20px;box-sizing:border-box;">
-    <div style="max-width:900px;margin:0 auto;">
-      <div style="text-align:right;margin-bottom:20px;">
-        <button onclick="toggleNormativa()" style="padding:8px 16px;background:#ef4444;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Cerrar X</button>
+      <div style="background:#fffbeb; border-left:4px solid #fbbf24; padding:12px; margin:16px 0; border-radius:4px; font-size:14px;">
+        ℹ️ <strong>Nota importante:</strong> Si al verificar una norma no se encuentran resultados, esto <em>no significa que haya sido derogada</em>. Puede deberse a cambios en la indexación, formato de publicación o mantenimiento del sitio. En caso de duda, consulte con la autoridad sanitaria competente (Ministerio de Salud de Neuquén o Nación).
       </div>
-      <div style="text-align:center;margin-bottom:20px;">
-        <div style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin-bottom:16px;">
-          <img src="logos/logo_hnb_oscuro.jpg" alt="HNB" style="max-height:80px;object-fit:contain;">
-          <img src="logos/logo_rih.jpg" alt="RIH" style="max-height:80px;object-fit:contain;">
-          <img src="logos/logo_hnb_blanco.jpg" alt="HNB Blanco" style="max-height:80px;object-fit:contain;">
-        </div>
-        <h1 style="color:#1d4ed8;font-size:24px;">Marco Normativo - Gestion de Stock y Trazabilidad de Vacunas</h1>
-        <p style="color:#64748b;">Sistemas de monitoreo - rsamio | Vigencia: Enero 2026</p>
-        <button onclick="buscarTodasNormas()" style="background:#dbeafe;border:1px solid #cbd5e1;padding:6px 12px;border-radius:4px;color:#1d4ed8;cursor:pointer;margin-top:10px;font-weight:600;">Verificar todas las normas</button>
-      </div>
-      <div style="background:#fffbeb;border-left:4px solid #fbbf24;padding:12px;margin:16px 0;border-radius:4px;font-size:14px;">
-        Nota: Si al verificar una norma no se encuentran resultados, puede deberse a cambios en la indexacion o mantenimiento del sitio. En caso de duda, consulte con la autoridad sanitaria competente.
-      </div>
-      <div style="background:#f8fafc;border-left:4px solid #1d4ed8;padding:20px;border-radius:8px;margin-bottom:20px;">
-        <h2 style="font-size:20px;margin-bottom:16px;color:#1d4ed8;">1. Normativa Nacional</h2>
-        <div style="background:white;padding:16px;border-radius:8px;margin-bottom:16px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-          <strong>Ley Nacional N 27.491 (2018) - Ley de Control de Enfermedades Prevenibles por Vacunacion</strong>
-          <p style="margin:8px 0;">Establece el PNI como politica de Estado. Obliga al registro, trazabilidad y control de stock de todas las vacunas del calendario nacional.</p>
-          <div style="text-align:right;margin-top:8px;">
-            <a href="https://www.boletinoficial.gob.ar/detalleAviso/primera/178532/20180116" target="_blank" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;text-decoration:none;margin-right:6px;">Ver texto oficial</a>
-            <button onclick="buscarNorma('Ley 27491 control enfermedades prevenibles vacunacion boletinoficial.gob.ar')" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;cursor:pointer;">Verificar</button>
+
+      <!-- SECCIÓN 1: NORMATIVA NACIONAL -->
+      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">1. Normativa Nacional</h2>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Ley Nacional N° 27.491 (2018) – "Ley de Control de Enfermedades Prevenibles por Vacunación"</strong>
+          <p style="margin:8px 0;">Establece el Programa Nacional de Inmunizaciones (PNI) como política de Estado. Obliga al registro, trazabilidad y control de stock de todas las vacunas del calendario nacional.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.boletinoficial.gob.ar/detalleAviso/primera/178532/20180116" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver texto oficial</a>
+            <button onclick="buscarNorma('Ley 27491 control enfermedades prevenibles vacunación boletinoficial.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
           </div>
         </div>
-        <div style="background:white;padding:16px;border-radius:8px;margin-bottom:16px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-          <strong>Resolucion MSAL N 1030/2021 - Normas Tecnicas para la Cadena de Frio del PNI</strong>
-          <p style="margin:8px 0;">Define requisitos para almacenamiento, distribucion y control de stock. Obliga al registro de ingresos, egresos y responsables en cada nivel.</p>
-          <div style="text-align:right;margin-top:8px;">
-            <a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;text-decoration:none;margin-right:6px;">Ver PNI</a>
-            <button onclick="buscarNorma('Resolucion 1030/2021 cadena de frio PNI argentina.gob.ar')" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;cursor:pointer;">Verificar</button>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Resolución MSAL N° 1030/2021 – Normas Técnicas para la Cadena de Frío del PNI</strong>
+          <p style="margin:8px 0;">Define los requisitos técnicos para el almacenamiento, distribución y control de stock de vacunas. Establece obligaciones de registro de ingresos, egresos y responsables en cada nivel de la cadena.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver PNI</a>
+            <button onclick="buscarNorma('Resolución 1030/2021 cadena de frío PNI argentina.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
           </div>
         </div>
-        <div style="background:white;padding:16px;border-radius:8px;margin-bottom:16px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-          <strong>Resolucion ANMAT N 435/2011 - Sistema Nacional de Trazabilidad (SNT)</strong>
-          <p style="margin:8px 0;">Crea el SNT. Exige identificacion unica por lote, registro de movimientos y trazabilidad completa desde el fabricante hasta el punto de aplicacion.</p>
-          <div style="text-align:right;margin-top:8px;">
-            <a href="https://www.anmat.gob.ar/trazabilidad/principal_en.asp" target="_blank" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;text-decoration:none;margin-right:6px;">Ver ANMAT Trazabilidad</a>
-            <button onclick="buscarNorma('Resolucion ANMAT 435/2011 sistema nacional trazabilidad medicamentos vacunas')" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;cursor:pointer;">Verificar</button>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Resolución ANMAT N° 435/2011 – Sistema Nacional de Trazabilidad (SNT)</strong>
+          <p style="margin:8px 0;">Crea el Sistema Nacional de Trazabilidad de Medicamentos y Vacunas. Exige identificación única por lote, registro de movimientos (ingresos/egresos) y trazabilidad completa desde el fabricante hasta el punto de aplicación.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.anmat.gob.ar/trazabilidad/principal_en.asp" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver ANMAT Trazabilidad</a>
+            <button onclick="buscarNorma('Resolución ANMAT 435/2011 sistema nacional trazabilidad medicamentos vacunas')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
           </div>
         </div>
-        <div style="background:white;padding:16px;border-radius:8px;margin-bottom:16px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-          <strong>Disposicion ANMAT N 10.872/2020 - Buenas Practicas de Almacenamiento y Distribucion</strong>
-          <p style="margin:8px 0;">Regula condiciones de almacenamiento, control de stock, gestion de vencimientos y documentacion de movimientos para productos biologicos.</p>
-          <div style="text-align:right;margin-top:8px;">
-            <a href="https://www.anmat.gob.ar" target="_blank" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;text-decoration:none;margin-right:6px;">Ver ANMAT</a>
-            <button onclick="buscarNorma('Disposicion ANMAT 10872/2020 buenas practicas almacenamiento distribucion productos biologicos')" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;cursor:pointer;">Verificar</button>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Disposición ANMAT N° 10.872/2020 – Buenas Prácticas de Almacenamiento y Distribución</strong>
+          <p style="margin:8px 0;">Regula las condiciones de almacenamiento, control de stock, gestión de vencimientos y documentación de movimientos para productos biológicos, incluyendo vacunas.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.anmat.gob.ar" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver ANMAT</a>
+            <button onclick="buscarNorma('Disposición ANMAT 10872/2020 buenas prácticas almacenamiento distribución productos biológicos')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
+          </div>
+        </div>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Ley Nacional N° 17.132/1967 – Ejercicio de la Medicina</strong>
+          <p style="margin:8px 0;">Establece obligaciones de registro y documentación sanitaria para establecimientos de salud, incluyendo el control de insumos biológicos y la identificación del responsable de cada acto sanitario.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <button onclick="buscarNorma('Ley 17132 ejercicio medicina registro documentación sanitaria boletinoficial.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
           </div>
         </div>
       </div>
-      <div style="background:#f8fafc;border-left:4px solid #1d4ed8;padding:20px;border-radius:8px;margin-bottom:20px;">
-        <h2 style="font-size:20px;margin-bottom:16px;color:#1d4ed8;">2. Normativa Provincial - Neuquen</h2>
-        <div style="background:white;padding:16px;border-radius:8px;margin-bottom:16px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-          <strong>Resolucion Ministerial N 1285/2022 - Protocolo Provincial de Gestion de la Cadena de Frio</strong>
-          <p style="margin:8px 0;">Define el protocolo provincial para control de stock, incluyendo registro obligatorio de ingresos y egresos por establecimiento, responsable, lote y vencimiento.</p>
-          <div style="text-align:right;margin-top:8px;">
-            <a href="https://www.saludneuquen.gob.ar" target="_blank" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;text-decoration:none;margin-right:6px;">Ver Ministerio Salud NQN</a>
-            <button onclick="buscarNorma('Resolucion 1285/2022 cadena de frio inmunizacion gestion stock salud.neuquen.gov.ar')" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;cursor:pointer;">Verificar</button>
+
+      <!-- SECCIÓN 2: NORMATIVA PROVINCIAL - NEUQUÉN -->
+      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">2. Normativa Provincial – Neuquén</h2>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Resolución Ministerial N° 1285/2022 – Protocolo Provincial de Gestión de la Cadena de Frío en Inmunización</strong>
+          <p style="margin:8px 0;">Define el protocolo provincial para el control de stock de vacunas, incluyendo el registro obligatorio de ingresos y egresos por establecimiento, responsable, lote y vencimiento en cada nivel de la red sanitaria de Neuquén.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.saludneuquen.gob.ar" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver Ministerio Salud NQN</a>
+            <button onclick="buscarNorma('Resolución 1285/2022 cadena de frío inmunización gestión stock salud.neuquen.gov.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
           </div>
         </div>
-        <div style="background:white;padding:16px;border-radius:8px;margin-bottom:16px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-          <strong>Decreto Provincial N 1874/2023 - Sistema Provincial de Trazabilidad en Salud Publica</strong>
-          <p style="margin:8px 0;">Exige registro digital de movimientos de stock con identificacion de lote, vencimiento, region, localidad y establecimiento.</p>
-          <div style="text-align:right;margin-top:8px;">
-            <a href="https://www.neuquen.gob.ar" target="_blank" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;text-decoration:none;margin-right:6px;">Ver Gobierno Neuquen</a>
-            <button onclick="buscarNorma('Decreto 1874/2023 trazabilidad salud publica Neuquen neuquen.gob.ar')" style="background:#dbeafe;border:1px solid #cbd5e1;padding:4px 10px;border-radius:4px;font-size:12px;color:#1d4ed8;cursor:pointer;">Verificar</button>
+
+        <div style="background:white; padding:16px; border-radius:8px; margin-bottom:16px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <strong>Decreto Provincial N° 1874/2023 – Sistema Provincial de Trazabilidad en Salud Pública</strong>
+          <p style="margin:8px 0;">Crea el sistema provincial de trazabilidad para insumos sanitarios. Exige el registro digital de movimientos de stock (ingresos, egresos, transferencias) con identificación de lote, vencimiento, región, localidad y establecimiento.</p>
+          <div style="text-align:right; margin-top:8px;">
+            <a href="https://www.neuquen.gob.ar" target="_blank" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; text-decoration:none; margin-right:6px;">🔗 Ver Gobierno Neuquén</a>
+            <button onclick="buscarNorma('Decreto 1874/2023 trazabilidad salud pública Neuquén neuquen.gob.ar')" style="background:#dbeafe; border:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; font-size:12px; color:#1d4ed8; cursor:pointer;">Verificar</button>
           </div>
         </div>
       </div>
-      <div style="background:#f8fafc;border-left:4px solid #1d4ed8;padding:20px;border-radius:8px;margin-bottom:20px;">
-        <h2 style="font-size:20px;margin-bottom:16px;color:#1d4ed8;">3. Fuentes Oficiales</h2>
-        <div style="background:white;padding:16px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-          <ul style="padding-left:20px;line-height:2;">
-            <li><a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="color:#2563eb;text-decoration:underline;">Programa Nacional de Inmunizaciones (PNI)</a></li>
-            <li><a href="https://www.anmat.gob.ar/trazabilidad/principal_en.asp" target="_blank" style="color:#2563eb;text-decoration:underline;">ANMAT - Sistema Nacional de Trazabilidad</a></li>
-            <li><a href="https://www.anmat.gob.ar" target="_blank" style="color:#2563eb;text-decoration:underline;">ANMAT</a></li>
-            <li><a href="https://www.saludneuquen.gob.ar" target="_blank" style="color:#2563eb;text-decoration:underline;">Ministerio de Salud de Neuquen</a></li>
-            <li><a href="https://www.boletinoficial.gob.ar" target="_blank" style="color:#2563eb;text-decoration:underline;">Boletin Oficial de la Republica Argentina</a></li>
+
+      <!-- SECCIÓN 3: FUENTES OFICIALES -->
+      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">3. Fuentes Oficiales</h2>
+        <div style="background:white; padding:16px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+          <ul style="padding-left:20px; line-height:2;">
+            <li><a href="https://www.argentina.gob.ar/salud/pni" target="_blank" style="color:#2563eb; text-decoration:underline;">Programa Nacional de Inmunizaciones (PNI) – Argentina.gob.ar</a></li>
+            <li><a href="https://www.anmat.gob.ar/trazabilidad/principal_en.asp" target="_blank" style="color:#2563eb; text-decoration:underline;">ANMAT – Sistema Nacional de Trazabilidad de Medicamentos</a></li>
+            <li><a href="https://www.anmat.gob.ar" target="_blank" style="color:#2563eb; text-decoration:underline;">ANMAT – Administración Nacional de Medicamentos, Alimentos y Tecnología Médica</a></li>
+            <li><a href="https://www.saludneuquen.gob.ar" target="_blank" style="color:#2563eb; text-decoration:underline;">Ministerio de Salud de la Provincia del Neuquén</a></li>
+            <li><a href="https://www.boletinoficial.gob.ar" target="_blank" style="color:#2563eb; text-decoration:underline;">Boletín Oficial de la República Argentina</a></li>
           </ul>
         </div>
       </div>
-      <div style="background:#f8fafc;border-left:4px solid #1d4ed8;padding:20px;border-radius:8px;margin-bottom:20px;">
-        <h2 style="font-size:20px;margin-bottom:16px;color:#1d4ed8;">Conclusion</h2>
-        <p>El modulo de Control de Stock de rsamio cumple con la normativa vigente en tanto registre cada movimiento con vacuna, laboratorio, lote, vencimiento, cantidad, responsable, region, localidad y establecimiento, generando trazabilidad automatica segun la Res. ANMAT 435/2011 y el Decreto Provincial 1874/2023.</p>
+
+      <!-- SECCIÓN 4: CONCLUSIÓN -->
+      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">Conclusión</h2>
+        <p>El módulo de <strong>Control de Stock</strong> de rsamio cumple con la normativa vigente en tanto registre cada movimiento con identificación de vacuna, laboratorio, lote, vencimiento, cantidad, responsable, región, localidad y establecimiento — tal como exigen la Resolución ANMAT 435/2011 (trazabilidad), la Resolución MSAL 1030/2021 (PNI) y el Decreto Provincial 1874/2023 (trazabilidad provincial).</p>
       </div>
-      <div style="text-align:right;margin-bottom:30px;">
-        <button onclick="toggleNormativa()" style="padding:10px 24px;background:#ef4444;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Cerrar X</button>
+
+      <div style="text-align:right; margin-top:10px; margin-bottom:30px;">
+        <button onclick="toggleNormativa()" style="padding:10px 24px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Cerrar ✕</button>
       </div>
     </div>
   </div>
 
   <!-- FOOTER -->
   <div class="footer">
-    <img src="logos/footer.jpg" alt="HNB - Provincia del Neuquen" style="max-width:100%;height:auto;">
+    <img src="logos/footer.jpg" alt="HNB - Provincia del Neuquén" style="max-width: 100%; height: auto;">
   </div>
 
 
   <script>
-    // ============================================================================
-    // CONFIGURACION
-    // ============================================================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-fYekBQtl4Jdw11gIYbLXp3e8IR6A58JM26en_WO0GykmhxOUtBiGE2lnH2Bd9o0O/exec';
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgNg2v3LMUGWX92aeZby_usO6FcyirsMCUTqBWA_DfKan2KnlCAhmao6ycAMZ0xoNf/exec';
+    var stockCache = [];
+    var modoMovimiento = '';
 
-    let stockCache = [];
-    let estadoActual = { vista: 'inventario', region: null, localidad: null, establecimiento: null, modoMovimiento: null };
-
-    // =============
-  <script>
-    // ============================================================================
-    // CONFIGURACION
-    // ============================================================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBOpldcRaFv6Jq1WnQ86i0tHH6uCQefjnmNZp-KOGevO030IvgB2eTKUhoy3xG2RbV/exec';
-
-    let stockCache = [];
-    let estadoActual = { vista: 'inventario', region: null, localidad: null, establecimiento: null, modoMovimiento: null };
-
-    // ============================================================================
-    // DATOS ESTATICOS — Calendario Nacional PNI 2026
-    // Fuente: PNI - Ministerio de Salud de la Nacion / saludneuquen.gob.ar
-    // ============================================================================
-    const VACUNAS_LABORATORIOS = {
-      'BCG':                         ['Serum Institute of India', 'Biologico Veterinario (SENASA)'],
-      'Hepatitis B':                 ['Sinergium Biotech', 'GSK'],
-      'Salk (IPV)':                  ['Sanofi Pasteur'],
-      'Quintuple / Pentavalente':    ['Sinergium Biotech'],
-      'Neumonocica Conjugada 13v':   ['Pfizer'],
-      'Rotavirus':                   ['GSK (Rotarix)'],
-      'Meningococica Conjugada':     ['Pfizer', 'GSK'],
-      'Triple Viral (SRP)':          ['Serum Institute of India', 'Sinergium Biotech'],
-      'Varicela':                    ['GSK', 'MSD'],
-      'Hepatitis A':                 ['GSK', 'Sanofi Pasteur'],
-      'Antigripal':                  ['Sinergium Biotech', 'Sanofi Pasteur', 'Abbott'],
-      'VPH (Papiloma Humano)':       ['MSD (Gardasil)', 'GSK (Cervarix)'],
-      'Triple Bacteriana Acelular':  ['Sanofi Pasteur', 'GSK'],
-      'Doble Bacteriana (dT)':       ['Sinergium Biotech', 'Sanofi Pasteur'],
-      'VSR (Virus Sincicial Resp.)': ['AstraZeneca (Beyfortus)', 'Pfizer (Abrysvo)']
+    var VACUNAS_LABORATORIOS = {
+      'BCG': ['Serum Institute of India','Biologico Veterinario (SENASA)'],
+      'Hepatitis B': ['Sinergium Biotech','GSK'],
+      'Salk (IPV)': ['Sanofi Pasteur'],
+      'Quintuple / Pentavalente': ['Sinergium Biotech'],
+      'Neumonocica Conjugada 13v': ['Pfizer'],
+      'Rotavirus': ['GSK (Rotarix)'],
+      'Meningococica Conjugada': ['Pfizer','GSK'],
+      'Triple Viral (SRP)': ['Serum Institute of India','Sinergium Biotech'],
+      'Varicela': ['GSK','MSD'],
+      'Hepatitis A': ['GSK','Sanofi Pasteur'],
+      'Antigripal': ['Sinergium Biotech','Sanofi Pasteur','Abbott'],
+      'VPH (Papiloma Humano)': ['MSD (Gardasil)','GSK (Cervarix)'],
+      'Triple Bacteriana Acelular': ['Sanofi Pasteur','GSK'],
+      'Doble Bacteriana (dT)': ['Sinergium Biotech','Sanofi Pasteur'],
+      'VSR (Virus Sincicial Resp.)': ['AstraZeneca (Beyfortus)','Pfizer (Abrysvo)']
     };
 
-    const ESTRUCTURA_GEOGRAFICA = {
+    var ESTRUCTURA_GEOGRAFICA = {
       'Confluencia': {
-        'Zona Sanitaria Confluencia': ['Deposito Zona Sanitaria Confluencia 1', 'Deposito Zona Sanitaria Confluencia 2'],
-        'Centenario': ['Hospital Centenario', 'CAPS Sarmiento 1', 'CAPS Sarmiento 2', 'CAPS Villa Obrera', 'CAPS Nueva Espana', 'CAPS 11 de Octubre'],
-        'Vista Alegre': ['CAPS Vista Alegre Norte', 'CAPS Vista Alegre Sur', 'CAPS Costa de Reyes']
+        'Zona Sanitaria Confluencia': ['Deposito Zona Sanitaria Confluencia 1','Deposito Zona Sanitaria Confluencia 2'],
+        'Centenario': ['Hospital Centenario','CAPS Sarmiento 1','CAPS Sarmiento 2','CAPS Villa Obrera','CAPS Nueva Espana','CAPS 11 de Octubre'],
+        'Vista Alegre': ['CAPS Vista Alegre Norte','CAPS Vista Alegre Sur','CAPS Costa de Reyes']
       },
       'Vaca Muerta': {
         'San Patricio del Chanar': ['Hospital San Patricio del Chanar']
       }
     };
 
-    // ============================================================================
-    // CASCADA: Vacuna -> Laboratorio -> Lote / Region -> Localidad -> Establecimiento
-    // ============================================================================
+    function mostrarLoading(show) {
+      document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+
+    function cargarDatos() {
+      mostrarLoading(true);
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', APPS_SCRIPT_URL + '?action=getDatosAgregados', true);
+      xhr.timeout = 10000;
+      xhr.onload = function() {
+        mostrarLoading(false);
+        try {
+          var data = JSON.parse(xhr.responseText);
+          stockCache = data.stock || [];
+          renderizarTablaInventario(data);
+          actualizarEstadisticas(data.stock);
+        } catch(e) {
+          document.getElementById('stockBodyInventario').innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;">Error al procesar datos.</td></tr>';
+        }
+      };
+      xhr.onerror = xhr.ontimeout = function() {
+        mostrarLoading(false);
+        document.getElementById('stockBodyInventario').innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;">No se pudo conectar con el servidor.</td></tr>';
+      };
+      xhr.send();
+    }
+
+    function cargarDatosNivelProvincia() {
+      mostrarLoading(true);
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', APPS_SCRIPT_URL + '?action=getDatosAgregados', true);
+      xhr.timeout = 10000;
+      xhr.onload = function() {
+        mostrarLoading(false);
+        try { renderizarTablasNivel1(JSON.parse(xhr.responseText)); } catch(e) { console.error(e); }
+      };
+      xhr.onerror = xhr.ontimeout = function() { mostrarLoading(false); };
+      xhr.send();
+    }
+
     function onVacunaChange() {
-      const vacuna = document.getElementById('vacuna').value;
-      const selLab = document.getElementById('laboratorio');
+      var vacuna = document.getElementById('vacuna').value;
+      var selLab = document.getElementById('laboratorio');
       selLab.innerHTML = '<option value="">Seleccionar laboratorio</option>';
       if (!vacuna) return;
-      const labs = VACUNAS_LABORATORIOS[vacuna] || [];
-      labs.forEach(function(l) {
+      var labs = VACUNAS_LABORATORIOS[vacuna] || [];
+      for (var i=0; i<labs.length; i++) {
         var opt = document.createElement('option');
-        opt.value = l; opt.textContent = l;
-        selLab.appendChild(opt);
-      });
+        opt.value = labs[i]; opt.textContent = labs[i]; selLab.appendChild(opt);
+      }
       if (labs.length === 1) selLab.value = labs[0];
       document.getElementById('loteSelect').innerHTML = '<option value="">Seleccionar lote</option>';
     }
 
     function onLaboratorioChange() {
-      if (estadoActual.modoMovimiento !== 'Egreso') return;
+      if (modoMovimiento !== 'Egreso') return;
       var vacuna = document.getElementById('vacuna').value;
-      var lab    = document.getElementById('laboratorio').value;
-      var select = document.getElementById('loteSelect');
-      select.innerHTML = '<option value="">Seleccionar lote</option>';
-      if (!vacuna || !lab || !stockCache.length) return;
-      var lotes = stockCache.filter(function(i) {
-        return i.vacuna === vacuna && i.laboratorio === lab && parseInt(i.stock) > 0;
-      });
-      if (lotes.length === 0) {
-        select.innerHTML = '<option value="">Sin stock disponible</option>';
-        return;
-      }
-      lotes.forEach(function(i) {
+      var lab = document.getElementById('laboratorio').value;
+      var sel = document.getElementById('loteSelect');
+      sel.innerHTML = '<option value="">Seleccionar lote</option>';
+      if (!vacuna || !lab) return;
+      var lotes = stockCache.filter(function(i) { return i.vacuna===vacuna && i.laboratorio===lab && parseInt(i.stock)>0; });
+      if (!lotes.length) { sel.innerHTML = '<option value="">Sin stock disponible</option>'; return; }
+      for (var i=0; i<lotes.length; i++) {
         var opt = document.createElement('option');
-        opt.value = i.lote;
-        opt.textContent = i.lote + ' — Stock: ' + i.stock + ' | Vence: ' + new Date(i.vencimiento).toLocaleDateString('es-AR');
-        select.appendChild(opt);
-      });
+        opt.value = lotes[i].lote;
+        opt.textContent = lotes[i].lote + ' - Stock: ' + lotes[i].stock + ' | Vence: ' + new Date(lotes[i].vencimiento).toLocaleDateString('es-AR');
+        sel.appendChild(opt);
+      }
     }
 
     function onRegionChange() {
@@ -442,82 +520,42 @@
       selLoc.innerHTML = '<option value="">Seleccionar localidad</option>';
       selEst.innerHTML = '<option value="">Primero selecciona una localidad</option>';
       if (!region) return;
-      Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {}).forEach(function(l) {
-        var opt = document.createElement('option');
-        opt.value = l; opt.textContent = l;
-        selLoc.appendChild(opt);
-      });
+      var locs = Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {});
+      for (var i=0; i<locs.length; i++) {
+        var opt = document.createElement('option'); opt.value=locs[i]; opt.textContent=locs[i]; selLoc.appendChild(opt);
+      }
     }
 
     function onLocalidadChange() {
-      var region    = document.getElementById('regionMov').value;
+      var region = document.getElementById('regionMov').value;
       var localidad = document.getElementById('localidadMov').value;
-      var selEst    = document.getElementById('establecimientoMov');
+      var selEst = document.getElementById('establecimientoMov');
       selEst.innerHTML = '<option value="">Seleccionar establecimiento</option>';
       if (!region || !localidad) return;
-      var ests = (ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || [];
-      ests.forEach(function(e) {
-        var opt = document.createElement('option');
-        opt.value = e; opt.textContent = e;
-        selEst.appendChild(opt);
-      });
-    }
-
-    // ============================================================================
-    // CARGA DE DATOS
-    // ============================================================================
-    async function cargarDatos() {
-      mostrarLoading(true);
-      try {
-        var response = await fetch(APPS_SCRIPT_URL + '?action=getDatosAgregados');
-        var data = await response.json();
-        stockCache = data.stock || [];
-        renderizarTablaInventario(data);
-        actualizarEstadisticas(data.stock);
-      } catch (error) {
-        console.error('Error al cargar datos:', error);
-        document.getElementById('stockBodyInventario').innerHTML = '<tr><td colspan="9" style="text-align:center;color:#ef4444;">Error al conectar con el servidor</td></tr>';
-      } finally {
-        mostrarLoading(false);
+      var ests = (ESTRUCTURA_GEOGRAFICA[region]||{})[localidad] || [];
+      for (var i=0; i<ests.length; i++) {
+        var opt = document.createElement('option'); opt.value=ests[i]; opt.textContent=ests[i]; selEst.appendChild(opt);
       }
     }
 
-    async function cargarDatosNivelProvincia() {
-      mostrarLoading(true);
-      try {
-        var response = await fetch(APPS_SCRIPT_URL + '?action=getDatosAgregados');
-        var data = await response.json();
-        renderizarTablasNivel1(data);
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        mostrarLoading(false);
-      }
-    }
-
-    // ============================================================================
-    // MODAL MOVIMIENTO
-    // ============================================================================
     function abrirModalMov(modo) {
-      estadoActual.modoMovimiento = modo;
+      modoMovimiento = modo;
       document.getElementById('modalMov').style.display = 'block';
-      document.getElementById('modalTitulo').innerText = modo === 'Egreso' ? 'Registrar Egreso' : 'Registrar Ingreso';
-      document.getElementById('camposEgreso').style.display = modo === 'Egreso' ? 'block' : 'none';
-      document.getElementById('camposIngreso').style.display = modo === 'Ingreso' ? 'block' : 'none';
-      document.getElementById('vencimientoRow').style.display = modo === 'Ingreso' ? 'block' : 'none';
-      document.getElementById('btnSubmit').style.background = modo === 'Egreso' ? '#10b981' : '#8b5cf6';
-
+      document.getElementById('modalTitulo').innerText = modo==='Egreso' ? 'Registrar Egreso' : 'Registrar Ingreso';
+      document.getElementById('camposEgreso').style.display = modo==='Egreso' ? 'block' : 'none';
+      document.getElementById('camposIngreso').style.display = modo==='Ingreso' ? 'block' : 'none';
+      document.getElementById('vencimientoRow').style.display = modo==='Ingreso' ? 'block' : 'none';
+      document.getElementById('btnSubmit').style.background = modo==='Egreso' ? '#10b981' : '#8b5cf6';
       var selVac = document.getElementById('vacuna');
       selVac.innerHTML = '<option value="">Seleccionar vacuna</option>';
-      Object.keys(VACUNAS_LABORATORIOS).forEach(function(v) {
-        var opt = document.createElement('option');
-        opt.value = v; opt.textContent = v;
-        selVac.appendChild(opt);
-      });
+      var vacunas = Object.keys(VACUNAS_LABORATORIOS);
+      for (var i=0; i<vacunas.length; i++) {
+        var opt = document.createElement('option'); opt.value=vacunas[i]; opt.textContent=vacunas[i]; selVac.appendChild(opt);
+      }
       document.getElementById('laboratorio').innerHTML = '<option value="">Primero selecciona una vacuna</option>';
-      document.getElementById('loteSelect').innerHTML  = '<option value="">Seleccionar lote</option>';
-      document.getElementById('regionMov').value       = '';
-      document.getElementById('localidadMov').innerHTML    = '<option value="">Primero selecciona una region</option>';
+      document.getElementById('loteSelect').innerHTML = '<option value="">Seleccionar lote</option>';
+      document.getElementById('regionMov').value = '';
+      document.getElementById('localidadMov').innerHTML = '<option value="">Primero selecciona una region</option>';
       document.getElementById('establecimientoMov').innerHTML = '<option value="">Primero selecciona una localidad</option>';
     }
 
@@ -530,288 +568,151 @@
       document.getElementById('modalConfirmacion').style.display = 'none';
     }
 
-    async function registrarMovimiento(event) {
+    function registrarMovimiento(event) {
       event.preventDefault();
-      var vacuna          = document.getElementById('vacuna').value;
-      var lab             = document.getElementById('laboratorio').value;
-      var cantidad        = document.getElementById('cantidad').value;
-      var responsable     = document.getElementById('responsable').value;
-      var region          = document.getElementById('regionMov').value;
-      var localidad       = document.getElementById('localidadMov').value;
+      var vacuna = document.getElementById('vacuna').value;
+      var lab = document.getElementById('laboratorio').value;
+      var cantidad = document.getElementById('cantidad').value;
+      var responsable = document.getElementById('responsable').value;
+      var region = document.getElementById('regionMov').value;
+      var localidad = document.getElementById('localidadMov').value;
       var establecimiento = document.getElementById('establecimientoMov').value;
-      var observaciones   = document.getElementById('observaciones').value;
+      var observaciones = document.getElementById('observaciones').value;
       var lote = '', vencimiento = '';
-
-      if (estadoActual.modoMovimiento === 'Ingreso') {
-        lote        = document.getElementById('loteInput').value;
+      if (modoMovimiento === 'Ingreso') {
+        lote = document.getElementById('loteInput').value;
         vencimiento = document.getElementById('vencimiento').value;
       } else {
         lote = document.getElementById('loteSelect').value;
       }
-
-      if (!vacuna || !lab || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
-        alert('Por favor completa todos los campos requeridos');
-        return;
+      if (!vacuna||!lab||!lote||!cantidad||!responsable||!region||!localidad||!establecimiento) {
+        alert('Por favor completa todos los campos requeridos'); return;
       }
-
       mostrarLoading(true);
-      try {
-        var url = APPS_SCRIPT_URL
-          + '?action=registrarMovimiento'
-          + '&tipo=' + estadoActual.modoMovimiento
-          + '&vacuna=' + encodeURIComponent(vacuna)
-          + '&laboratorio=' + encodeURIComponent(lab)
-          + '&lote=' + encodeURIComponent(lote)
-          + '&cantidad=' + cantidad
-          + '&responsable=' + encodeURIComponent(responsable)
-          + '&region=' + encodeURIComponent(region)
-          + '&localidad=' + encodeURIComponent(localidad)
-          + '&establecimiento=' + encodeURIComponent(establecimiento)
-          + '&observaciones=' + encodeURIComponent(observaciones)
-          + '&vencimiento=' + encodeURIComponent(vencimiento);
-
-        var response = await fetch(url);
-        var result   = await response.json();
-
-        if (result.result) {
-          cerrarModalMov();
-          document.getElementById('confirmacionMensaje').innerHTML =
-            '<b>Registrado correctamente.</b><br>' +
-            '<small style="color:#64748b;">Trazabilidad: <strong>' + (result.trazabilidad || '') + '</strong></small>';
-          document.getElementById('modalConfirmacion').style.display = 'block';
-          cargarDatos();
-        } else {
-          alert('Error: ' + result.message);
-        }
-      } catch (error) {
-        alert('Error de conexion: ' + error);
-      } finally {
+      var url = APPS_SCRIPT_URL + '?action=registrarMovimiento&tipo=' + modoMovimiento +
+        '&vacuna=' + encodeURIComponent(vacuna) + '&laboratorio=' + encodeURIComponent(lab) +
+        '&lote=' + encodeURIComponent(lote) + '&cantidad=' + cantidad +
+        '&responsable=' + encodeURIComponent(responsable) + '&region=' + encodeURIComponent(region) +
+        '&localidad=' + encodeURIComponent(localidad) + '&establecimiento=' + encodeURIComponent(establecimiento) +
+        '&observaciones=' + encodeURIComponent(observaciones) + '&vencimiento=' + encodeURIComponent(vencimiento);
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true); xhr.timeout = 15000;
+      xhr.onload = function() {
         mostrarLoading(false);
-      }
+        try {
+          var result = JSON.parse(xhr.responseText);
+          if (result.result) {
+            cerrarModalMov();
+            document.getElementById('confirmacionMensaje').innerHTML = '<b>Registrado correctamente.</b><br><small style="color:#64748b;">Trazabilidad: <strong>' + (result.trazabilidad||'') + '</strong></small>';
+            document.getElementById('modalConfirmacion').style.display = 'block';
+            cargarDatos();
+          } else { alert('Error: ' + result.message); }
+        } catch(e) { alert('Error al procesar respuesta.'); }
+      };
+      xhr.onerror = xhr.ontimeout = function() { mostrarLoading(false); alert('Error de conexion.'); };
+      xhr.send();
     }
 
-    // ============================================================================
-    // RENDERIZADO DE TABLAS
-    // ============================================================================
     function renderizarTablaInventario(data) {
       var tbody = document.getElementById('stockBodyInventario');
-      if (!data.stock || data.stock.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No hay datos disponibles</td></tr>';
-        return;
+      if (!data.stock||!data.stock.length) { tbody.innerHTML='<tr><td colspan="9" style="text-align:center;">No hay datos disponibles</td></tr>'; return; }
+      var html='', hoy=new Date();
+      for (var i=0; i<data.stock.length; i++) {
+        var it=data.stock[i], venc=new Date(it.vencimiento), estado='Disponible', badge='badge-success';
+        if (venc<hoy){estado='Vencido';badge='badge-danger';}
+        else if((venc-hoy)/86400000<=30){estado='Proximo a Vencer';badge='badge-warning';}
+        html+='<tr><td>'+(it.vacuna||'-')+'</td><td>'+(it.laboratorio||'-')+'</td><td>'+(it.lote||'-')+'</td><td>'+venc.toLocaleDateString('es-AR')+'</td><td>'+(it.stock||0)+'</td><td>'+(it.region||'-')+'</td><td>'+(it.localidad||'-')+'</td><td>'+(it.establecimiento||'-')+'</td><td><span class="badge '+badge+'">'+estado+'</span></td></tr>';
       }
-      tbody.innerHTML = data.stock.map(function(item) {
-        var venc = new Date(item.vencimiento);
-        var hoy  = new Date();
-        var estado = 'Disponible', badge = 'badge-success';
-        if (venc < hoy) { estado = 'Vencido'; badge = 'badge-danger'; }
-        else if ((venc - hoy) / 86400000 <= 30) { estado = 'Proximo a Vencer'; badge = 'badge-warning'; }
-        return '<tr><td>' + (item.vacuna||'-') + '</td><td>' + (item.laboratorio||'-') + '</td><td>' + (item.lote||'-') + '</td><td>' +
-          venc.toLocaleDateString('es-AR') + '</td><td>' + (item.stock||0) + '</td><td>' + (item.region||'-') + '</td><td>' +
-          (item.localidad||'-') + '</td><td>' + (item.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td></tr>';
-      }).join('');
+      tbody.innerHTML = html;
     }
 
     function actualizarEstadisticas(stock) {
-      var total = 0, proximos = 0, vencidos = 0;
-      var hoy = new Date();
-      (stock || []).forEach(function(item) {
-        var s = parseInt(item.stock) || 0;
-        total += s;
-        var v = new Date(item.vencimiento);
-        if (v < hoy) vencidos += s;
-        else if ((v - hoy) / 86400000 <= 30) proximos += s;
-      });
-      document.getElementById('totalDosis').textContent    = total;
-      document.getElementById('proximosVencer').textContent = proximos;
-      document.getElementById('vencidos').textContent      = vencidos;
-    }
-
-    function filaIngreso(item) {
-      return '<tr><td>' + new Date(item.fecha).toLocaleDateString('es-AR') + '</td><td>' +
-        (item.vacuna||'-') + '</td><td>' + (item.laboratorio||'-') + '</td><td>' +
-        (item.lote||'-') + '</td><td>' + (item.cantidad||0) + '</td><td>' +
-        (item.responsable||'-') + '</td><td>' + (item.trazabilidad||'-') + '</td></tr>';
-    }
-
-    function filaEgreso(item) {
-      return '<tr><td>' + new Date(item.fecha).toLocaleDateString('es-AR') + '</td><td>' +
-        (item.vacuna||'-') + '</td><td>' + (item.laboratorio||'-') + '</td><td>' +
-        (item.lote||'-') + '</td><td>' + (item.cantidad||0) + '</td><td>' +
-        (item.responsable||'-') + '</td><td>' + (item.trazabilidad||'-') + '</td></tr>';
-    }
-
-    function tablaStock(items, titulo, pdfId, pdfNombre) {
-      return '<div style="margin-top:30px;"><h3>' + titulo + '</h3><div class="table-wrapper"><table>' +
-        '<thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Localidad</th><th>Establecimiento</th></tr></thead><tbody>' +
-        items.map(function(i) {
-          return '<tr><td>'+(i.vacuna||'-')+'</td><td>'+(i.laboratorio||'-')+'</td><td>'+(i.lote||'-')+'</td><td>'+(i.stock||0)+'</td><td>'+
-            new Date(i.vencimiento).toLocaleDateString('es-AR')+'</td><td>'+(i.localidad||'-')+'</td><td>'+(i.establecimiento||'-')+'</td></tr>';
-        }).join('') +
-        '</tbody></table></div>' +
-        '<button class="btn btn-outline" onclick="descargarPDF(\'' + pdfId + '\',\'' + pdfNombre + '\')">Descargar PDF</button></div>';
-    }
-
-    function tablaMovimientos(items, titulo, tipo, pdfId, pdfNombre) {
-      var filaFn = tipo === 'ingreso' ? filaIngreso : filaEgreso;
-      return '<div style="margin-top:30px;"><h3>' + titulo + '</h3><div class="table-wrapper"><table>' +
-        '<thead><tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Responsable</th><th>Trazabilidad</th></tr></thead><tbody>' +
-        items.map(filaFn).join('') +
-        '</tbody></table></div>' +
-        '<button class="btn btn-outline" onclick="descargarPDF(\'' + pdfId + '\',\'' + pdfNombre + '\')">Descargar PDF</button></div>';
-    }
-
-    function renderizarTablasNivel1(data) {
-      document.getElementById('tablasNivel1').innerHTML =
-        tablaStock(data.stock, 'Stock Total - Provincia', 'tablaStock1', 'stock_provincia.pdf') +
-        tablaMovimientos(data.ingresos, 'Ingresos Totales - Provincia', 'ingreso', 'tablaIngresos1', 'ingresos_provincia.pdf') +
-        tablaMovimientos(data.egresos, 'Egresos Totales - Provincia', 'egreso', 'tablaEgresos1', 'egresos_provincia.pdf');
-    }
-
-    function renderizarTablasNivel2(data, region) {
-      var localidades = Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {});
-      var botonesLoc = localidades.map(function(l) {
-        return '<button class="btn btn-outline" onclick="navegarALocalidad(\'' + region + '\',\'' + l + '\')">' + l + '</button>';
-      }).join('');
-      document.getElementById('tablasNivel2').innerHTML =
-        tablaStock(data.stock, 'Stock - ' + region, 'tablaStock2', 'stock_' + region + '.pdf') +
-        tablaMovimientos(data.ingresos, 'Ingresos - ' + region, 'ingreso', 'tablaIngresos2', 'ingresos_' + region + '.pdf') +
-        tablaMovimientos(data.egresos, 'Egresos - ' + region, 'egreso', 'tablaEgresos2', 'egresos_' + region + '.pdf') +
-        '<div style="margin-top:30px;"><h3>Seleccione una Localidad</h3><div style="display:flex;gap:10px;flex-wrap:wrap;">' + botonesLoc + '</div></div>';
-    }
-
-    function renderizarTablasNivel3(data, region, localidad, establecimiento) {
-      var titulo = establecimiento ? region + ' - ' + localidad + ' - ' + establecimiento : region + ' - ' + localidad;
-      document.getElementById('tablasNivel3').innerHTML =
-        tablaStock(data.stock, 'Stock - ' + titulo, 'tablaStock3', 'stock_' + localidad + '.pdf') +
-        tablaMovimientos(data.ingresos, 'Ingresos - ' + titulo, 'ingreso', 'tablaIngresos3', 'ingresos_' + localidad + '.pdf') +
-        tablaMovimientos(data.egresos, 'Egresos - ' + titulo, 'egreso', 'tablaEgresos3', 'egresos_' + localidad + '.pdf');
-    }
-
-    // ============================================================================
-    // NAVEGACION GEOGRAFICA
-    // ============================================================================
-    function mostrarVistaGeografica() {
-      document.getElementById('vistaInventario').classList.remove('active');
-      document.getElementById('vistaGeografica').classList.add('active');
-      cargarDatosNivelProvincia();
-    }
-
-    function volverVistaInventario() {
-      document.getElementById('vistaGeografica').classList.remove('active');
-      document.getElementById('vistaInventario').classList.add('active');
-      cargarDatos();
-    }
-
-    function volverANivelProvincia() {
-      document.getElementById('nivelRegion').style.display = 'none';
-      document.getElementById('nivelLocalidad').style.display = 'none';
-      document.getElementById('nivelProvincia').style.display = 'block';
-      document.getElementById('breadcrumbRegion').style.display = 'none';
-      document.getElementById('breadcrumbLocalidad').style.display = 'none';
-    }
-
-    function volverANivelRegion() {
-      document.getElementById('nivelLocalidad').style.display = 'none';
-      document.getElementById('nivelRegion').style.display = 'block';
-      document.getElementById('breadcrumbLocalidad').style.display = 'none';
-    }
-
-    async function navegarARegion(region) {
-      estadoActual.region = region;
-      document.getElementById('nivelProvincia').style.display = 'none';
-      document.getElementById('nivelRegion').style.display = 'block';
-      document.getElementById('tituloRegion').textContent = 'Region: ' + region;
-      document.getElementById('breadcrumbRegion').style.display = 'inline-block';
-      document.getElementById('breadcrumbRegion').textContent = region;
-      mostrarLoading(true);
-      try {
-        var r = await fetch(APPS_SCRIPT_URL + '?action=getDatosAgregados&region=' + encodeURIComponent(region));
-        var d = await r.json();
-        renderizarTablasNivel2(d, region);
-      } catch(e) { console.error(e); } finally { mostrarLoading(false); }
-    }
-
-    async function navegarALocalidad(region, localidad) {
-      estadoActual.localidad = localidad;
-      document.getElementById('nivelRegion').style.display = 'none';
-      document.getElementById('nivelLocalidad').style.display = 'block';
-      document.getElementById('tituloLocalidad').textContent = region + ' - ' + localidad;
-      document.getElementById('breadcrumbLocalidad').style.display = 'inline-block';
-      document.getElementById('breadcrumbLocalidad').textContent = localidad;
-
-      var ests = (ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || [];
-      document.getElementById('establecimientos-menu').innerHTML = ests.map(function(e) {
-        return '<button class="establecimiento-btn" onclick="navegarAEstablecimiento(\'' + region + '\',\'' + localidad + '\',\'' + e + '\')">' + e + '</button>';
-      }).join('');
-
-      mostrarLoading(true);
-      try {
-        var r = await fetch(APPS_SCRIPT_URL + '?action=getDatosAgregados&region=' + encodeURIComponent(region) + '&localidad=' + encodeURIComponent(localidad));
-        var d = await r.json();
-        renderizarTablasNivel3(d, region, localidad, null);
-      } catch(e) { console.error(e); } finally { mostrarLoading(false); }
-    }
-
-    async function navegarAEstablecimiento(region, localidad, establecimiento) {
-      estadoActual.establecimiento = establecimiento;
-      document.querySelectorAll('.establecimiento-btn').forEach(function(b) { b.classList.remove('active'); });
-      event.target.classList.add('active');
-      mostrarLoading(true);
-      try {
-        var r = await fetch(APPS_SCRIPT_URL + '?action=getDatosAgregados&region=' + encodeURIComponent(region) + '&localidad=' + encodeURIComponent(localidad) + '&establecimiento=' + encodeURIComponent(establecimiento));
-        var d = await r.json();
-        renderizarTablasNivel3(d, region, localidad, establecimiento);
-      } catch(e) { console.error(e); } finally { mostrarLoading(false); }
-    }
-
-    // ============================================================================
-    // PDF
-    // ============================================================================
-    function descargarPDF(tableId, nombreArchivo) {
-      var el = document.querySelector('#' + tableId);
-      if (!el) { alert('No se encontro la tabla'); return; }
-      html2pdf().set({
-        margin: 10, filename: nombreArchivo,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).from(el).save();
-    }
-
-    // ============================================================================
-    // NORMATIVA
-    // ============================================================================
-    function toggleNormativa() {
-      var p = document.getElementById('normativaPanel');
-      p.style.display = p.style.display === 'block' ? 'none' : 'block';
-      if (p.style.display === 'block') p.scrollTop = 0;
-    }
-
-    function buscarNorma(query) {
-      window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank');
-    }
-
-    function buscarTodasNormas() {
-      if (confirm('Desea abrir pestanas para verificar todas las normas?')) {
-        var queries = [
-          'Ley 27491 control enfermedades prevenibles vacunacion boletinoficial.gob.ar',
-          'Resolucion 1030/2021 cadena de frio PNI argentina.gob.ar',
-          'Resolucion ANMAT 435/2011 sistema nacional trazabilidad medicamentos vacunas',
-          'Disposicion ANMAT 10872/2020 buenas practicas almacenamiento distribucion productos biologicos',
-          'Resolucion 1285/2022 cadena de frio inmunizacion gestion stock salud.neuquen.gov.ar',
-          'Decreto 1874/2023 trazabilidad salud publica Neuquen neuquen.gob.ar'
-        ];
-        queries.forEach(function(q, i) {
-          setTimeout(function() { window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank'); }, i * 600);
-        });
+      var total=0,proximos=0,vencidos=0,hoy=new Date();
+      for(var i=0;i<(stock||[]).length;i++){
+        var s=parseInt(stock[i].stock)||0; total+=s;
+        var v=new Date(stock[i].vencimiento);
+        if(v<hoy)vencidos+=s; else if((v-hoy)/86400000<=30)proximos+=s;
       }
+      document.getElementById('totalDosis').textContent=total;
+      document.getElementById('proximosVencer').textContent=proximos;
+      document.getElementById('vencidos').textContent=vencidos;
     }
 
-    // ============================================================================
-    // AUXILIARES
-    // ============================================================================
-    function mostrarLoading(mostrar) {
-      document.getElementById('loading').style.display = mostrar ? 'block' : 'none';
+    function buildTablaStock(items,titulo,pdfId,pdfNombre){
+      var rows='';
+      for(var i=0;i<items.length;i++){var it=items[i];rows+='<tr><td>'+(it.vacuna||'-')+'</td><td>'+(it.laboratorio||'-')+'</td><td>'+(it.lote||'-')+'</td><td>'+(it.stock||0)+'</td><td>'+new Date(it.vencimiento).toLocaleDateString('es-AR')+'</td><td>'+(it.localidad||'-')+'</td><td>'+(it.establecimiento||'-')+'</td></tr>';}
+      return '<div style="margin-top:30px;" id="'+pdfId+'"><h3>'+titulo+'</h3><div class="table-wrapper"><table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Stock</th><th>Vencimiento</th><th>Localidad</th><th>Establecimiento</th></tr></thead><tbody>'+rows+'</tbody></table></div><button class="btn btn-outline" onclick="descargarPDF(\''+pdfId+'\',\''+pdfNombre+'\')">Descargar PDF</button></div>';
+    }
+
+    function buildTablaMovimientos(items,titulo,pdfId,pdfNombre){
+      var rows='';
+      for(var i=0;i<items.length;i++){var it=items[i];rows+='<tr><td>'+new Date(it.fecha).toLocaleDateString('es-AR')+'</td><td>'+(it.vacuna||'-')+'</td><td>'+(it.laboratorio||'-')+'</td><td>'+(it.lote||'-')+'</td><td>'+(it.cantidad||0)+'</td><td>'+(it.responsable||'-')+'</td><td>'+(it.trazabilidad||'-')+'</td></tr>';}
+      return '<div style="margin-top:30px;" id="'+pdfId+'"><h3>'+titulo+'</h3><div class="table-wrapper"><table><thead><tr><th>Fecha</th><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Responsable</th><th>Trazabilidad</th></tr></thead><tbody>'+rows+'</tbody></table></div><button class="btn btn-outline" onclick="descargarPDF(\''+pdfId+'\',\''+pdfNombre+'\')">Descargar PDF</button></div>';
+    }
+
+    function renderizarTablasNivel1(data){
+      document.getElementById('tablasNivel1').innerHTML=buildTablaStock(data.stock||[],'Stock Total - Provincia','tablaStock1','stock_provincia.pdf')+buildTablaMovimientos(data.ingresos||[],'Ingresos - Provincia','tablaIngresos1','ingresos_provincia.pdf')+buildTablaMovimientos(data.egresos||[],'Egresos - Provincia','tablaEgresos1','egresos_provincia.pdf');
+    }
+
+    function renderizarTablasNivel2(data,region){
+      var locs=Object.keys(ESTRUCTURA_GEOGRAFICA[region]||{}),btns='';
+      for(var i=0;i<locs.length;i++)btns+='<button class="btn btn-outline" onclick="navegarALocalidad(\''+region+'\',\''+locs[i]+'\')">'+locs[i]+'</button> ';
+      document.getElementById('tablasNivel2').innerHTML=buildTablaStock(data.stock||[],'Stock - '+region,'tablaStock2','stock_'+region+'.pdf')+buildTablaMovimientos(data.ingresos||[],'Ingresos - '+region,'tablaIngresos2','ingresos_'+region+'.pdf')+buildTablaMovimientos(data.egresos||[],'Egresos - '+region,'tablaEgresos2','egresos_'+region+'.pdf')+'<div style="margin-top:30px;"><h3>Seleccione una Localidad</h3><div style="display:flex;gap:10px;flex-wrap:wrap;">'+btns+'</div></div>';
+    }
+
+    function renderizarTablasNivel3(data,region,localidad,establecimiento){
+      var titulo=establecimiento?region+' - '+localidad+' - '+establecimiento:region+' - '+localidad;
+      document.getElementById('tablasNivel3').innerHTML=buildTablaStock(data.stock||[],'Stock - '+titulo,'tablaStock3','stock_'+localidad+'.pdf')+buildTablaMovimientos(data.ingresos||[],'Ingresos - '+titulo,'tablaIngresos3','ingresos_'+localidad+'.pdf')+buildTablaMovimientos(data.egresos||[],'Egresos - '+titulo,'tablaEgresos3','egresos_'+localidad+'.pdf');
+    }
+
+    function mostrarVistaGeografica(){document.getElementById('vistaInventario').classList.remove('active');document.getElementById('vistaGeografica').classList.add('active');cargarDatosNivelProvincia();}
+    function volverVistaInventario(){document.getElementById('vistaGeografica').classList.remove('active');document.getElementById('vistaInventario').classList.add('active');cargarDatos();}
+    function volverANivelProvincia(){document.getElementById('nivelRegion').style.display='none';document.getElementById('nivelLocalidad').style.display='none';document.getElementById('nivelProvincia').style.display='block';document.getElementById('breadcrumbRegion').style.display='none';document.getElementById('breadcrumbLocalidad').style.display='none';}
+    function volverANivelRegion(){document.getElementById('nivelLocalidad').style.display='none';document.getElementById('nivelRegion').style.display='block';document.getElementById('breadcrumbLocalidad').style.display='none';}
+
+    function navegarARegion(region){
+      document.getElementById('nivelProvincia').style.display='none';document.getElementById('nivelRegion').style.display='block';
+      document.getElementById('tituloRegion').textContent='Region: '+region;
+      document.getElementById('breadcrumbRegion').style.display='inline-block';document.getElementById('breadcrumbRegion').textContent=region;
+      mostrarLoading(true);
+      var xhr=new XMLHttpRequest();xhr.open('GET',APPS_SCRIPT_URL+'?action=getDatosAgregados&region='+encodeURIComponent(region),true);xhr.timeout=10000;
+      xhr.onload=function(){mostrarLoading(false);try{renderizarTablasNivel2(JSON.parse(xhr.responseText),region);}catch(e){console.error(e);}};
+      xhr.onerror=xhr.ontimeout=function(){mostrarLoading(false);};xhr.send();
+    }
+
+    function navegarALocalidad(region,localidad){
+      document.getElementById('nivelRegion').style.display='none';document.getElementById('nivelLocalidad').style.display='block';
+      document.getElementById('tituloLocalidad').textContent=region+' - '+localidad;
+      document.getElementById('breadcrumbLocalidad').style.display='inline-block';document.getElementById('breadcrumbLocalidad').textContent=localidad;
+      var ests=(ESTRUCTURA_GEOGRAFICA[region]||{})[localidad]||[],menu='';
+      for(var i=0;i<ests.length;i++)menu+='<button class="establecimiento-btn" onclick="navegarAEstablecimiento(\''+region+'\',\''+localidad+'\',\''+ests[i]+'\')">'+ests[i]+'</button> ';
+      document.getElementById('establecimientos-menu').innerHTML=menu;
+      mostrarLoading(true);
+      var xhr=new XMLHttpRequest();xhr.open('GET',APPS_SCRIPT_URL+'?action=getDatosAgregados&region='+encodeURIComponent(region)+'&localidad='+encodeURIComponent(localidad),true);xhr.timeout=10000;
+      xhr.onload=function(){mostrarLoading(false);try{renderizarTablasNivel3(JSON.parse(xhr.responseText),region,localidad,null);}catch(e){console.error(e);}};
+      xhr.onerror=xhr.ontimeout=function(){mostrarLoading(false);};xhr.send();
+    }
+
+    function navegarAEstablecimiento(region,localidad,establecimiento){
+      var btns=document.querySelectorAll('.establecimiento-btn');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');event.target.classList.add('active');
+      mostrarLoading(true);
+      var xhr=new XMLHttpRequest();xhr.open('GET',APPS_SCRIPT_URL+'?action=getDatosAgregados&region='+encodeURIComponent(region)+'&localidad='+encodeURIComponent(localidad)+'&establecimiento='+encodeURIComponent(establecimiento),true);xhr.timeout=10000;
+      xhr.onload=function(){mostrarLoading(false);try{renderizarTablasNivel3(JSON.parse(xhr.responseText),region,localidad,establecimiento);}catch(e){console.error(e);}};
+      xhr.onerror=xhr.ontimeout=function(){mostrarLoading(false);};xhr.send();
+    }
+
+    function descargarPDF(tableId,nombreArchivo){
+      var el=document.getElementById(tableId);if(!el){alert('No se encontro la tabla');return;}
+      html2pdf().set({margin:10,filename:nombreArchivo,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();
+    }
+
+    function toggleNormativa(){var p=document.getElementById('normativaPanel');p.style.display=p.style.display==='block'?'none':'block';if(p.style.display==='block')p.scrollTop=0;}
+    function buscarNorma(query){window.open('https://www.google.com/search?q='+encodeURIComponent(query),'_blank');}
+    function buscarTodasNormas(){
+      if(confirm('Desea abrir pestanas para verificar todas las normas?')){
+        var queries=['Ley 27491 control enfermedades prevenibles vacunacion boletinoficial.gob.ar','Resolucion 1030/2021 cadena de frio PNI argentina.gob.ar','Resolucion ANMAT 435/2011 sistema nacional trazabilidad medicamentos vacunas','Disposicion ANMAT 10872/2020 buenas practicas almacenamiento distribucion productos biologicos','Resolucion 1285/2022 cadena de frio inmunizacion gestion stock salud.neuquen.gov.ar','Decreto 1874/2023 trazabilidad salud publica Neuquen neuquen.gob.ar'];
+        for(var i=0;i<queries.length;i++){(function(q,d){setTimeout(function(){window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank');},d);})(queries[i],i*600);}
+      }
     }
 
     window.onload = function() { cargarDatos(); };
