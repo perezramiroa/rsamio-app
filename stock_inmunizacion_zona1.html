@@ -167,7 +167,7 @@
       <div id="mapaConfluenciaContainer" style="display:none;" class="map-container">
         <img id="imgConfluencia" src="Mapa_Confluencia.png" usemap="#mapaConfluencia" class="img-mapa" alt="Mapa Confluencia">
         <map name="mapaConfluencia" id="mapaConfluencia">
-          <!-- Coordenadas calibradas para Mapa_Confluencia.png (714x491) -->
+          <!-- Coordenadas base para Mapa_Confluencia.png (714x491) -->
           <area shape="rect" coords="430,185,600,220" alt="Centenario" onclick="navegarALocalidad('Confluencia','Centenario')" style="cursor:pointer;">
           <area shape="rect" coords="430,225,580,260" alt="Neuquén" onclick="navegarALocalidad('Confluencia','Neuquén')" style="cursor:pointer;">
           <area shape="rect" coords="430,265,560,300" alt="Plottier" onclick="navegarALocalidad('Confluencia','Plottier')" style="cursor:pointer;">
@@ -181,7 +181,7 @@
       <div id="mapaVacaMuertaContainer" style="display:none;" class="map-container">
         <img id="imgVacaMuerta" src="Mapa_Vaca_Muerta.png" usemap="#mapaVacaMuerta" class="img-mapa" alt="Mapa Vaca Muerta">
         <map name="mapaVacaMuerta" id="mapaVacaMuerta">
-          <!-- Coordenadas calibradas para Mapa_Vaca_Muerta.png (714x491) -->
+          <!-- Coordenadas base para Mapa_Vaca_Muerta.png (714x491) -->
           <area shape="rect" coords="430,145,680,180" alt="Rincón de los Sauces" onclick="navegarALocalidad('Vaca Muerta','Rincón de los Sauces')" style="cursor:pointer;">
           <area shape="rect" coords="430,185,690,220" alt="San Patricio del Chañar" onclick="navegarALocalidad('Vaca Muerta','San Patricio del Chañar')" style="cursor:pointer;">
           <area shape="rect" coords="430,225,530,260" alt="Añelo" onclick="navegarALocalidad('Vaca Muerta','Añelo')" style="cursor:pointer;">
@@ -371,11 +371,11 @@
     let stockCache = [];
     let modoMovimiento = 'Egreso';
 
-    // SCRIPT PARA MAPAS RESPONSIVOS MEJORADO
+    // SCRIPT PARA MAPAS RESPONSIVOS
     function resizeMap() {
-      const maps = ['mapaRegiones', 'mapaConfluencia', 'mapaVacaMuerta'];
+      const maps = ['mapaConfluencia', 'mapaVacaMuerta'];
       maps.forEach(mapName => {
-        const map = document.getElementsByName(mapName)[0];
+        const map = document.getElementById(mapName);
         if (!map) return;
         const img = document.querySelector(`img[usemap="#${mapName}"]`);
         if (!img || !img.complete) return;
@@ -384,15 +384,9 @@
         const w = img.clientWidth;
         const h = img.clientHeight;
         
-        // Dimensiones originales de las imágenes
-        let originalW = 714;
-        let originalH = 491;
-        
-        // El mapa de regiones tiene dimensiones diferentes (Neuquén completo)
-        if (mapName === 'mapaRegiones') {
-            originalW = 714; // Ajustar si Regiones.png tiene otro tamaño
-            originalH = 491;
-        }
+        // Dimensiones originales de las imágenes (714x491)
+        const originalW = 714;
+        const originalH = 491;
 
         for (let i = 0; i < areas.length; i++) {
           if (!areas[i].dataset.coords) {
@@ -410,10 +404,7 @@
     window.addEventListener('resize', resizeMap);
     document.addEventListener('DOMContentLoaded', () => {
       const imgs = document.querySelectorAll('.img-mapa');
-      imgs.forEach(img => {
-          if (img.complete) resizeMap();
-          else img.addEventListener('load', resizeMap);
-      });
+      imgs.forEach(img => img.addEventListener('load', resizeMap));
     });
 
     function mostrarLoading(show) {
