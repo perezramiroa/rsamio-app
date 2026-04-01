@@ -59,10 +59,6 @@
     .map-container { position: relative; display: inline-block; border: 2px solid #ddd; border-radius: 8px; overflow: hidden; width: 100%; max-width: 714px; margin-bottom: 20px; }
     .img-mapa { display: block; width: 100%; height: auto; }
     
-    /* Botones invisibles sobre el mapa */
-    .map-overlay-btn { position: absolute; background: rgba(255,0,0,0); border: none; cursor: pointer; z-index: 10; }
-    .map-overlay-btn:hover { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
-
     .breadcrumb { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
     .breadcrumb-item { padding: 8px 12px; background: #f1f5f9; border-radius: 6px; font-size: 0.9rem; }
     .breadcrumb-item.active { background: #3b82f6; color: white; }
@@ -149,10 +145,11 @@
     <div id="nivelProvincia" class="container">
       <h2>🗺️ Seleccione una Región</h2>
       <div class="map-container">
-        <img src="Regiones.png" class="img-mapa" alt="Mapa de Neuquén">
-        <!-- Botones invisibles sobre el mapa de Regiones -->
-        <button class="map-overlay-btn" style="top: 81%; left: 5%; width: 38%; height: 6%;" onclick="navegarARegion('Confluencia')"></button>
-        <button class="map-overlay-btn" style="top: 67%; left: 5%; width: 38%; height: 6%;" onclick="navegarARegion('Vaca Muerta')"></button>
+        <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
+        <map name="mapaRegiones">
+          <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
+          <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
+        </map>
       </div>
       <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
         <button class="btn btn-outline" onclick="navegarARegion('Confluencia')">Región Confluencia</button>
@@ -168,28 +165,32 @@
       
       <!-- MAPA REGIÓN CONFLUENCIA -->
       <div id="mapaConfluenciaContainer" style="display:none;" class="map-container">
-        <img id="imgConfluencia" src="Mapa_Confluencia.png" class="img-mapa" alt="Mapa Confluencia">
-        <!-- Botones invisibles sobre el mapa de Confluencia -->
-        <button class="map-overlay-btn" style="top: 38%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Confluencia','Centenario')"></button>
-        <button class="map-overlay-btn" style="top: 46%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Confluencia','Neuquén')"></button>
-        <button class="map-overlay-btn" style="top: 54%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Confluencia','Plottier')"></button>
-        <button class="map-overlay-btn" style="top: 62%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Confluencia','Senillosa')"></button>
-        <button class="map-overlay-btn" style="top: 70%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Confluencia','Vista Alegre')"></button>
-        <button class="map-overlay-btn" style="top: 78%; left: 60%; width: 30%; height: 7%;" onclick="navegarALocalidad('Confluencia','Villa El Chocón')"></button>
+        <img id="imgConfluencia" src="Mapa_Confluencia.png" usemap="#mapaConfluencia" class="img-mapa" alt="Mapa Confluencia">
+        <map name="mapaConfluencia" id="mapaConfluencia">
+          <!-- Coordenadas recalibradas para Mapa_Confluencia.png (714x491) -->
+          <area shape="rect" coords="430,185,600,220" alt="Centenario" onclick="navegarALocalidad('Confluencia','Centenario')" style="cursor:pointer;">
+          <area shape="rect" coords="430,225,580,260" alt="Neuquén" onclick="navegarALocalidad('Confluencia','Neuquén')" style="cursor:pointer;">
+          <area shape="rect" coords="430,265,560,300" alt="Plottier" onclick="navegarALocalidad('Confluencia','Plottier')" style="cursor:pointer;">
+          <area shape="rect" coords="430,305,580,340" alt="Senillosa" onclick="navegarALocalidad('Confluencia','Senillosa')" style="cursor:pointer;">
+          <area shape="rect" coords="430,345,610,380" alt="Vista Alegre" onclick="navegarALocalidad('Confluencia','Vista Alegre')" style="cursor:pointer;">
+          <area shape="rect" coords="430,385,640,420" alt="Villa El Chocón" onclick="navegarALocalidad('Confluencia','Villa El Chocón')" style="cursor:pointer;">
+        </map>
       </div>
 
       <!-- MAPA REGIÓN VACA MUERTA -->
       <div id="mapaVacaMuertaContainer" style="display:none;" class="map-container">
-        <img id="imgVacaMuerta" src="Mapa_Vaca_Muerta.png" class="img-mapa" alt="Mapa Vaca Muerta">
-        <!-- Botones invisibles sobre el mapa de Vaca Muerta -->
-        <button class="map-overlay-btn" style="top: 30%; left: 60%; width: 35%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Rincón de los Sauces')"></button>
-        <button class="map-overlay-btn" style="top: 38%; left: 60%; width: 35%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','San Patricio del Chañar')"></button>
-        <button class="map-overlay-btn" style="top: 46%; left: 60%; width: 20%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Añelo')"></button>
-        <button class="map-overlay-btn" style="top: 54%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Buta Ranquil')"></button>
-        <button class="map-overlay-btn" style="top: 62%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Barrancas')"></button>
-        <button class="map-overlay-btn" style="top: 70%; left: 60%; width: 35%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Aguada San Roque')"></button>
-        <button class="map-overlay-btn" style="top: 78%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Los Chihuidos')"></button>
-        <button class="map-overlay-btn" style="top: 86%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Octavio Pico')"></button>
+        <img id="imgVacaMuerta" src="Mapa_Vaca_Muerta.png" usemap="#mapaVacaMuerta" class="img-mapa" alt="Mapa Vaca Muerta">
+        <map name="mapaVacaMuerta" id="mapaVacaMuerta">
+          <!-- Coordenadas recalibradas para Mapa_Vaca_Muerta.png (714x491) -->
+          <area shape="rect" coords="430,145,680,180" alt="Rincón de los Sauces" onclick="navegarALocalidad('Vaca Muerta','Rincón de los Sauces')" style="cursor:pointer;">
+          <area shape="rect" coords="430,185,690,220" alt="San Patricio del Chañar" onclick="navegarALocalidad('Vaca Muerta','San Patricio del Chañar')" style="cursor:pointer;">
+          <area shape="rect" coords="430,225,530,260" alt="Añelo" onclick="navegarALocalidad('Vaca Muerta','Añelo')" style="cursor:pointer;">
+          <area shape="rect" coords="430,265,600,300" alt="Buta Ranquil" onclick="navegarALocalidad('Vaca Muerta','Buta Ranquil')" style="cursor:pointer;">
+          <area shape="rect" coords="430,305,580,340" alt="Barrancas" onclick="navegarALocalidad('Vaca Muerta','Barrancas')" style="cursor:pointer;">
+          <area shape="rect" coords="430,345,660,380" alt="Aguada San Roque" onclick="navegarALocalidad('Vaca Muerta','Aguada San Roque')" style="cursor:pointer;">
+          <area shape="rect" coords="430,385,610,420" alt="Los Chihuidos" onclick="navegarALocalidad('Vaca Muerta','Los Chihuidos')" style="cursor:pointer;">
+          <area shape="rect" coords="430,425,590,460" alt="Octavio Pico" onclick="navegarALocalidad('Vaca Muerta','Octavio Pico')" style="cursor:pointer;">
+        </map>
       </div>
 
       <div id="tablasNivel2"></div>
