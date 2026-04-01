@@ -59,11 +59,6 @@
     .map-container { position: relative; display: inline-block; border: 2px solid #ddd; border-radius: 8px; overflow: hidden; width: 100%; max-width: 714px; margin-bottom: 20px; }
     .img-mapa { display: block; width: 100%; height: auto; }
     
-    /* CAPA DE COLISIÓN INVISIBLE */
-    .collision-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
-    .collision-area { position: absolute; cursor: pointer; background: rgba(255, 255, 255, 0); border: none; outline: none; }
-    .collision-area:hover { background: rgba(59, 130, 246, 0.1); }
-
     .breadcrumb { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
     .breadcrumb-item { padding: 8px 12px; background: #f1f5f9; border-radius: 6px; font-size: 0.9rem; }
     .breadcrumb-item.active { background: #3b82f6; color: white; }
@@ -150,13 +145,11 @@
     <div id="nivelProvincia" class="container">
       <h2>🗺️ Seleccione una Región</h2>
       <div class="map-container">
-        <img src="Regiones.png" class="img-mapa" alt="Mapa de Neuquén">
-        <div class="collision-layer">
-          <!-- Confluencia -->
-          <div class="collision-area" style="top: 81%; left: 5%; width: 38%; height: 6%;" onclick="navegarARegion('Confluencia')"></div>
-          <!-- Vaca Muerta -->
-          <div class="collision-area" style="top: 67%; left: 5%; width: 38%; height: 6%;" onclick="navegarARegion('Vaca Muerta')"></div>
-        </div>
+        <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
+        <map name="mapaRegiones">
+          <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
+          <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
+        </map>
       </div>
       <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
         <button class="btn btn-outline" onclick="navegarARegion('Confluencia')">Región Confluencia</button>
@@ -172,30 +165,32 @@
       
       <!-- MAPA REGIÓN CONFLUENCIA -->
       <div id="mapaConfluenciaContainer" style="display:none;" class="map-container">
-        <img id="imgConfluencia" src="Mapa_Confluencia.png" class="img-mapa" alt="Mapa Confluencia">
-        <div class="collision-layer">
-          <div class="collision-area" style="top: 37%; left: 60%; width: 24%; height: 7%;" onclick="navegarALocalidad('Confluencia','Centenario')"></div>
-          <div class="collision-area" style="top: 45%; left: 60%; width: 21%; height: 7%;" onclick="navegarALocalidad('Confluencia','Neuquén')"></div>
-          <div class="collision-area" style="top: 53%; left: 60%; width: 18%; height: 7%;" onclick="navegarALocalidad('Confluencia','Plottier')"></div>
-          <div class="collision-area" style="top: 61%; left: 60%; width: 21%; height: 7%;" onclick="navegarALocalidad('Confluencia','Senillosa')"></div>
-          <div class="collision-area" style="top: 69%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Confluencia','Vista Alegre')"></div>
-          <div class="collision-area" style="top: 77%; left: 60%; width: 29%; height: 7%;" onclick="navegarALocalidad('Confluencia','Villa El Chocón')"></div>
-        </div>
+        <img id="imgConfluencia" src="Mapa_Confluencia.png" usemap="#mapaConfluencia" class="img-mapa" alt="Mapa Confluencia">
+        <map name="mapaConfluencia" id="mapaConfluencia">
+          <!-- Coordenadas exactas para Mapa_Confluencia.png (714x491) -->
+          <area shape="rect" coords="430,185,600,220" alt="Centenario" onclick="navegarALocalidad('Confluencia','Centenario')" style="cursor:pointer;">
+          <area shape="rect" coords="430,225,580,260" alt="Neuquén" onclick="navegarALocalidad('Confluencia','Neuquén')" style="cursor:pointer;">
+          <area shape="rect" coords="430,265,560,300" alt="Plottier" onclick="navegarALocalidad('Confluencia','Plottier')" style="cursor:pointer;">
+          <area shape="rect" coords="430,305,580,340" alt="Senillosa" onclick="navegarALocalidad('Confluencia','Senillosa')" style="cursor:pointer;">
+          <area shape="rect" coords="430,345,610,380" alt="Vista Alegre" onclick="navegarALocalidad('Confluencia','Vista Alegre')" style="cursor:pointer;">
+          <area shape="rect" coords="430,385,640,420" alt="Villa El Chocón" onclick="navegarALocalidad('Confluencia','Villa El Chocón')" style="cursor:pointer;">
+        </map>
       </div>
 
       <!-- MAPA REGIÓN VACA MUERTA -->
       <div id="mapaVacaMuertaContainer" style="display:none;" class="map-container">
-        <img id="imgVacaMuerta" src="Mapa_Vaca_Muerta.png" class="img-mapa" alt="Mapa Vaca Muerta">
-        <div class="collision-layer">
-          <div class="collision-area" style="top: 29%; left: 60%; width: 35%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Rincón de los Sauces')"></div>
-          <div class="collision-area" style="top: 37%; left: 60%; width: 36%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','San Patricio del Chañar')"></div>
-          <div class="collision-area" style="top: 45%; left: 60%; width: 14%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Añelo')"></div>
-          <div class="collision-area" style="top: 53%; left: 60%; width: 24%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Buta Ranquil')"></div>
-          <div class="collision-area" style="top: 61%; left: 60%; width: 21%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Barrancas')"></div>
-          <div class="collision-area" style="top: 69%; left: 60%; width: 32%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Aguada San Roque')"></div>
-          <div class="collision-area" style="top: 77%; left: 60%; width: 25%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Los Chihuidos')"></div>
-          <div class="collision-area" style="top: 85%; left: 60%; width: 22%; height: 7%;" onclick="navegarALocalidad('Vaca Muerta','Octavio Pico')"></div>
-        </div>
+        <img id="imgVacaMuerta" src="Mapa_Vaca_Muerta.png" usemap="#mapaVacaMuerta" class="img-mapa" alt="Mapa Vaca Muerta">
+        <map name="mapaVacaMuerta" id="mapaVacaMuerta">
+          <!-- Coordenadas exactas para Mapa_Vaca_Muerta.png (714x491) -->
+          <area shape="rect" coords="430,145,680,180" alt="Rincón de los Sauces" onclick="navegarALocalidad('Vaca Muerta','Rincón de los Sauces')" style="cursor:pointer;">
+          <area shape="rect" coords="430,185,690,220" alt="San Patricio del Chañar" onclick="navegarALocalidad('Vaca Muerta','San Patricio del Chañar')" style="cursor:pointer;">
+          <area shape="rect" coords="430,225,530,260" alt="Añelo" onclick="navegarALocalidad('Vaca Muerta','Añelo')" style="cursor:pointer;">
+          <area shape="rect" coords="430,265,600,300" alt="Buta Ranquil" onclick="navegarALocalidad('Vaca Muerta','Buta Ranquil')" style="cursor:pointer;">
+          <area shape="rect" coords="430,305,580,340" alt="Barrancas" onclick="navegarALocalidad('Vaca Muerta','Barrancas')" style="cursor:pointer;">
+          <area shape="rect" coords="430,345,660,380" alt="Aguada San Roque" onclick="navegarALocalidad('Vaca Muerta','Aguada San Roque')" style="cursor:pointer;">
+          <area shape="rect" coords="430,385,610,420" alt="Los Chihuidos" onclick="navegarALocalidad('Vaca Muerta','Los Chihuidos')" style="cursor:pointer;">
+          <area shape="rect" coords="430,425,590,460" alt="Octavio Pico" onclick="navegarALocalidad('Vaca Muerta','Octavio Pico')" style="cursor:pointer;">
+        </map>
       </div>
 
       <div id="tablasNivel2"></div>
@@ -375,6 +370,45 @@
 
     let stockCache = [];
     let modoMovimiento = 'Egreso';
+
+    // SCRIPT PARA MAPAS RESPONSIVOS MEJORADO (REPLICA LÓGICA MAPA PROVINCIAL)
+    function resizeMap() {
+      const maps = ['mapaRegiones', 'mapaConfluencia', 'mapaVacaMuerta'];
+      maps.forEach(mapName => {
+        const map = document.getElementsByName(mapName)[0];
+        if (!map) return;
+        const img = document.querySelector(`img[usemap="#${mapName}"]`);
+        if (!img || !img.complete) return;
+
+        const areas = map.getElementsByTagName('area');
+        const w = img.clientWidth;
+        const h = img.clientHeight;
+        
+        // Dimensiones originales de las imágenes (714x491)
+        const originalW = 714;
+        const originalH = 491;
+
+        for (let i = 0; i < areas.length; i++) {
+          if (!areas[i].dataset.coords) {
+            areas[i].dataset.coords = areas[i].coords;
+          }
+          const coords = areas[i].dataset.coords.split(',');
+          const newCoords = coords.map((c, index) => {
+            return index % 2 === 0 ? Math.round(c * w / originalW) : Math.round(c * h / originalH);
+          });
+          areas[i].coords = newCoords.join(',');
+        }
+      });
+    }
+
+    window.addEventListener('resize', resizeMap);
+    document.addEventListener('DOMContentLoaded', () => {
+      const imgs = document.querySelectorAll('.img-mapa');
+      imgs.forEach(img => {
+          if (img.complete) resizeMap();
+          else img.addEventListener('load', resizeMap);
+      });
+    });
 
     function mostrarLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -623,6 +657,7 @@
       document.getElementById('breadcrumbRegion').textContent = region;
       document.getElementById('mapaConfluenciaContainer').style.display = region === 'Confluencia' ? 'block' : 'none';
       document.getElementById('mapaVacaMuertaContainer').style.display = region === 'Vaca Muerta' ? 'block' : 'none';
+      setTimeout(resizeMap, 100); // Ajustar coordenadas al mostrar el mapa
       cargarDatosNivelRegion(region);
     }
 
