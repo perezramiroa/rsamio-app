@@ -147,7 +147,6 @@
       <div class="map-container">
         <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
         <map name="mapaRegiones">
-          <!-- COORDENADAS ORIGINALES RESTAURADAS -->
           <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
           <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
         </map>
@@ -391,9 +390,7 @@
         
         // El mapa de regiones tiene dimensiones diferentes (Neuquén completo)
         if (mapName === 'mapaRegiones') {
-            // Si Regiones.png tiene otro tamaño original, ajustarlo aquí.
-            // Por defecto usamos 714x491 para mantener consistencia.
-            originalW = 714; 
+            originalW = 714; // Ajustar si Regiones.png tiene otro tamaño
             originalH = 491;
         }
 
