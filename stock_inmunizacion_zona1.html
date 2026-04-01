@@ -318,7 +318,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBy-RSx-RgCZU2vod9R8hYcvzvFHN6471jHukJ_F87_lt3vdb_x4kZeeq6K4baVKQ/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyF5JsajnOp_mMhuNr3Cqq1AR-AOyXx7-aeD7sgk1AMb1WpVDjQVTm-rKxeIrIQrDav/exec';
     
     const VACUNAS_LABORATORIOS = {
       "BCG": ["Serum Institute of India", "Laboratorio Central"],
@@ -379,10 +379,16 @@
         const h = img.clientHeight;
         const originalW = 714;
         const originalH = 491;
+        
+        // El mapa provincial tiene dimensiones diferentes (originalmente calibrado a mano)
+        // Si es mapaRegiones, solo ajustamos si hay un cambio real de escala
+        const baseW = mapName === 'mapaRegiones' ? img.naturalWidth || 714 : 714;
+        const baseH = mapName === 'mapaRegiones' ? img.naturalHeight || 491 : 491;
+
         for (let i = 0; i < areas.length; i++) {
           if (!areas[i].dataset.coords) areas[i].dataset.coords = areas[i].coords;
           const coords = areas[i].dataset.coords.split(',');
-          const newCoords = coords.map((c, index) => index % 2 === 0 ? Math.round(c * w / originalW) : Math.round(c * h / originalH));
+          const newCoords = coords.map((c, index) => index % 2 === 0 ? Math.round(c * w / baseW) : Math.round(c * h / baseH));
           areas[i].coords = newCoords.join(',');
         }
       });
@@ -413,7 +419,7 @@
     function renderizarTablas(data) {
       const render = (bodyId, items, cols) => {
         const body = document.getElementById(bodyId);
-        if (!items.length) { body.innerHTML = `<tr><td colspan="${cols.length}" style="text-align:center;">No hay datos</td></tr>`; return; }
+        if (!items || !items.length) { body.innerHTML = `<tr><td colspan="${cols.length}" style="text-align:center;">No hay datos</td></tr>`; return; }
         body.innerHTML = items.map(it => `<tr>${cols.map(c => `<td>${it[c] || '-'}</td>`).join('')}</tr>`).join('');
       };
 
@@ -465,17 +471,35 @@
 
     function exportarPDF(elementId, filename) {
       const element = document.getElementById(elementId);
-      const opt = { margin: 1, filename: filename + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
+      const opt = { 
+        margin: 0.5, 
+        filename: filename + '.pdf', 
+        image: { type: 'jpeg', quality: 0.98 }, 
+        html2canvas: { scale: 2, useCORS: true, logging: false }, 
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } 
+      };
       
-      html2pdf().set(opt).from(element).toPdf().output('datauristring').then(pdfBase64 => {
-        const base64Data = pdfBase64.split(',')[1];
-        fetch(APPS_SCRIPT_URL + '?action=guardarPDF&filename=' + filename + '_' + Date.now() + '.pdf&pdfData=' + encodeURIComponent(base64Data))
-          .then(r => r.json()).then(res => {
-            if (res.result) alert('PDF guardado en Drive correctamente.');
-            else alert('Error al guardar en Drive: ' + res.message);
+      // Pequeña pausa para asegurar que el DOM esté listo
+      setTimeout(() => {
+        html2pdf().set(opt).from(element).toPdf().output('datauristring').then(pdfBase64 => {
+          const base64Data = pdfBase64.split(',')[1];
+          
+          // Usar POST para enviar datos grandes (PDF)
+          fetch(APPS_SCRIPT_URL + '?action=guardarPDF', {
+            method: 'POST',
+            body: JSON.stringify({
+              filename: filename + '_' + new Date().getTime() + '.pdf',
+              pdfData: base64Data
+            })
+          }).then(r => r.json()).then(res => {
+            if (res.result) console.log('PDF guardado en Drive: ' + res.url);
+            else console.error('Error Drive: ' + res.message);
           });
-        html2pdf().set(opt).from(element).save();
-      });
+          
+          // Descargar localmente también
+          html2pdf().set(opt).from(element).save();
+        });
+      }, 500);
     }
 
     // Funciones de UI básicas (restauradas)
@@ -486,6 +510,14 @@
     function cerrarModalMov() { document.getElementById('modalMov').style.display = 'none'; document.getElementById('formMov').reset(); }
     function cerrarModalConfirmacion() { document.getElementById('modalConfirmacion').style.display = 'none'; }
     function toggleNormativa() { alert('Normativa: Ley 27.491, Res. 1030/2021, Res. 435/2011.'); }
+
+    function actualizarEstadisticas(stock) {
+      if (!stock) return;
+      const total = stock.reduce((acc, it) => acc + (parseInt(it.stock) || 0), 0);
+      document.getElementById('totalDosis').textContent = total;
+      // Lógica para próximos a vencer y vencidos (simplificada)
+      document.getElementById('proximosVencer').textContent = stock.filter(it => it.stock > 0).length; 
+    }
 
     window.onload = () => cargarDatos();
   </script>
