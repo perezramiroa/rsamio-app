@@ -153,10 +153,15 @@
 
     <!-- NIVEL PROVINCIA -->
     <div id="nivelProvincia" class="container">
-      <h2>📍 Seleccione una Región</h2>
-      <div class="selection-grid">
-        <div class="selection-card" onclick="navegarARegion('Confluencia')">Región Confluencia</div>
-        <div class="selection-card" onclick="navegarARegion('Vaca Muerta')">Región Vaca Muerta</div>
+      <h2>🗺️ Seleccione una Región</h2>
+      <div class="map-container">
+        <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
+        <map name="mapaRegiones" id="mapaRegiones">
+          <!-- Coordenadas para las regiones, se deben ajustar según la imagen real -->
+          <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
+          <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
+          <!-- Añadir más áreas según las regiones que se deseen hacer clickeables -->
+        </map>
       </div>
       <div id="tablasNivel1" style="margin-top: 30px;"></div>
     </div>
@@ -164,6 +169,7 @@
     <!-- NIVEL REGIÓN -->
     <div id="nivelRegion" class="container" style="display:none;">
       <h2 id="tituloRegion">Región Seleccionada</h2>
+      <button class="btn btn-outline" onclick="volverANivelProvincia()" style="margin-bottom: 20px;">← Volver a Provincia</button>
       <div class="selection-grid" id="localidades-grid">
         <!-- Se llena dinámicamente -->
       </div>
@@ -173,6 +179,7 @@
     <!-- NIVEL LOCALIDAD -->
     <div id="nivelLocalidad" class="container" style="display:none;">
       <h2 id="tituloLocalidad">Localidad Seleccionada</h2>
+      <button class="btn btn-outline" onclick="volverANivelRegion()" style="margin-bottom: 20px;">← Volver a Región</button>
       <div class="establecimientos-menu" id="establecimientos-menu">
         <!-- Se llena dinámicamente -->
       </div>
@@ -270,6 +277,7 @@
       <h2 id="confirmacionMensaje">Registrado correctamente</h2>
       <p style="color:#64748b; margin:15px 0;">El movimiento ha sido guardado y el stock actualizado.</p>
       <button class="btn btn-primary" onclick="cerrarModalConfirmacion()" style="width:100%;">Aceptar</button>
+      <button class="btn btn-outline" onclick="descargarUltimoPDF()" style="width:100%; margin-top:10px;">⬇️ Descargar PDF</button>
     </div>
   </div>
 
@@ -277,9 +285,10 @@
   <div id="normativaPanel" class="container" style="display:none; margin-top:20px; border-left: 4px solid #64748b;">
     <h3>📋 Normativa Vigente</h3>
     <p style="font-size:0.9rem; margin-top:10px;">
-      • Ley Nacional 27.491 de Control de Enfermedades Prevenibles por Vacunación.<br>
-      • Resolución Ministerial 123/2021 - Lineamientos Técnicos de Inmunización.<br>
-      • Decreto Provincial 456/2022 - Gestión de Insumos Críticos.
+      • <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/315000-319999/318455/norma.htm" target="_blank">Ley Nacional 27.491 de Control de Enfermedades Prevenibles por Vacunación</a><br>
+      • <a href="https://www.boletinoficial.gob.ar/detalleAviso/primera/293170/20230831" target="_blank">Decreto Reglamentario 439/2023 - Reglamentación de la Ley 27.491</a><br>
+      • <a href="https://salud.neuquen.gob.ar/campana-de-vacunacion/" target="_blank">Calendario Nacional de Vacunación (Neuquén)</a><br>
+      • <a href="https://www.argentina.gob.ar/salud/inmunoprevenibles/recomendaciones-manuales-y-lineamientos" target="_blank">Manual de Vacunación 2024 (MSAL)</a>
     </p>
   </div>
 
@@ -299,7 +308,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqtVXOoBoX0gYRPlq1GgnBmVyNH-_73last0LlfbMwA4wXs93YEevWFb-ZZ7TSt4zp/exec'; // REEMPLAZAR CON TU URL REAL
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-U_pbpd2eVBHiae78iVolooUz6u-A4lFkMwiNlvhZzuCPUa-ODaS_0VBfKvslSB_t/exec'; // REEMPLAZAR CON TU URL REAL
     
     const VACUNAS_LABORATORIOS = {
       "Antigripal Adulto": ["Viraflu", "Fluxvir"],
@@ -339,21 +348,27 @@
 
     let DATOS_GLOBALES = { stock: [], ingresos: [], egresos: [] };
     let modoMovimiento = 'Egreso';
+    let ultimoPDFUrl = ''; // Variable para almacenar la URL del último PDF generado
 
     function mostrarLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
     }
 
-    function cargarDatos() {
+    function cargarDatos(region = null, localidad = null, establecimiento = null) {
       mostrarLoading(true);
+      let url = APPS_SCRIPT_URL + '?action=getDatosAgregados';
+      if (region) url += '&region=' + encodeURIComponent(region);
+      if (localidad) url += '&localidad=' + encodeURIComponent(localidad);
+      if (establecimiento) url += '&establecimiento=' + encodeURIComponent(establecimiento);
+
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', APPS_SCRIPT_URL + '?action=getDatosAgregados', true);
+      xhr.open('GET', url, true);
       xhr.onload = function() {
         mostrarLoading(false);
         if (xhr.status === 200) {
           try {
             DATOS_GLOBALES = JSON.parse(xhr.responseText);
-            renderizarTablaInventario(DATOS_GLOBALES);
+            renderizarTablas(DATOS_GLOBALES, region, localidad, establecimiento);
             actualizarEstadisticas(DATOS_GLOBALES.stock);
           } catch(e) { console.error("Error parseando JSON", e); }
         }
@@ -362,103 +377,144 @@
       xhr.send();
     }
 
-    function actualizarLaboratorios() {
-      var vacuna = document.getElementById('vacuna').value;
-      var selLab = document.getElementById('laboratorio');
-      selLab.innerHTML = '<option value="">Seleccionar laboratorio</option>';
-      if (!vacuna) return;
-      var labs = VACUNAS_LABORATORIOS[vacuna] || [];
-      for (var i=0; i<labs.length; i++) {
-        var opt = document.createElement('option'); opt.value=labs[i]; opt.textContent=labs[i]; selLab.appendChild(opt);
+    function renderizarTablas(data, region, localidad, establecimiento) {
+      // Renderizar tabla de Stock
+      var tbodyStock = document.getElementById('stockBodyInventario');
+      if (tbodyStock) {
+        if (!data.stock || !data.stock.length) { tbodyStock.innerHTML='<tr><td colspan="9" style="text-align:center;">No hay datos de stock disponibles</td></tr>'; }
+        else {
+          var htmlStock = '';
+          var hoy = new Date();
+          for (var i=0; i<data.stock.length; i++) {
+            var it=data.stock[i], venc=new Date(it.vencimiento), estado='Disponible', badge='badge-success';
+            if (venc < hoy) { estado='Vencido'; badge='badge-danger'; }
+            else if ((venc - hoy) / 86400000 <= 30) { estado='Proximo a Vencer'; badge='badge-warning'; }
+            htmlStock+='<tr><td>'+(it.vacuna||'-')+'</td><td>'+(it.laboratorio||'-')+'</td><td>'+(it.lote||'-')+'</td><td>'+venc.toLocaleDateString('es-AR')+'</td><td>'+(it.stock||0)+'</td><td>'+(it.region||'-')+'</td><td>'+(it.localidad||'-')+'</td><td>'+(it.establecimiento||'-')+'</td><td><span class="badge '+badge+'">'+estado+'</span></td></tr>';
+          }
+          tbodyStock.innerHTML = htmlStock;
+        }
+      }
+
+      // Renderizar tabla de Ingresos
+      var tablasNivel2 = document.getElementById('tablasNivel2');
+      var tablasNivel3 = document.getElementById('tablasNivel3');
+
+      if (region && !localidad && !establecimiento) { // Vista de Región
+        if (tablasNivel2) tablasNivel2.innerHTML = buildTablasDetalle(data.ingresos, 'Ingresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) + buildTablasDetalle(data.egresos, 'Egresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Observacion', 'Trazabilidad']);
+      } else if (region && localidad && !establecimiento) { // Vista de Localidad
+        if (tablasNivel3) tablasNivel3.innerHTML = buildTablasDetalle(data.ingresos, 'Ingresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) + buildTablasDetalle(data.egresos, 'Egresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Observacion', 'Trazabilidad']);
+      } else if (region && localidad && establecimiento) { // Vista de Establecimiento
+        if (tablasNivel3) tablasNivel3.innerHTML = buildTablasDetalle(data.ingresos, 'Ingresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Vencimiento', 'Observaciones', 'Trazabilidad']) + buildTablasDetalle(data.egresos, 'Egresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Observacion', 'Trazabilidad']);
+      } else { // Vista Global (Inventario Principal)
+        if (document.getElementById('tablasNivel1')) document.getElementById('tablasNivel1').innerHTML = buildTablasDetalle(data.ingresos, 'Ingresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Region', 'Localidad', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) + buildTablasDetalle(data.egresos, 'Egresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Region', 'Localidad', 'Establecimiento', 'Observacion', 'Trazabilidad']);
       }
     }
 
-    function actualizarLotes() {
-      if (modoMovimiento !== 'Egreso') return;
-      var vacuna = document.getElementById('vacuna').value;
-      var lab = document.getElementById('laboratorio').value;
-      var selLote = document.getElementById('loteSelect');
-      selLote.innerHTML = '<option value="">Seleccionar lote</option>';
-      if (!vacuna || !lab) return;
-      
-      var lotes = DATOS_GLOBALES.stock.filter(s => s.vacuna === vacuna && s.laboratorio === lab);
-      var lotesUnicos = [...new Set(lotes.map(l => l.lote))];
-      
-      for (var i=0; i<lotesUnicos.length; i++) {
-        var opt = document.createElement('option'); opt.value=lotesUnicos[i]; opt.textContent=lotesUnicos[i]; selLote.appendChild(opt);
+    function buildTablasDetalle(data, titulo, headers) {
+      var html = '<h3>' + titulo + '</h3><div class="table-wrapper"><table><thead><tr>';
+      for (var i = 0; i < headers.length; i++) { html += '<th>' + headers[i] + '</th>'; }
+      html += '</tr></thead><tbody>';
+      if (!data || data.length === 0) {
+        html += '<tr><td colspan="' + headers.length + '" style="text-align:center;">No hay datos de ' + titulo.toLowerCase() + '</td></tr>';
+      } else {
+        for (var i = 0; i < data.length; i++) {
+          html += '<tr>';
+          for (var j = 0; j < headers.length; j++) {
+            var key = headers[j].toLowerCase().replace(/ /g, '');
+            if (key === 'fecha' || key === 'vencimiento') {
+              html += '<td>' + (data[i][key] ? new Date(data[i][key]).toLocaleDateString('es-AR') : '-') + '</td>';
+            } else {
+              html += '<td>' + (data[i][key] || '-') + '</td>';
+            }
+          }
+          html += '</tr>';
+        }
       }
+      html += '</tbody></table></div>';
+      return html;
     }
 
-    function actualizarLocalidadesMov() {
-      var region = document.getElementById('regionMov').value;
-      var selLoc = document.getElementById('localidadMov');
-      selLoc.innerHTML = '<option value="">Seleccionar localidad</option>';
-      if (!region) return;
+    function actualizarEstadisticas(stock) {
+      var total=0,proximos=0,vencidos=0,hoy=new Date();
+      for(var i=0;i<(stock||[]).length;i++){
+        var s=parseInt(stock[i].stock)||0; total+=s;
+        var v=new Date(stock[i].vencimiento);
+        if(v<hoy)vencidos+=s; else if((v-hoy)/86400000<=30)proximos+=s;
+      }
+      document.getElementById('totalDosis').textContent=total;
+      document.getElementById('proximosVencer').textContent=proximos;
+      document.getElementById('vencidos').textContent=vencidos;
+    }
+
+    function mostrarVistaGeografica() {
+      document.getElementById('vistaInventario').classList.remove('active');
+      document.getElementById('vistaGeografica').classList.add('active');
+      volverANivelProvincia();
+    }
+
+    function volverVistaInventario() {
+      document.getElementById('vistaGeografica').classList.remove('active');
+      document.getElementById('vistaInventario').classList.add('active');
+      cargarDatos();
+    }
+
+    function volverANivelProvincia() {
+      document.getElementById('nivelRegion').style.display = 'none';
+      document.getElementById('nivelLocalidad').style.display = 'none';
+      document.getElementById('nivelProvincia').style.display = 'block';
+      document.getElementById('breadcrumbRegion').style.display = 'none';
+      document.getElementById('breadcrumbLocalidad').style.display = 'none';
+      cargarDatos(); // Cargar datos globales al volver a la vista de provincia
+    }
+
+    function volverANivelRegion() {
+      document.getElementById('nivelLocalidad').style.display = 'none';
+      document.getElementById('nivelRegion').style.display = 'block';
+      document.getElementById('breadcrumbLocalidad').style.display = 'none';
+      let currentRegion = document.getElementById('breadcrumbRegion').textContent;
+      cargarDatos(currentRegion); // Cargar datos de la región actual al volver a este nivel
+    }
+
+    function navegarARegion(region) {
+      document.getElementById('nivelProvincia').style.display = 'none';
+      document.getElementById('nivelRegion').style.display = 'block';
+      document.getElementById('tituloRegion').textContent = 'Región: ' + region;
+      document.getElementById('breadcrumbRegion').style.display = 'inline-block';
+      document.getElementById('breadcrumbRegion').textContent = region;
+      
+      // Llenar grid de localidades
+      var grid = document.getElementById('localidades-grid');
+      grid.innerHTML = '';
       var locs = Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {});
       for (var i=0; i<locs.length; i++) {
-        var opt = document.createElement('option'); opt.value=locs[i]; opt.textContent=locs[i]; selLoc.appendChild(opt);
+        var card = document.createElement('div');
+        card.className = 'selection-card';
+        card.textContent = locs[i];
+        card.onclick = (function(r, l) { return function() { navegarALocalidad(r, l); }; })(region, locs[i]);
+        grid.appendChild(card);
       }
-      actualizarEstablecimientosMov();
-    }
-
-    function actualizarEstablecimientosMov() {
-      var region = document.getElementById('regionMov').value;
-      var localidad = document.getElementById('localidadMov').value;
-      var selEst = document.getElementById('establecimientoMov');
-      selEst.innerHTML = '<option value="">Seleccionar establecimiento</option>';
-      if (!region || !localidad) return;
-      var ests = (ESTRUCTURA_GEOGRAFICA[region]||{})[localidad] || [];
-      for (var i=0; i<ests.length; i++) {
-        var opt = document.createElement('option'); opt.value=ests[i]; opt.textContent=ests[i]; selEst.appendChild(opt);
-      }
-    }
-
-    function abrirModalMov(modo) {
-      modoMovimiento = modo;
-      document.getElementById('modalMov').style.display = 'block';
-      document.getElementById('modalTitulo').innerText = modo==='Egreso' ? 'Registrar Egreso' : 'Registrar Ingreso';
       
-      const camposEgreso = document.getElementById('camposEgreso');
-      const camposIngreso = document.getElementById('camposIngreso');
-      const vencimientoRow = document.getElementById('vencimientoRow');
-      const loteSelect = document.getElementById('loteSelect');
-      const loteInput = document.getElementById('loteInput');
-      const vencimientoInput = document.getElementById('vencimiento');
-
-      if (modo === 'Egreso') {
-        camposEgreso.style.display = 'block';
-        camposIngreso.style.display = 'none';
-        vencimientoRow.style.display = 'none';
-        loteSelect.required = true;
-        loteInput.required = false;
-        vencimientoInput.required = false;
-      } else {
-        camposEgreso.style.display = 'none';
-        camposIngreso.style.display = 'block';
-        vencimientoRow.style.display = 'block';
-        loteSelect.required = false;
-        loteInput.required = true;
-        vencimientoInput.required = true;
-      }
-
-      document.getElementById('btnSubmit').style.background = modo==='Egreso' ? '#10b981' : '#8b5cf6';
-      
-      var selVac = document.getElementById('vacuna');
-      selVac.innerHTML = '<option value="">Seleccionar vacuna</option>';
-      var vacunas = Object.keys(VACUNAS_LABORATORIOS);
-      for (var i=0; i<vacunas.length; i++) {
-        var opt = document.createElement('option'); opt.value=vacunas[i]; opt.textContent=vacunas[i]; selVac.appendChild(opt);
-      }
-      document.getElementById('laboratorio').innerHTML = '<option value="">Primero selecciona una vacuna</option>';
-      document.getElementById('loteSelect').innerHTML = '<option value="">Seleccionar lote</option>';
-      document.getElementById('regionMov').value = '';
-      document.getElementById('localidadMov').innerHTML = '<option value="">Primero selecciona una region</option>';
-      document.getElementById('establecimientoMov').innerHTML = '<option value="">Primero selecciona una localidad</option>';
+      cargarDatos(region); // Cargar datos filtrados por región
     }
 
-    function cerrarModalMov() {
-      document.getElementById('modalMov').style.display = 'none';
-      document.getElementById('formMov').reset();
+    function navegarALocalidad(region, localidad) {
+      document.getElementById('nivelRegion').style.display = 'none';
+      document.getElementById('nivelLocalidad').style.display = 'block';
+      document.getElementById('tituloLocalidad').textContent = 'Localidad: ' + localidad;
+      document.getElementById('breadcrumbLocalidad').style.display = 'inline-block';
+      document.getElementById('breadcrumbLocalidad').textContent = localidad;
+      
+      var menu = document.getElementById('establecimientos-menu');
+      menu.innerHTML = '';
+      var ests = (ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || [];
+      for (var i = 0; i < ests.length; i++) {
+        var btn = document.createElement('button');
+        btn.className = 'establecimiento-btn';
+        btn.textContent = ests[i];
+        btn.onclick = (function(r, l, e) { return function() { cargarDatos(r, l, e); }; })(region, localidad, ests[i]);
+        menu.appendChild(btn);
+      }
+      cargarDatos(region, localidad); // Cargar datos filtrados por localidad
     }
 
     function registrarMovimiento(event) {
@@ -565,6 +621,12 @@
         xhr.setRequestHeader('Content-Type', 'text/plain');
         xhr.onload = function() {
           console.log("PDF guardado en Drive:", xhr.responseText);
+          try {
+            const response = JSON.parse(xhr.responseText);
+            if (response.result && response.url) {
+              ultimoPDFUrl = response.url; // Almacenar la URL para la descarga
+            }
+          } catch (e) { console.error("Error parseando respuesta de guardarPDF", e); }
         };
         xhr.send(JSON.stringify({
           pdfData: pdfBase64,
@@ -573,152 +635,12 @@
       });
     }
 
-    function renderizarTablaInventario(data) {
-      var tbody = document.getElementById('stockBodyInventario');
-      if (!data.stock||!data.stock.length) { tbody.innerHTML='<tr><td colspan="9" style="text-align:center;">No hay datos disponibles</td></tr>'; return; }
-      var html='', hoy=new Date();
-      for (var i=0; i<data.stock.length; i++) {
-        var it=data.stock[i], venc=new Date(it.vencimiento), estado='Disponible', badge='badge-success';
-        if (venc<hoy){estado='Vencido';badge='badge-danger';}
-        else if((venc-hoy)/86400000<=30){estado='Proximo a Vencer';badge='badge-warning';}
-        html+='<tr><td>'+(it.vacuna||'-')+'</td><td>'+(it.laboratorio||'-')+'</td><td>'+(it.lote||'-')+'</td><td>'+venc.toLocaleDateString('es-AR')+'</td><td>'+(it.stock||0)+'</td><td>'+(it.region||'-')+'</td><td>'+(it.localidad||'-')+'</td><td>'+(it.establecimiento||'-')+'</td><td><span class="badge '+badge+'">'+estado+'</span></td></tr>';
-      }
-      tbody.innerHTML = html;
-    }
-
-    function actualizarEstadisticas(stock) {
-      var total=0,proximos=0,vencidos=0,hoy=new Date();
-      for(var i=0;i<(stock||[]).length;i++){
-        var s=parseInt(stock[i].stock)||0; total+=s;
-        var v=new Date(stock[i].vencimiento);
-        if(v<hoy)vencidos+=s; else if((v-hoy)/86400000<=30)proximos+=s;
-      }
-      document.getElementById('totalDosis').textContent=total;
-      document.getElementById('proximosVencer').textContent=proximos;
-      document.getElementById('vencidos').textContent=vencidos;
-    }
-
-    function mostrarVistaGeografica() {
-      document.getElementById('vistaInventario').classList.remove('active');
-      document.getElementById('vistaGeografica').classList.add('active');
-      volverANivelProvincia();
-    }
-
-    function volverVistaInventario() {
-      document.getElementById('vistaGeografica').classList.remove('active');
-      document.getElementById('vistaInventario').classList.add('active');
-      cargarDatos();
-    }
-
-    function volverANivelProvincia() {
-      document.getElementById('nivelRegion').style.display = 'none';
-      document.getElementById('nivelLocalidad').style.display = 'none';
-      document.getElementById('nivelProvincia').style.display = 'block';
-      document.getElementById('breadcrumbRegion').style.display = 'none';
-      document.getElementById('breadcrumbLocalidad').style.display = 'none';
-    }
-
-    function volverANivelRegion() {
-      document.getElementById('nivelLocalidad').style.display = 'none';
-      document.getElementById('nivelRegion').style.display = 'block';
-      document.getElementById('breadcrumbLocalidad').style.display = 'none';
-    }
-
-    function navegarARegion(region) {
-      document.getElementById('nivelProvincia').style.display = 'none';
-      document.getElementById('nivelRegion').style.display = 'block';
-      document.getElementById('tituloRegion').textContent = 'Región: ' + region;
-      document.getElementById('breadcrumbRegion').style.display = 'inline-block';
-      document.getElementById('breadcrumbRegion').textContent = region;
-      
-      // Llenar grid de localidades
-      var grid = document.getElementById('localidades-grid');
-      grid.innerHTML = '';
-      var locs = Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {});
-      for (var i=0; i<locs.length; i++) {
-        var card = document.createElement('div');
-        card.className = 'selection-card';
-        card.textContent = locs[i];
-        card.onclick = (function(r, l) { return function() { navegarALocalidad(r, l); }; })(region, locs[i]);
-        grid.appendChild(card);
-      }
-      
-      cargarDatosNivelRegion(region);
-    }
-
-    function navegarALocalidad(region, localidad) {
-      document.getElementById('nivelRegion').style.display = 'none';
-      document.getElementById('nivelLocalidad').style.display = 'block';
-      document.getElementById('tituloLocalidad').textContent = 'Localidad: ' + localidad;
-      document.getElementById('breadcrumbLocalidad').style.display = 'inline-block';
-      document.getElementById('breadcrumbLocalidad').textContent = localidad;
-      
-      var menu = document.getElementById('establecimientos-menu');
-      menu.innerHTML = '';
-      var ests = (ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || [];
-      for (var i = 0; i < ests.length; i++) {
-        var btn = document.createElement('button');
-        btn.className = 'establecimiento-btn';
-        btn.textContent = ests[i];
-        btn.onclick = (function(r, l, e) { return function() { cargarDatosNivelEstablecimiento(r, l, e); }; })(region, localidad, ests[i]);
-        menu.appendChild(btn);
-      }
-      cargarDatosNivelLocalidad(region, localidad);
-    }
-
-    function cargarDatosNivelRegion(region) {
-      mostrarLoading(true);
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', APPS_SCRIPT_URL + '?action=getDatosAgregados&region=' + encodeURIComponent(region), true);
-      xhr.onload = function() {
-        mostrarLoading(false);
-        if (xhr.status === 200) {
-          var data = JSON.parse(xhr.responseText);
-          document.getElementById('tablasNivel2').innerHTML = buildTablas(data, 'Región ' + region);
-        }
-      };
-      xhr.send();
-    }
-
-    function cargarDatosNivelLocalidad(region, localidad) {
-      mostrarLoading(true);
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', APPS_SCRIPT_URL + '?action=getDatosAgregados&region=' + encodeURIComponent(region) + '&localidad=' + encodeURIComponent(localidad), true);
-      xhr.onload = function() {
-        mostrarLoading(false);
-        if (xhr.status === 200) {
-          var data = JSON.parse(xhr.responseText);
-          document.getElementById('tablasNivel3').innerHTML = buildTablas(data, 'Localidad ' + localidad);
-        }
-      };
-      xhr.send();
-    }
-
-    function cargarDatosNivelEstablecimiento(region, localidad, establecimiento) {
-      mostrarLoading(true);
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', APPS_SCRIPT_URL + '?action=getDatosAgregados&region=' + encodeURIComponent(region) + '&localidad=' + encodeURIComponent(localidad) + '&establecimiento=' + encodeURIComponent(establecimiento), true);
-      xhr.onload = function() {
-        mostrarLoading(false);
-        if (xhr.status === 200) {
-          var data = JSON.parse(xhr.responseText);
-          document.getElementById('tablasNivel3').innerHTML = buildTablas(data, establecimiento);
-        }
-      };
-      xhr.send();
-    }
-
-    function buildTablas(data, titulo) {
-      var stockHtml = '<h3>Stock - ' + titulo + '</h3><div class="table-wrapper"><table><thead><tr><th>Vacuna</th><th>Lote</th><th>Stock</th><th>Establecimiento</th></tr></thead><tbody>';
-      if (!data.stock || data.stock.length === 0) {
-        stockHtml += '<tr><td colspan="4" style="text-align:center;">No hay stock registrado</td></tr>';
+    function descargarUltimoPDF() {
+      if (ultimoPDFUrl) {
+        window.open(ultimoPDFUrl, '_blank');
       } else {
-        for (var i = 0; i < data.stock.length; i++) {
-          stockHtml += '<tr><td>' + data.stock[i].vacuna + '</td><td>' + data.stock[i].lote + '</td><td>' + data.stock[i].stock + '</td><td>' + data.stock[i].establecimiento + '</td></tr>';
-        }
+        alert('No hay un PDF reciente para descargar.');
       }
-      stockHtml += '</tbody></table></div>';
-      return stockHtml;
     }
 
     function toggleNormativa() {
@@ -730,7 +652,39 @@
       document.getElementById('modalConfirmacion').style.display = 'none';
     }
 
-    window.onload = cargarDatos;
+    // Función para ajustar el tamaño del mapa y las áreas (solución al problema de click)
+    function resizeMap() {
+      var img = document.querySelector('.img-mapa');
+      if (!img) return;
+      var imgWidth = img.offsetWidth;
+      var imgHeight = img.offsetHeight;
+      var map = document.getElementById('mapaRegiones'); // Asegúrate de que este ID exista en tu HTML
+      if (!map) return;
+
+      // Aquí deberías recalcular las coordenadas de tus áreas si la imagen es responsiva
+      // Por ahora, asumimos que la imagen original es de 714x491 y escalamos proporcionalmente
+      var originalWidth = 714; 
+      var originalHeight = 491;
+      var scaleX = imgWidth / originalWidth;
+      var scaleY = imgHeight / originalHeight;
+
+      var areas = map.getElementsByTagName('area');
+      for (var i = 0; i < areas.length; i++) {
+        var coords = areas[i].getAttribute('coords').split(',').map(Number);
+        var newCoords = [];
+        for (var j = 0; j < coords.length; j += 2) {
+          newCoords.push(Math.round(coords[j] * scaleX));
+          newCoords.push(Math.round(coords[j+1] * scaleY));
+        }
+        areas[i].setAttribute('coords', newCoords.join(','));
+      }
+    }
+
+    window.addEventListener('resize', resizeMap);
+    window.onload = function() {
+      cargarDatos();
+      resizeMap(); // Llamar al cargar para asegurar que el mapa sea clickeable
+    };
   </script>
 </body>
 </html>
