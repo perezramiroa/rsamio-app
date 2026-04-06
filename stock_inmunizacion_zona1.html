@@ -138,6 +138,7 @@
           </tbody>
         </table>
       </div>
+      <div id="tablasNivel1" style="margin-top: 30px;"></div>
     </div>
   </div>
 
@@ -157,13 +158,13 @@
       <div class="map-container">
         <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
         <map name="mapaRegiones" id="mapaRegiones">
-          <!-- Coordenadas para las regiones, se deben ajustar según la imagen real -->
+          <!-- COORDENADAS ORIGINALES RESTAURADAS -->
           <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
           <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
           <!-- Añadir más áreas según las regiones que se deseen hacer clickeables -->
         </map>
       </div>
-      <div id="tablasNivel1" style="margin-top: 30px;"></div>
+      <div id="tablasNivel1Geografico" style="margin-top: 30px;"></div>
     </div>
 
     <!-- NIVEL REGIÓN -->
@@ -308,7 +309,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-U_pbpd2eVBHiae78iVolooUz6u-A4lFkMwiNlvhZzuCPUa-ODaS_0VBfKvslSB_t/exec'; // REEMPLAZAR CON TU URL REAL
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1fjRY7HxlksTu4J6RVJ8TMK_O_IKAVHBO5ToBS1vvjs3UtQYAWAkeHWtPa2kGVuEW/exec'; // REEMPLAZAR CON TU URL REAL
     
     const VACUNAS_LABORATORIOS = {
       "Antigripal Adulto": ["Viraflu", "Fluxvir"],
@@ -377,11 +378,11 @@
       xhr.send();
     }
 
-    function renderizarTablas(data, region, localidad, establecimiento) {
-      // Renderizar tabla de Stock
-      var tbodyStock = document.getElementById('stockBodyInventario');
-      if (tbodyStock) {
-        if (!data.stock || !data.stock.length) { tbodyStock.innerHTML='<tr><td colspan="9" style="text-align:center;">No hay datos de stock disponibles</td></tr>'; }
+    function renderizarTablas(data, currentRegion, currentLocalidad, currentEstablecimiento) {
+      // Renderizar tabla de Stock en la vista principal
+      var tbodyStockInventario = document.getElementById('stockBodyInventario');
+      if (tbodyStockInventario) {
+        if (!data.stock || !data.stock.length) { tbodyStockInventario.innerHTML='<tr><td colspan="9" style="text-align:center;">No hay datos de stock disponibles</td></tr>'; }
         else {
           var htmlStock = '';
           var hoy = new Date();
@@ -391,22 +392,38 @@
             else if ((venc - hoy) / 86400000 <= 30) { estado='Proximo a Vencer'; badge='badge-warning'; }
             htmlStock+='<tr><td>'+(it.vacuna||'-')+'</td><td>'+(it.laboratorio||'-')+'</td><td>'+(it.lote||'-')+'</td><td>'+venc.toLocaleDateString('es-AR')+'</td><td>'+(it.stock||0)+'</td><td>'+(it.region||'-')+'</td><td>'+(it.localidad||'-')+'</td><td>'+(it.establecimiento||'-')+'</td><td><span class="badge '+badge+'">'+estado+'</span></td></tr>';
           }
-          tbodyStock.innerHTML = htmlStock;
+          tbodyStockInventario.innerHTML = htmlStock;
         }
       }
 
-      // Renderizar tabla de Ingresos
-      var tablasNivel2 = document.getElementById('tablasNivel2');
-      var tablasNivel3 = document.getElementById('tablasNivel3');
-
-      if (region && !localidad && !establecimiento) { // Vista de Región
-        if (tablasNivel2) tablasNivel2.innerHTML = buildTablasDetalle(data.ingresos, 'Ingresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) + buildTablasDetalle(data.egresos, 'Egresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Observacion', 'Trazabilidad']);
-      } else if (region && localidad && !establecimiento) { // Vista de Localidad
-        if (tablasNivel3) tablasNivel3.innerHTML = buildTablasDetalle(data.ingresos, 'Ingresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) + buildTablasDetalle(data.egresos, 'Egresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Observacion', 'Trazabilidad']);
-      } else if (region && localidad && establecimiento) { // Vista de Establecimiento
-        if (tablasNivel3) tablasNivel3.innerHTML = buildTablasDetalle(data.ingresos, 'Ingresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Vencimiento', 'Observaciones', 'Trazabilidad']) + buildTablasDetalle(data.egresos, 'Egresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Observacion', 'Trazabilidad']);
-      } else { // Vista Global (Inventario Principal)
-        if (document.getElementById('tablasNivel1')) document.getElementById('tablasNivel1').innerHTML = buildTablasDetalle(data.ingresos, 'Ingresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Region', 'Localidad', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) + buildTablasDetalle(data.egresos, 'Egresos', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Region', 'Localidad', 'Establecimiento', 'Observacion', 'Trazabilidad']);
+      // Renderizar tablas de Ingresos y Egresos según el nivel de navegación
+      // Vista Inventario Principal (sin filtros geográficos)
+      if (!currentRegion && !currentLocalidad && !currentEstablecimiento) {
+        document.getElementById('tablasNivel1').innerHTML = 
+          buildTablasDetalle(data.stock, 'Stock General', ['Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Stock', 'Ubicacion', 'Region', 'Localidad', 'Establecimiento']) +
+          buildTablasDetalle(data.ingresos, 'Ingresos Recientes', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Region', 'Localidad', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) +
+          buildTablasDetalle(data.egresos, 'Egresos Recientes', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Region', 'Localidad', 'Establecimiento', 'Observacion', 'Trazabilidad']);
+        document.getElementById('tablasNivel1Geografico').innerHTML = ''; // Limpiar si no estamos en vista geográfica
+        document.getElementById('tablasNivel2').innerHTML = '';
+        document.getElementById('tablasNivel3').innerHTML = '';
+      } else if (currentRegion && !currentLocalidad && !currentEstablecimiento) { // Vista de Región
+        document.getElementById('tablasNivel1Geografico').innerHTML = 
+          buildTablasDetalle(data.stock, 'Stock en ' + currentRegion, ['Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Stock', 'Ubicacion', 'Localidad', 'Establecimiento']) +
+          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentRegion, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Localidad', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) +
+          buildTablasDetalle(data.egresos, 'Egresos en ' + currentRegion, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Localidad', 'Establecimiento', 'Observacion', 'Trazabilidad']);
+        document.getElementById('tablasNivel2').innerHTML = '';
+        document.getElementById('tablasNivel3').innerHTML = '';
+      } else if (currentRegion && currentLocalidad && !currentEstablecimiento) { // Vista de Localidad
+        document.getElementById('tablasNivel2').innerHTML = 
+          buildTablasDetalle(data.stock, 'Stock en ' + currentLocalidad, ['Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Stock', 'Ubicacion', 'Establecimiento']) +
+          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentLocalidad, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) +
+          buildTablasDetalle(data.egresos, 'Egresos en ' + currentLocalidad, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Observacion', 'Trazabilidad']);
+        document.getElementById('tablasNivel3').innerHTML = '';
+      } else if (currentRegion && currentLocalidad && currentEstablecimiento) { // Vista de Establecimiento
+        document.getElementById('tablasNivel3').innerHTML = 
+          buildTablasDetalle(data.stock, 'Stock en ' + currentEstablecimiento, ['Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Stock', 'Ubicacion']) +
+          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentEstablecimiento, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Vencimiento', 'Observaciones', 'Trazabilidad']) +
+          buildTablasDetalle(data.egresos, 'Egresos en ' + currentEstablecimiento, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Observacion', 'Trazabilidad']);
       }
     }
 
@@ -421,6 +438,39 @@
           html += '<tr>';
           for (var j = 0; j < headers.length; j++) {
             var key = headers[j].toLowerCase().replace(/ /g, '');
+            // Mapeo de nombres de encabezado a claves de objeto para Ingresos y Egresos
+            if (titulo.includes('Ingresos') || titulo.includes('Egresos')) {
+                switch(key) {
+                    case 'fecha': key = 'fecha'; break;
+                    case 'vacuna': key = 'vacuna'; break;
+                    case 'laboratorio': key = 'laboratorio'; break;
+                    case 'lote': key = 'lote'; break;
+                    case 'cantidad': key = 'cantidad'; break;
+                    case 'responsable': key = 'responsable'; break;
+                    case 'region': key = 'region'; break;
+                    case 'localidad': key = 'localidad'; break;
+                    case 'establecimiento': key = 'establecimiento'; break;
+                    case 'vencimiento': key = 'vencimiento'; break;
+                    case 'observaciones': key = 'observaciones'; break;
+                    case 'observacion': key = 'observacion'; break;
+                    case 'trazabilidad': key = 'trazabilidad'; break;
+                    default: key = headers[j]; // Fallback si no se encuentra
+                }
+            } else { // Para Stock
+                switch(key) {
+                    case 'vacuna': key = 'vacuna'; break;
+                    case 'laboratorio': key = 'laboratorio'; break;
+                    case 'lote': key = 'lote'; break;
+                    case 'vencimiento': key = 'vencimiento'; break;
+                    case 'stock': key = 'stock'; break;
+                    case 'ubicacion': key = 'ubicacion'; break;
+                    case 'region': key = 'region'; break;
+                    case 'localidad': key = 'localidad'; break;
+                    case 'establecimiento': key = 'establecimiento'; break;
+                    default: key = headers[j]; // Fallback si no se encuentra
+                }
+            }
+
             if (key === 'fecha' || key === 'vencimiento') {
               html += '<td>' + (data[i][key] ? new Date(data[i][key]).toLocaleDateString('es-AR') : '-') + '</td>';
             } else {
@@ -465,6 +515,7 @@
       document.getElementById('breadcrumbRegion').style.display = 'none';
       document.getElementById('breadcrumbLocalidad').style.display = 'none';
       cargarDatos(); // Cargar datos globales al volver a la vista de provincia
+      resizeMap(); // Asegurar que el mapa sea clickeable
     }
 
     function volverANivelRegion() {
@@ -654,15 +705,14 @@
 
     // Función para ajustar el tamaño del mapa y las áreas (solución al problema de click)
     function resizeMap() {
-      var img = document.querySelector('.img-mapa');
+      var img = document.querySelector('#nivelProvincia .img-mapa'); // Seleccionar solo el mapa de regiones
       if (!img) return;
       var imgWidth = img.offsetWidth;
       var imgHeight = img.offsetHeight;
-      var map = document.getElementById('mapaRegiones'); // Asegúrate de que este ID exista en tu HTML
+      var map = document.getElementById('mapaRegiones');
       if (!map) return;
 
-      // Aquí deberías recalcular las coordenadas de tus áreas si la imagen es responsiva
-      // Por ahora, asumimos que la imagen original es de 714x491 y escalamos proporcionalmente
+      // Asumimos que la imagen original es de 714x491 y escalamos proporcionalmente
       var originalWidth = 714; 
       var originalHeight = 491;
       var scaleX = imgWidth / originalWidth;
@@ -670,7 +720,13 @@
 
       var areas = map.getElementsByTagName('area');
       for (var i = 0; i < areas.length; i++) {
-        var coords = areas[i].getAttribute('coords').split(',').map(Number);
+        // Restaurar las coordenadas originales antes de escalar para evitar errores acumulativos
+        var originalCoords = areas[i].getAttribute('data-original-coords');
+        if (!originalCoords) {
+          originalCoords = areas[i].getAttribute('coords');
+          areas[i].setAttribute('data-original-coords', originalCoords);
+        }
+        var coords = originalCoords.split(',').map(Number);
         var newCoords = [];
         for (var j = 0; j < coords.length; j += 2) {
           newCoords.push(Math.round(coords[j] * scaleX));
@@ -683,6 +739,14 @@
     window.addEventListener('resize', resizeMap);
     window.onload = function() {
       cargarDatos();
+      // Guardar las coordenadas originales al cargar la página por primera vez
+      var map = document.getElementById('mapaRegiones');
+      if (map) {
+        var areas = map.getElementsByTagName('area');
+        for (var i = 0; i < areas.length; i++) {
+          areas[i].setAttribute('data-original-coords', areas[i].getAttribute('coords'));
+        }
+      }
       resizeMap(); // Llamar al cargar para asegurar que el mapa sea clickeable
     };
   </script>
