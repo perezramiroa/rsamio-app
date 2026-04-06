@@ -585,6 +585,10 @@
         alert('Por favor completa todos los campos requeridos'); return;
       }
 
+      var btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Registrando...';
+
       mostrarLoading(true);
       var url = APPS_SCRIPT_URL +
         '?action=registrarMovimiento' +
@@ -604,6 +608,8 @@
       xhr.open('GET', url, true);
       xhr.onload = function() {
         mostrarLoading(false);
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Confirmar Registro';
         try {
           var result = JSON.parse(xhr.responseText);
           if (result.result) {
@@ -620,7 +626,7 @@
           } else { alert('Error: ' + result.message); }
         } catch(e) { alert('Error al procesar respuesta.'); }
       };
-      xhr.onerror = function() { mostrarLoading(false); alert('Error de conexión.'); };
+      xhr.onerror = function() { mostrarLoading(false); btnSubmit.disabled = false; btnSubmit.textContent = 'Confirmar Registro'; alert('Error de conexión.'); };
       xhr.send();
     }
 
