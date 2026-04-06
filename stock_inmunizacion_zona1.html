@@ -359,7 +359,7 @@
       }
       if (!currentRegion && !currentLocalidad && !currentEstablecimiento) {
         document.getElementById('tablasNivel1').innerHTML =
-          buildTablasDetalle(data.stock, 'Stock General', ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Ubicacion','Region','Localidad','Establecimiento']) +
+          buildTablasDetalle(data.stock, 'Stock General', ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Region','Localidad','Establecimiento']) +
           buildTablasDetalle(data.ingresos, 'Ingresos Recientes', ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Region','Localidad','Establecimiento','Vencimiento','Observaciones','Trazabilidad']) +
           buildTablasDetalle(data.egresos, 'Egresos Recientes', ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Region','Localidad','Establecimiento','Observacion','Trazabilidad']);
         document.getElementById('tablasNivel1Geografico').innerHTML = '';
@@ -367,20 +367,20 @@
         document.getElementById('tablasNivel3').innerHTML = '';
       } else if (currentRegion && !currentLocalidad && !currentEstablecimiento) {
         document.getElementById('tablasNivel1Geografico').innerHTML =
-          buildTablasDetalle(data.stock, 'Stock en ' + currentRegion, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Ubicacion','Localidad','Establecimiento']) +
+          buildTablasDetalle(data.stock, 'Stock en ' + currentRegion, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Localidad','Establecimiento']) +
           buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentRegion, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Localidad','Establecimiento','Vencimiento','Observaciones','Trazabilidad']) +
           buildTablasDetalle(data.egresos, 'Egresos en ' + currentRegion, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Localidad','Establecimiento','Observacion','Trazabilidad']);
         document.getElementById('tablasNivel2').innerHTML = '';
         document.getElementById('tablasNivel3').innerHTML = '';
       } else if (currentRegion && currentLocalidad && !currentEstablecimiento) {
         document.getElementById('tablasNivel2').innerHTML =
-          buildTablasDetalle(data.stock, 'Stock en ' + currentLocalidad, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Ubicacion','Establecimiento']) +
+          buildTablasDetalle(data.stock, 'Stock en ' + currentLocalidad, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Establecimiento']) +
           buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentLocalidad, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Establecimiento','Vencimiento','Observaciones','Trazabilidad']) +
           buildTablasDetalle(data.egresos, 'Egresos en ' + currentLocalidad, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Establecimiento','Observacion','Trazabilidad']);
         document.getElementById('tablasNivel3').innerHTML = '';
       } else if (currentRegion && currentLocalidad && currentEstablecimiento) {
         document.getElementById('tablasNivel3').innerHTML =
-          buildTablasDetalle(data.stock, 'Stock en ' + currentEstablecimiento, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Ubicacion']) +
+          buildTablasDetalle(data.stock, 'Stock en ' + currentEstablecimiento, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock']) +
           buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentEstablecimiento, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Vencimiento','Observaciones','Trazabilidad']) +
           buildTablasDetalle(data.egresos, 'Egresos en ' + currentEstablecimiento, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Observacion','Trazabilidad']);
       }
