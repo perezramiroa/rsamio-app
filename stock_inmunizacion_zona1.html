@@ -500,8 +500,28 @@
       document.getElementById('camposIngreso').style.display = tipo === 'Ingreso' ? 'block' : 'none';
       document.getElementById('vencimientoRow').style.display = tipo === 'Ingreso' ? 'block' : 'none';
       document.getElementById('formMov').reset();
-      actualizarVacunas();
-      document.getElementById('modalMov').style.display = 'block';
+
+      if (tipo === 'Egreso') {
+        // Refrescar stock antes de abrir para que los lotes estén actualizados
+        var url = APPS_SCRIPT_URL + '?action=getDatosAgregados';
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = function() {
+          try {
+            DATOS_GLOBALES = JSON.parse(xhr.responseText);
+          } catch(e) {}
+          actualizarVacunas();
+          document.getElementById('modalMov').style.display = 'block';
+        };
+        xhr.onerror = function() {
+          actualizarVacunas();
+          document.getElementById('modalMov').style.display = 'block';
+        };
+        xhr.send();
+      } else {
+        actualizarVacunas();
+        document.getElementById('modalMov').style.display = 'block';
+      }
     }
 
     function cerrarModalMov() {
