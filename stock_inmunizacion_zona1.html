@@ -110,7 +110,7 @@
 
   <!-- CONTROLS -->
   <div class="controls">
-    <button class="btn btn-primary" onclick="cargarDatos()">🔄 Actualizar</button>
+    <button class="btn btn-primary" onclick="cargarDatos(null,null,null)">🔄 Actualizar</button>
     <button class="btn btn-success" onclick="abrirModalMov('Egreso')">📤 Registrar Egreso</button>
     <button class="btn btn-primary" style="background:#8b5cf6;" onclick="abrirModalMov('Ingreso')">📥 Registrar Ingreso</button>
     <button class="btn btn-primary" style="background:#00384d;" onclick="mostrarVistaGeografica()">📍 Regiones/Localidades/Establecimientos</button>
@@ -309,7 +309,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1fjRY7HxlksTu4J6RVJ8TMK_O_IKAVHBO5ToBS1vvjs3UtQYAWAkeHWtPa2kGVuEW/exec'; // REEMPLAZAR CON TU URL REAL
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygRU32CAxYNINamWr88HAQOCRfb11NIkylIk9nbLgKlAkvE9_T79cqQrlx-5U4a1QP/exec'; // REEMPLAZAR CON TU URL REAL
     
     const VACUNAS_LABORATORIOS = {
       "Antigripal Adulto": ["Viraflu", "Fluxvir"],
@@ -481,6 +481,8 @@
         }
       }
       html += '</tbody></table></div>';
+      html += `<button class="btn btn-outline" style="margin:10px 0;"
+onclick="descargarTablaPDF(this)">⬇️ Descargar PDF</button>`;
       return html;
     }
 
@@ -633,58 +635,51 @@
       xhr.send();
     }
 
-    function generarYGuardarPDF(datos) {
-      const element = document.getElementById('pdf-template');
-      element.style.display = 'block';
-      
-      document.getElementById('pdf-trazabilidad').textContent = datos.trazabilidad;
-      document.getElementById('pdf-fecha').textContent = new Date().toLocaleString();
-      
-      let html = `
-        <table class="pdf-table">
-          <tr><th>Campo</th><th>Detalle</th></tr>
-          <tr><td>Tipo de Movimiento</td><td>${datos.tipo}</td></tr>
-          <tr><td>Vacuna</td><td>${datos.vacuna}</td></tr>
-          <tr><td>Laboratorio</td><td>${datos.laboratorio}</td></tr>
-          <tr><td>Lote</td><td>${datos.lote}</td></tr>
-          <tr><td>Cantidad</td><td>${datos.cantidad}</td></tr>
-          <tr><td>Responsable</td><td>${datos.responsable}</td></tr>
-          <tr><td>Ubicación</td><td>${datos.region} - ${datos.localidad} - ${datos.establecimiento}</td></tr>
-          <tr><td>Observaciones</td><td>${datos.observaciones || '-'}</td></tr>
-        </table>
-      `;
-      document.getElementById('pdf-content').innerHTML = html;
+function generarYGuardarPDF(datos) {
+  const element = document.getElementById('pdf-template');
+  element.style.display = 'block';
 
-      const opt = {
-        margin: 10,
+  document.getElementById('pdf-trazabilidad').textContent = datos.trazabilidad;
+  document.getElementById('pdf-fecha').textContent = new Date().toLocaleString();
+
+  let html = `
+    <table class="pdf-table">
+      <tr><th>Campo</th><th>Detalle</th></tr>
+      <tr><td>Tipo</td><td>${datos.tipo}</td></tr>
+      <tr><td>Vacuna</td><td>${datos.vacuna}</td></tr>
+      <tr><td>Laboratorio</td><td>${datos.laboratorio}</td></tr>
+      <tr><td>Lote</td><td>${datos.lote}</td></tr>
+      <tr><td>Cantidad</td><td>${datos.cantidad}</td></tr>
+      <tr><td>Responsable</td><td>${datos.responsable}</td></tr>
+      <tr><td>Ubicación</td><td>${datos.region} - ${datos.localidad} - ${datos.establecimiento}</td></tr>
+      <tr><td>Observaciones</td><td>${datos.observaciones || '-'}</td></tr>
+    </table>
+  `;
+  document.getElementById('pdf-content').innerHTML = html;
+
+  html2pdf().from(element).outputPdf('datauristring').then(function(pdfData) {
+
+    element.style.display = 'none';
+
+    // 🔥 ESTE ES EL FIX REAL
+    const base64 = pdfData.split(',')[1];
+
+    fetch(APPS_SCRIPT_URL + '?action=guardarPDF', {
+      method: 'POST',
+      body: JSON.stringify({
         filename: `Reporte_${datos.trazabilidad}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+        pdfData: base64
+      })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.result) {
+        ultimoPDFUrl = res.url;
+      }
+    });
 
-      html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
-        element.style.display = 'none';
-        
-        // Enviar a Apps Script para guardar en Drive
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', APPS_SCRIPT_URL + '?action=guardarPDF', true);
-        xhr.setRequestHeader('Content-Type', 'text/plain');
-        xhr.onload = function() {
-          console.log("PDF guardado en Drive:", xhr.responseText);
-          try {
-            const response = JSON.parse(xhr.responseText);
-            if (response.result && response.url) {
-              ultimoPDFUrl = response.url; // Almacenar la URL para la descarga
-            }
-          } catch (e) { console.error("Error parseando respuesta de guardarPDF", e); }
-        };
-        xhr.send(JSON.stringify({
-          pdfData: pdfBase64,
-          filename: opt.filename
-        }));
-      });
-    }
+  });
+}
 
     function descargarUltimoPDF() {
       if (ultimoPDFUrl) {
@@ -737,6 +732,7 @@
     }
 
     window.addEventListener('resize', resizeMap);
+    setTimeout(resizeMap, 300);
     window.onload = function() {
       cargarDatos();
       // Guardar las coordenadas originales al cargar la página por primera vez
@@ -748,7 +744,15 @@
         }
       }
       resizeMap(); // Llamar al cargar para asegurar que el mapa sea clickeable
+      setTimeout(() => {
+  window.dispatchEvent(new Event('resize'));
+      }, 500);
     };
+    
+function descargarTablaPDF(btn) {
+  const tabla = btn.previousElementSibling;
+  html2pdf().from(tabla).save("tabla.pdf");
+}
   </script>
 </body>
 </html>
