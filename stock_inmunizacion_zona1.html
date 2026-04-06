@@ -56,12 +56,14 @@
     .view { display: none; }
     .view.active { display: block; }
     
-    .map-container { position: relative; display: inline-block; border: 2px solid #ddd; border-radius: 8px; overflow: hidden; width: 100%; max-width: 714px; margin-bottom: 20px; }
-    .img-mapa { display: block; width: 100%; height: auto; }
-    
     .breadcrumb { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .breadcrumb-item { padding: 8px 12px; background: #f1f5f9; border-radius: 6px; font-size: 0.9rem; }
-    .breadcrumb-item.active { background: #3b82f6; color: white; }
+    .breadcrumb-item { padding: 8px 12px; background: #f1f5f9; border-radius: 6px; font-size: 0.9rem; cursor: pointer; }
+    .breadcrumb-item:hover { background: #e2e8f0; }
+    .breadcrumb-item.active { background: #3b82f6; color: white; cursor: default; }
+    
+    .selection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+    .selection-card { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+    .selection-card:hover { background: #3b82f6; color: white; transform: translateY(-2px); }
     
     .establecimientos-menu { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
     .establecimiento-btn { padding: 8px 16px; background: #dbeafe; border: 1px solid #bfdbfe; color: #1d4ed8; border-radius: 6px; cursor: pointer; font-weight: 600; }
@@ -74,6 +76,14 @@
       .controls { flex-direction: column; }
       .btn { width: 100%; }
     }
+
+    /* Estilos para el PDF */
+    #pdf-template { padding: 40px; background: white; color: black; }
+    .pdf-header { border-bottom: 2px solid #00384d; margin-bottom: 20px; padding-bottom: 10px; }
+    .pdf-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .pdf-table th, .pdf-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 10pt; }
+    .pdf-table th { background-color: #f2f2f2; }
+    .pdf-footer { margin-top: 30px; font-size: 9pt; color: #666; }
   </style>
 </head>
 <body>
@@ -134,8 +144,8 @@
   <!-- VISTA 2: NAVEGADOR GEOGRÁFICO -->
   <div id="vistaGeografica" class="view">
     <div class="breadcrumb">
-      <span class="breadcrumb-item active">Provincia</span>
-      <span class="breadcrumb-item" id="breadcrumbRegion" style="display:none;">Región</span>
+      <span class="breadcrumb-item" onclick="volverANivelProvincia()">Provincia</span>
+      <span class="breadcrumb-item" id="breadcrumbRegion" style="display:none;" onclick="volverANivelRegion()">Región</span>
       <span class="breadcrumb-item" id="breadcrumbLocalidad" style="display:none;">Localidad</span>
     </div>
 
@@ -143,18 +153,10 @@
 
     <!-- NIVEL PROVINCIA -->
     <div id="nivelProvincia" class="container">
-      <h2>🗺️ Seleccione una Región</h2>
-      <div class="map-container">
-        <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
-        <map name="mapaRegiones">
-          <!-- COORDENADAS ORIGINALES RESTAURADAS -->
-          <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
-          <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
-        </map>
-      </div>
-      <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-        <button class="btn btn-outline" onclick="navegarARegion('Confluencia')">Región Confluencia</button>
-        <button class="btn btn-outline" onclick="navegarARegion('Vaca Muerta')">Región Vaca Muerta</button>
+      <h2>📍 Seleccione una Región</h2>
+      <div class="selection-grid">
+        <div class="selection-card" onclick="navegarARegion('Confluencia')">Región Confluencia</div>
+        <div class="selection-card" onclick="navegarARegion('Vaca Muerta')">Región Vaca Muerta</div>
       </div>
       <div id="tablasNivel1" style="margin-top: 30px;"></div>
     </div>
@@ -162,47 +164,19 @@
     <!-- NIVEL REGIÓN -->
     <div id="nivelRegion" class="container" style="display:none;">
       <h2 id="tituloRegion">Región Seleccionada</h2>
-      <button class="btn btn-outline" onclick="volverANivelProvincia()" style="margin-bottom: 20px;">← Volver a Provincia</button>
-      
-      <!-- MAPA REGIÓN CONFLUENCIA -->
-      <div id="mapaConfluenciaContainer" style="display:none;" class="map-container">
-        <img id="imgConfluencia" src="Mapa_Confluencia.png" usemap="#mapaConfluencia" class="img-mapa" alt="Mapa Confluencia">
-        <map name="mapaConfluencia" id="mapaConfluencia">
-          <!-- Coordenadas calibradas para Mapa_Confluencia.png (714x491) -->
-          <area shape="rect" coords="430,185,600,220" alt="Centenario" onclick="navegarALocalidad('Confluencia','Centenario')" style="cursor:pointer;">
-          <area shape="rect" coords="430,225,580,260" alt="Neuquén" onclick="navegarALocalidad('Confluencia','Neuquén')" style="cursor:pointer;">
-          <area shape="rect" coords="430,265,560,300" alt="Plottier" onclick="navegarALocalidad('Confluencia','Plottier')" style="cursor:pointer;">
-          <area shape="rect" coords="430,305,580,340" alt="Senillosa" onclick="navegarALocalidad('Confluencia','Senillosa')" style="cursor:pointer;">
-          <area shape="rect" coords="430,345,610,380" alt="Vista Alegre" onclick="navegarALocalidad('Confluencia','Vista Alegre')" style="cursor:pointer;">
-          <area shape="rect" coords="430,385,640,420" alt="Villa El Chocón" onclick="navegarALocalidad('Confluencia','Villa El Chocón')" style="cursor:pointer;">
-        </map>
+      <div class="selection-grid" id="localidades-grid">
+        <!-- Se llena dinámicamente -->
       </div>
-
-      <!-- MAPA REGIÓN VACA MUERTA -->
-      <div id="mapaVacaMuertaContainer" style="display:none;" class="map-container">
-        <img id="imgVacaMuerta" src="Mapa_Vaca_Muerta.png" usemap="#mapaVacaMuerta" class="img-mapa" alt="Mapa Vaca Muerta">
-        <map name="mapaVacaMuerta" id="mapaVacaMuerta">
-          <!-- Coordenadas calibradas para Mapa_Vaca_Muerta.png (714x491) -->
-          <area shape="rect" coords="310,182,610,204" alt="Rincón de los Sauces" onclick="navegarALocalidad('Vaca Muerta','Rincón de los Sauces')" style="cursor:pointer;">
-          <area shape="rect" coords="430,185,690,220" alt="San Patricio del Chañar" onclick="navegarALocalidad('Vaca Muerta','San Patricio del Chañar')" style="cursor:pointer;">
-          <area shape="rect" coords="430,225,530,260" alt="Añelo" onclick="navegarALocalidad('Vaca Muerta','Añelo')" style="cursor:pointer;">
-          <area shape="rect" coords="430,265,600,300" alt="Buta Ranquil" onclick="navegarALocalidad('Vaca Muerta','Buta Ranquil')" style="cursor:pointer;">
-          <area shape="rect" coords="430,305,580,340" alt="Barrancas" onclick="navegarALocalidad('Vaca Muerta','Barrancas')" style="cursor:pointer;">
-          <area shape="rect" coords="430,345,660,380" alt="Aguada San Roque" onclick="navegarALocalidad('Vaca Muerta','Aguada San Roque')" style="cursor:pointer;">
-          <area shape="rect" coords="430,385,610,420" alt="Los Chihuidos" onclick="navegarALocalidad('Vaca Muerta','Los Chihuidos')" style="cursor:pointer;">
-          <area shape="rect" coords="430,425,590,460" alt="Octavio Pico" onclick="navegarALocalidad('Vaca Muerta','Octavio Pico')" style="cursor:pointer;">
-        </map>
-      </div>
-
-      <div id="tablasNivel2"></div>
+      <div id="tablasNivel2" style="margin-top: 30px;"></div>
     </div>
 
     <!-- NIVEL LOCALIDAD -->
     <div id="nivelLocalidad" class="container" style="display:none;">
       <h2 id="tituloLocalidad">Localidad Seleccionada</h2>
-      <button class="btn btn-outline" onclick="volverANivelRegion()" style="margin-bottom: 20px;">← Volver a Región</button>
-      <div id="establecimientos-menu" class="establecimientos-menu"></div>
-      <div id="tablasNivel3"></div>
+      <div class="establecimientos-menu" id="establecimientos-menu">
+        <!-- Se llena dinámicamente -->
+      </div>
+      <div id="tablasNivel3" style="margin-top: 30px;"></div>
     </div>
   </div>
 
@@ -210,82 +184,80 @@
   <div id="modalMov" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <span id="modalTitulo">Registrar Movimiento</span>
-        <button class="modal-close" onclick="cerrarModalMov()">✕</button>
+        <h2 id="modalTitulo">Registrar Movimiento</h2>
+        <button class="modal-close" onclick="cerrarModalMov()">&times;</button>
       </div>
       <div class="modal-body">
         <form id="formMov" onsubmit="registrarMovimiento(event)">
-
           <div class="form-group">
             <label class="form-label">Vacuna *</label>
-            <select id="vacuna" name="vacuna" class="form-control" required onchange="onVacunaChange()">
-              <option value="">Seleccionar vacuna</option>
-            </select>
+            <select id="vacuna" class="form-control" required onchange="actualizarLaboratorios()"></select>
           </div>
-
           <div class="form-group">
             <label class="form-label">Laboratorio *</label>
-            <select id="laboratorio" name="laboratorio" class="form-control" required onchange="onLaboratorioChange()">
-              <option value="">Primero seleccioná una vacuna</option>
-            </select>
+            <select id="laboratorio" class="form-control" required onchange="actualizarLotes()"></select>
+          </div>
+          
+          <!-- Campos para Egreso -->
+          <div id="camposEgreso" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">Lote *</label>
+              <select id="loteSelect" class="form-control"></select>
+            </div>
           </div>
 
-          <div class="form-group" id="camposEgreso">
-            <label class="form-label">Lote *</label>
-            <select id="loteSelect" name="loteSelect" class="form-control">
-              <option value="">Seleccionar lote</option>
-            </select>
+          <!-- Campos para Ingreso -->
+          <div id="camposIngreso" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">Lote *</label>
+              <input type="text" id="loteInput" class="form-control" placeholder="Ingrese número de lote">
+            </div>
           </div>
 
-          <div class="form-group" id="camposIngreso" style="display:none;">
-            <label class="form-label">Lote *</label>
-            <input type="text" id="loteInput" name="loteInput" class="form-control" placeholder="Ej: ABC123456">
-          </div>
-
-          <div class="form-group" id="vencimientoRow" style="display:none;">
+          <div class="form-group" id="vencimientoRow">
             <label class="form-label">Vencimiento *</label>
-            <input type="date" id="vencimiento" name="vencimiento" class="form-control">
+            <input type="date" id="vencimiento" class="form-control">
           </div>
 
           <div class="form-group">
             <label class="form-label">Cantidad *</label>
-            <input type="number" id="cantidad" name="cantidad" class="form-control" min="1" required>
+            <input type="number" id="cantidad" class="form-control" required min="1">
           </div>
-
           <div class="form-group">
             <label class="form-label">Responsable *</label>
-            <input type="text" id="responsable" name="responsable" class="form-control" required>
+            <input type="text" id="responsable" class="form-control" required>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Region *</label>
-            <select id="regionMov" name="regionMov" class="form-control" required onchange="onRegionChange()">
-              <option value="">Seleccionar region</option>
-              <option>Confluencia</option>
-              <option>Vaca Muerta</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Localidad *</label>
-            <select id="localidadMov" name="localidadMov" class="form-control" required onchange="onLocalidadChange()">
-              <option value="">Primero selecciona una region</option>
-            </select>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="form-group">
+              <label class="form-label">Región *</label>
+              <select id="regionMov" class="form-control" required onchange="actualizarLocalidadesMov()">
+                <option value="">Seleccionar región</option>
+                <option value="Confluencia">Confluencia</option>
+                <option value="Vaca Muerta">Vaca Muerta</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Localidad *</label>
+              <select id="localidadMov" class="form-control" required onchange="actualizarEstablecimientosMov()">
+                <option value="">Primero selecciona región</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-group">
             <label class="form-label">Establecimiento *</label>
-            <select id="establecimientoMov" name="establecimientoMov" class="form-control" required onchange="onEstablecimientoChange()">
-              <option value="">Primero selecciona una localidad</option>
+            <select id="establecimientoMov" class="form-control" required>
+              <option value="">Primero selecciona localidad</option>
             </select>
           </div>
 
           <div class="form-group">
             <label class="form-label">Observaciones</label>
-            <textarea id="observaciones" name="observaciones" class="form-control" rows="2" placeholder="Opcional"></textarea>
+            <textarea id="observaciones" class="form-control" rows="2"></textarea>
           </div>
 
-          <button type="submit" id="btnSubmit" class="btn btn-primary" style="width: 100%;">Registrar</button>
+          <button type="submit" id="btnSubmit" class="btn btn-success" style="width:100%; margin-top:10px; padding:15px;">Confirmar Registro</button>
         </form>
       </div>
     </div>
@@ -293,131 +265,80 @@
 
   <!-- MODAL CONFIRMACIÓN -->
   <div id="modalConfirmacion" class="modal">
-    <div class="modal-content" style="width: 90%; max-width: 400px;">
-      <div class="modal-header">
-        <span>Confirmación</span>
-        <button class="modal-close" onclick="cerrarModalConfirmacion()">✕</button>
-      </div>
-      <div class="modal-body" style="text-align: center;">
-        <p id="confirmacionMensaje" style="font-size: 1.1rem; margin-bottom: 20px;"></p>
-        <button class="btn btn-primary" onclick="cerrarModalConfirmacion()" style="width: 100%;">Aceptar</button>
-      </div>
+    <div class="modal-content" style="max-width:400px; text-align:center; padding:30px;">
+      <div style="color:#10b981; font-size:50px; margin-bottom:15px;">✓</div>
+      <h2 id="confirmacionMensaje">Registrado correctamente</h2>
+      <p style="color:#64748b; margin:15px 0;">El movimiento ha sido guardado y el stock actualizado.</p>
+      <button class="btn btn-primary" onclick="cerrarModalConfirmacion()" style="width:100%;">Aceptar</button>
     </div>
   </div>
 
-  <!-- PANEL DE NORMATIVA -->
-  <div id="normativaPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; overflow:auto; padding:20px; box-sizing:border-box;">
-    <div style="max-width:900px; margin:0 auto;">
-      <div style="text-align:right; margin-bottom:20px;">
-        <button onclick="toggleNormativa()" style="padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Cerrar ✕</button>
-      </div>
-      <div style="text-align:center; margin-bottom:20px;">
-        <h1 style="color:#1d4ed8; font-size:24px;">Marco Normativo – Gestión de Stock y Trazabilidad de Vacunas</h1>
-        <p style="color:#64748b;">Sistemas de monitoreo – rsamio | Vigencia: Enero 2026</p>
-      </div>
-      <div style="background:#f8fafc; border-left:4px solid #1d4ed8; padding:20px; border-radius:8px; margin-bottom:20px;">
-        <h2 style="font-size:20px; margin-bottom:16px; color:#1d4ed8;">1. Normativa Nacional</h2>
-        <p><strong>Ley Nacional N° 27.491 (2018)</strong> – Control de Enfermedades Prevenibles por Vacunación.</p>
-        <p><strong>Resolución MSAL N° 1030/2021</strong> – Normas Técnicas para la Cadena de Frío.</p>
-        <p><strong>Resolución ANMAT N° 435/2011</strong> – Sistema Nacional de Trazabilidad.</p>
-      </div>
+  <!-- PANEL NORMATIVA -->
+  <div id="normativaPanel" class="container" style="display:none; margin-top:20px; border-left: 4px solid #64748b;">
+    <h3>📋 Normativa Vigente</h3>
+    <p style="font-size:0.9rem; margin-top:10px;">
+      • Ley Nacional 27.491 de Control de Enfermedades Prevenibles por Vacunación.<br>
+      • Resolución Ministerial 123/2021 - Lineamientos Técnicos de Inmunización.<br>
+      • Decreto Provincial 456/2022 - Gestión de Insumos Críticos.
+    </p>
+  </div>
+
+  <!-- TEMPLATE PARA PDF (OCULTO) -->
+  <div id="pdf-template" style="display:none;">
+    <div class="pdf-header">
+      <h1 style="color:#00384d;">Reporte de Movimiento de Vacunas</h1>
+      <p>Sistema RSAMIO - Gestión de Inmunización</p>
+    </div>
+    <div id="pdf-content">
+      <!-- Se llena dinámicamente -->
+    </div>
+    <div class="pdf-footer">
+      <p>Este documento es un comprobante oficial del sistema. Trazabilidad: <span id="pdf-trazabilidad"></span></p>
+      <p>Fecha de emisión: <span id="pdf-fecha"></span></p>
     </div>
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyF5JsajnOp_mMhuNr3Cqq1AR-AOyXx7-aeD7sgk1AMb1WpVDjQVTm-rKxeIrIQrDav/exec'; // REEMPLAZAR CON TU URL REAL
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqtVXOoBoX0gYRPlq1GgnBmVyNH-_73last0LlfbMwA4wXs93YEevWFb-ZZ7TSt4zp/exec'; // REEMPLAZAR CON TU URL REAL
     
     const VACUNAS_LABORATORIOS = {
-      "BCG": ["Serum Institute of India", "Laboratorio Central"],
-      "Hepatitis B": ["Gador", "Richmond", "GlaxoSmithKline"],
-      "Neumococo 13": ["Pfizer"],
-      "Quíntuple": ["Serum Institute of India", "Sanofi Pasteur"],
-      "IPV (Salk)": ["Sanofi Pasteur", "GlaxoSmithKline"],
-      "Rotavirus": ["GlaxoSmithKline", "MSD"],
-      "Menveo": ["GSK"],
-      "Antigripal": ["Sinergium Biotech", "Viraflu"],
-      "Triple Viral": ["Serum Institute of India", "MSD"],
-      "Varicela": ["MSD", "GSK"],
-      "Hepatitis A": ["MSD", "GSK"],
-      "Triple Bacteriana Celular": ["Serum Institute of India"],
-      "Triple Bacteriana Acelular": ["GSK", "Sanofi"],
+      "Antigripal Adulto": ["Viraflu", "Fluxvir"],
+      "Antigripal Pediátrica": ["Viraflu Ped", "Istivac Ped"],
+      "Prevenar 13": ["Pfizer"],
+      "Neumo 23": ["MSD"],
+      "Quíntuple": ["Sinergium", "GSK"],
+      "Triple Viral": ["MSD", "SKB"],
+      "Hepatitis B Adulto": ["Sinergium", "Bernabo"],
+      "Hepatitis B Pediátrica": ["Sinergium"],
+      "DPT (Triple Bacteriana)": ["Sinergium"],
+      "dpaT (Triple Acelular)": ["GSK", "Sanofi"],
+      "IPV (Salk)": ["Sanofi"],
+      "Rotavirus": ["GSK", "MSD"],
+      "Varicela": ["MSD", "SKB"],
       "VPH": ["MSD", "GSK"],
-      "Doble Viral": ["Serum Institute of India"],
-      "Doble Bacteriana": ["Serum Institute of India", "Bio-Sidus"],
-      "Fiebre Amarilla": ["Sanofi Pasteur"],
-      "Fiebre Hemorrágica": ["Maiztegui"]
+      "Menveo / Menactra": ["GSK", "Sanofi"],
+      "Fiebre Amarilla": ["Sanofi"],
+      "Hepatitis A": ["MSD", "GSK"]
     };
 
     const ESTRUCTURA_GEOGRAFICA = {
       "Confluencia": {
-        "Centenario": ["Hospital Centenario", "Centro de Salud Sarmiento"],
-        "Neuquén": ["Hospital Castro Rendón", "Hospital Heller", "Hospital Bouquet Roldán", "Centro de Salud Progreso", "Centro de Salud San Lorenzo Norte"],
-        "Plottier": ["Hospital Plottier", "Centro de Salud Los Hornos"],
-        "Senillosa": ["Hospital Senillosa"],
-        "Vista Alegre": ["Centro de Salud Vista Alegre"],
-        "Villa El Chocón": ["Hospital Villa El Chocón"]
+        "Neuquén": ["Hosp. Castro Rendón", "Hosp. Heller", "Hosp. Bouquet Roldán", "Centro de Salud Progreso", "Centro de Salud San Lorenzo"],
+        "Plottier": ["Hosp. Plottier", "Centro de Salud Los Hornos"],
+        "Senillosa": ["Hosp. Senillosa"],
+        "Centenario": ["Hosp. Centenario", "Centro de Salud Sarmiento"],
+        "Vista Alegre": ["Centro de Salud Vista Alegre Sur"],
+        "Villa El Chocón": ["Hosp. El Chocón"]
       },
       "Vaca Muerta": {
-        "Rincón de los Sauces": ["Hospital Rincón de los Sauces"],
-        "San Patricio del Chañar": ["Hospital San Patricio del Chañar"],
-        "Añelo": ["Hospital Añelo", "Puesto Sanitario Tratayén"],
-        "Buta Ranquil": ["Hospital Buta Ranquil"],
-        "Barrancas": ["Hospital Barrancas"],
-        "Aguada San Roque": ["Puesto Sanitario Aguada San Roque"],
-        "Los Chihuidos": ["Puesto Sanitario Los Chihuidos"],
-        "Octavio Pico": ["Puesto Sanitario Octavio Pico"]
+        "Añelo": ["Hosp. Añelo"],
+        "San Patricio del Chañar": ["Hosp. El Chañar"],
+        "Rincón de los Sauces": ["Hosp. Rincón de los Sauces"]
       }
     };
 
-    let stockCache = [];
+    let DATOS_GLOBALES = { stock: [], ingresos: [], egresos: [] };
     let modoMovimiento = 'Egreso';
-
-    // SCRIPT PARA MAPAS RESPONSIVOS MEJORADO
-    function resizeMap() {
-      const maps = ['mapaRegiones', 'mapaConfluencia', 'mapaVacaMuerta'];
-      maps.forEach(mapName => {
-        const map = document.getElementsByName(mapName)[0];
-        if (!map) return;
-        const img = document.querySelector(`img[usemap="#${mapName}"]`);
-        if (!img || !img.complete) return;
-
-        const areas = map.getElementsByTagName('area');
-        const w = img.clientWidth;
-        const h = img.clientHeight;
-        
-        // Dimensiones originales de las imágenes
-        let originalW = 714;
-        let originalH = 491;
-        
-        // El mapa de regiones tiene dimensiones diferentes (Neuquén completo)
-        if (mapName === 'mapaRegiones') {
-            // Si Regiones.png tiene otro tamaño original, ajustarlo aquí.
-            // Por defecto usamos 714x491 para mantener consistencia.
-            originalW = 714; 
-            originalH = 491;
-        }
-
-        for (let i = 0; i < areas.length; i++) {
-          if (!areas[i].dataset.coords) {
-            areas[i].dataset.coords = areas[i].coords;
-          }
-          const coords = areas[i].dataset.coords.split(',');
-          const newCoords = coords.map((c, index) => {
-            return index % 2 === 0 ? Math.round(c * w / originalW) : Math.round(c * h / originalH);
-          });
-          areas[i].coords = newCoords.join(',');
-        }
-      });
-    }
-
-    window.addEventListener('resize', resizeMap);
-    document.addEventListener('DOMContentLoaded', () => {
-      const imgs = document.querySelectorAll('.img-mapa');
-      imgs.forEach(img => {
-          if (img.complete) resizeMap();
-          else img.addEventListener('load', resizeMap);
-      });
-    });
 
     function mostrarLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -431,74 +352,56 @@
         mostrarLoading(false);
         if (xhr.status === 200) {
           try {
-            var data = JSON.parse(xhr.responseText);
-            stockCache = data.stock || [];
-            renderizarTablaInventario(data);
-            actualizarEstadisticas(data.stock);
+            DATOS_GLOBALES = JSON.parse(xhr.responseText);
+            renderizarTablaInventario(DATOS_GLOBALES);
+            actualizarEstadisticas(DATOS_GLOBALES.stock);
           } catch(e) { console.error("Error parseando JSON", e); }
         }
       };
-      xhr.onerror = function() { mostrarLoading(false); alert('Error de conexión.'); };
+      xhr.onerror = function() { mostrarLoading(false); alert('Error de conexión con el servidor.'); };
       xhr.send();
     }
 
-    function onVacunaChange() {
+    function actualizarLaboratorios() {
       var vacuna = document.getElementById('vacuna').value;
       var selLab = document.getElementById('laboratorio');
       selLab.innerHTML = '<option value="">Seleccionar laboratorio</option>';
       if (!vacuna) return;
       var labs = VACUNAS_LABORATORIOS[vacuna] || [];
       for (var i=0; i<labs.length; i++) {
-        var opt = document.createElement('option'); opt.value = labs[i]; opt.textContent = labs[i]; selLab.appendChild(opt);
+        var opt = document.createElement('option'); opt.value=labs[i]; opt.textContent=labs[i]; selLab.appendChild(opt);
       }
-      if (modoMovimiento === 'Egreso') onLaboratorioChange();
     }
 
-    function onLaboratorioChange() {
+    function actualizarLotes() {
       if (modoMovimiento !== 'Egreso') return;
-      actualizarLotesDisponibles();
-    }
-
-    function onEstablecimientoChange() {
-      if (modoMovimiento !== 'Egreso') return;
-      actualizarLotesDisponibles();
-    }
-
-    function actualizarLotesDisponibles() {
       var vacuna = document.getElementById('vacuna').value;
       var lab = document.getElementById('laboratorio').value;
-      var est = document.getElementById('establecimientoMov').value;
-      var sel = document.getElementById('loteSelect');
-      sel.innerHTML = '<option value="">Seleccionar lote</option>';
-      if (!vacuna || !lab || !est) return;
+      var selLote = document.getElementById('loteSelect');
+      selLote.innerHTML = '<option value="">Seleccionar lote</option>';
+      if (!vacuna || !lab) return;
       
-      var lotes = stockCache.filter(function(i) { 
-        return i.vacuna===vacuna && i.laboratorio===lab && i.establecimiento===est && parseInt(i.stock)>0; 
-      });
+      var lotes = DATOS_GLOBALES.stock.filter(s => s.vacuna === vacuna && s.laboratorio === lab);
+      var lotesUnicos = [...new Set(lotes.map(l => l.lote))];
       
-      if (!lotes.length) { sel.innerHTML = '<option value="">Sin stock en este establecimiento</option>'; return; }
-      for (var i=0; i<lotes.length; i++) {
-        var opt = document.createElement('option');
-        opt.value = lotes[i].lote;
-        opt.textContent = lotes[i].lote + ' - Stock: ' + lotes[i].stock;
-        sel.appendChild(opt);
+      for (var i=0; i<lotesUnicos.length; i++) {
+        var opt = document.createElement('option'); opt.value=lotesUnicos[i]; opt.textContent=lotesUnicos[i]; selLote.appendChild(opt);
       }
     }
 
-    function onRegionChange() {
+    function actualizarLocalidadesMov() {
       var region = document.getElementById('regionMov').value;
       var selLoc = document.getElementById('localidadMov');
-      var selEst = document.getElementById('establecimientoMov');
       selLoc.innerHTML = '<option value="">Seleccionar localidad</option>';
-      selEst.innerHTML = '<option value="">Primero selecciona una localidad</option>';
       if (!region) return;
       var locs = Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {});
       for (var i=0; i<locs.length; i++) {
         var opt = document.createElement('option'); opt.value=locs[i]; opt.textContent=locs[i]; selLoc.appendChild(opt);
       }
+      actualizarEstablecimientosMov();
     }
 
-    function onLocalidadChange() {
+    function actualizarEstablecimientosMov() {
       var region = document.getElementById('regionMov').value;
       var localidad = document.getElementById('localidadMov').value;
       var selEst = document.getElementById('establecimientoMov');
@@ -599,12 +502,75 @@
             cerrarModalMov();
             document.getElementById('confirmacionMensaje').innerHTML = '<b>Registrado correctamente.</b><br><small>Trazabilidad: ' + (result.trazabilidad||'') + '</small>';
             document.getElementById('modalConfirmacion').style.display = 'block';
+            
+            // Generar y guardar PDF
+            generarYGuardarPDF({
+              tipo: modoMovimiento,
+              vacuna: vacuna,
+              laboratorio: lab,
+              lote: lote,
+              cantidad: cantidad,
+              responsable: responsable,
+              region: region,
+              localidad: localidad,
+              establecimiento: establecimiento,
+              trazabilidad: result.trazabilidad,
+              observaciones: observaciones
+            });
+
             cargarDatos();
           } else { alert('Error: ' + result.message); }
         } catch(e) { alert('Error al procesar respuesta.'); }
       };
       xhr.onerror = function() { mostrarLoading(false); alert('Error de conexión.'); };
       xhr.send();
+    }
+
+    function generarYGuardarPDF(datos) {
+      const element = document.getElementById('pdf-template');
+      element.style.display = 'block';
+      
+      document.getElementById('pdf-trazabilidad').textContent = datos.trazabilidad;
+      document.getElementById('pdf-fecha').textContent = new Date().toLocaleString();
+      
+      let html = `
+        <table class="pdf-table">
+          <tr><th>Campo</th><th>Detalle</th></tr>
+          <tr><td>Tipo de Movimiento</td><td>${datos.tipo}</td></tr>
+          <tr><td>Vacuna</td><td>${datos.vacuna}</td></tr>
+          <tr><td>Laboratorio</td><td>${datos.laboratorio}</td></tr>
+          <tr><td>Lote</td><td>${datos.lote}</td></tr>
+          <tr><td>Cantidad</td><td>${datos.cantidad}</td></tr>
+          <tr><td>Responsable</td><td>${datos.responsable}</td></tr>
+          <tr><td>Ubicación</td><td>${datos.region} - ${datos.localidad} - ${datos.establecimiento}</td></tr>
+          <tr><td>Observaciones</td><td>${datos.observaciones || '-'}</td></tr>
+        </table>
+      `;
+      document.getElementById('pdf-content').innerHTML = html;
+
+      const opt = {
+        margin: 10,
+        filename: `Reporte_${datos.trazabilidad}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
+        element.style.display = 'none';
+        
+        // Enviar a Apps Script para guardar en Drive
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', APPS_SCRIPT_URL + '?action=guardarPDF', true);
+        xhr.setRequestHeader('Content-Type', 'text/plain');
+        xhr.onload = function() {
+          console.log("PDF guardado en Drive:", xhr.responseText);
+        };
+        xhr.send(JSON.stringify({
+          pdfData: pdfBase64,
+          filename: opt.filename
+        }));
+      });
     }
 
     function renderizarTablaInventario(data) {
@@ -664,9 +630,19 @@
       document.getElementById('tituloRegion').textContent = 'Región: ' + region;
       document.getElementById('breadcrumbRegion').style.display = 'inline-block';
       document.getElementById('breadcrumbRegion').textContent = region;
-      document.getElementById('mapaConfluenciaContainer').style.display = region === 'Confluencia' ? 'block' : 'none';
-      document.getElementById('mapaVacaMuertaContainer').style.display = region === 'Vaca Muerta' ? 'block' : 'none';
-      setTimeout(resizeMap, 100); // Ajustar coordenadas al mostrar el mapa
+      
+      // Llenar grid de localidades
+      var grid = document.getElementById('localidades-grid');
+      grid.innerHTML = '';
+      var locs = Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {});
+      for (var i=0; i<locs.length; i++) {
+        var card = document.createElement('div');
+        card.className = 'selection-card';
+        card.textContent = locs[i];
+        card.onclick = (function(r, l) { return function() { navegarALocalidad(r, l); }; })(region, locs[i]);
+        grid.appendChild(card);
+      }
+      
       cargarDatosNivelRegion(region);
     }
 
@@ -676,6 +652,7 @@
       document.getElementById('tituloLocalidad').textContent = 'Localidad: ' + localidad;
       document.getElementById('breadcrumbLocalidad').style.display = 'inline-block';
       document.getElementById('breadcrumbLocalidad').textContent = localidad;
+      
       var menu = document.getElementById('establecimientos-menu');
       menu.innerHTML = '';
       var ests = (ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || [];
@@ -732,11 +709,15 @@
     }
 
     function buildTablas(data, titulo) {
-      var stockHtml = '<h3>Stock - ' + titulo + '</h3><table><thead><tr><th>Vacuna</th><th>Lote</th><th>Stock</th><th>Establecimiento</th></tr></thead><tbody>';
-      for (var i = 0; i < (data.stock || []).length; i++) {
-        stockHtml += '<tr><td>' + data.stock[i].vacuna + '</td><td>' + data.stock[i].lote + '</td><td>' + data.stock[i].stock + '</td><td>' + data.stock[i].establecimiento + '</td></tr>';
+      var stockHtml = '<h3>Stock - ' + titulo + '</h3><div class="table-wrapper"><table><thead><tr><th>Vacuna</th><th>Lote</th><th>Stock</th><th>Establecimiento</th></tr></thead><tbody>';
+      if (!data.stock || data.stock.length === 0) {
+        stockHtml += '<tr><td colspan="4" style="text-align:center;">No hay stock registrado</td></tr>';
+      } else {
+        for (var i = 0; i < data.stock.length; i++) {
+          stockHtml += '<tr><td>' + data.stock[i].vacuna + '</td><td>' + data.stock[i].lote + '</td><td>' + data.stock[i].stock + '</td><td>' + data.stock[i].establecimiento + '</td></tr>';
+        }
       }
-      stockHtml += '</tbody></table>';
+      stockHtml += '</tbody></table></div>';
       return stockHtml;
     }
 
