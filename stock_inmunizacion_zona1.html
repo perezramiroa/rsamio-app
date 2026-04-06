@@ -8,19 +8,16 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 20px; }
-    
     .header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
     .logo-bar { display: flex; gap: 20px; align-items: center; }
     .logo-item { height: 60px; }
     .logo-item img { max-height: 100%; object-fit: contain; }
     .title-section h1 { font-size: 1.6rem; color: #1e293b; }
     .title-section p { color: #64748b; }
-    
     .stats-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
     .stat-card { background: white; border-radius: 10px; padding: 15px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; min-width: 150px; border-left: 4px solid #3b82f6; }
     .stat-card .label { font-size: 0.85rem; color: #64748b; }
     .stat-card .value { font-size: 1.8rem; font-weight: 700; }
-    
     .controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
     .btn-primary { background: #3b82f6; color: white; }
@@ -29,17 +26,14 @@
     .btn-success:hover { background: #059669; }
     .btn-outline { background: white; border: 1px solid #e2e8f0; color: #1e293b; }
     .btn-outline:hover { background: #f1f5f9; }
-    
     .container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 24px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
     th { background: #f1f5f9; font-weight: 600; }
-    
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
     .badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
     .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
     .badge-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-    
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000; }
     .modal-content { background: white; margin: 2% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; max-height: 95vh; overflow-y: auto; }
     .modal-header { background: #00384d; color: white; padding: 20px 25px; border-radius: 24px 24px 0 0; display: flex; justify-content: space-between; align-items: center; }
@@ -48,36 +42,24 @@
     .form-group { margin-bottom: 15px; }
     .form-label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
     .form-control { width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; }
-    
     .loading { text-align: center; padding: 40px; }
     .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    
     .view { display: none; }
     .view.active { display: block; }
-    
     .breadcrumb { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
     .breadcrumb-item { padding: 8px 12px; background: #f1f5f9; border-radius: 6px; font-size: 0.9rem; cursor: pointer; }
     .breadcrumb-item:hover { background: #e2e8f0; }
     .breadcrumb-item.active { background: #3b82f6; color: white; cursor: default; }
-    
     .selection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
     .selection-card { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; font-weight: 600; }
     .selection-card:hover { background: #3b82f6; color: white; transform: translateY(-2px); }
-    
     .establecimientos-menu { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
     .establecimiento-btn { padding: 8px 16px; background: #dbeafe; border: 1px solid #bfdbfe; color: #1d4ed8; border-radius: 6px; cursor: pointer; font-weight: 600; }
     .establecimiento-btn:hover { background: #bfdbfe; }
     .establecimiento-btn.active { background: #3b82f6; color: white; }
-    
     .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
-    
-    @media (max-width: 768px) {
-      .controls { flex-direction: column; }
-      .btn { width: 100%; }
-    }
-
-    /* Estilos para el PDF */
+    @media (max-width: 768px) { .controls { flex-direction: column; } .btn { width: 100%; } }
     #pdf-template { padding: 40px; background: white; color: black; }
     .pdf-header { border-bottom: 2px solid #00384d; margin-bottom: 20px; padding-bottom: 10px; }
     .pdf-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -149,7 +131,6 @@
       <span class="breadcrumb-item" id="breadcrumbRegion" style="display:none;" onclick="volverANivelRegion()">Región</span>
       <span class="breadcrumb-item" id="breadcrumbLocalidad" style="display:none;">Localidad</span>
     </div>
-
     <button class="btn btn-outline" onclick="volverVistaInventario()" style="margin-bottom: 20px;">← Volver a Inventario</button>
 
     <!-- NIVEL PROVINCIA -->
@@ -158,10 +139,8 @@
       <div class="map-container">
         <img src="Regiones.png" usemap="#mapaRegiones" class="img-mapa" alt="Mapa de Neuquén">
         <map name="mapaRegiones" id="mapaRegiones">
-          <!-- COORDENADAS ORIGINALES RESTAURADAS -->
           <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
           <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
-          <!-- Añadir más áreas según las regiones que se deseen hacer clickeables -->
         </map>
       </div>
       <div id="tablasNivel1Geografico" style="margin-top: 30px;"></div>
@@ -171,9 +150,7 @@
     <div id="nivelRegion" class="container" style="display:none;">
       <h2 id="tituloRegion">Región Seleccionada</h2>
       <button class="btn btn-outline" onclick="volverANivelProvincia()" style="margin-bottom: 20px;">← Volver a Provincia</button>
-      <div class="selection-grid" id="localidades-grid">
-        <!-- Se llena dinámicamente -->
-      </div>
+      <div class="selection-grid" id="localidades-grid"></div>
       <div id="tablasNivel2" style="margin-top: 30px;"></div>
     </div>
 
@@ -181,9 +158,7 @@
     <div id="nivelLocalidad" class="container" style="display:none;">
       <h2 id="tituloLocalidad">Localidad Seleccionada</h2>
       <button class="btn btn-outline" onclick="volverANivelRegion()" style="margin-bottom: 20px;">← Volver a Región</button>
-      <div class="establecimientos-menu" id="establecimientos-menu">
-        <!-- Se llena dinámicamente -->
-      </div>
+      <div class="establecimientos-menu" id="establecimientos-menu"></div>
       <div id="tablasNivel3" style="margin-top: 30px;"></div>
     </div>
   </div>
@@ -205,28 +180,22 @@
             <label class="form-label">Laboratorio *</label>
             <select id="laboratorio" class="form-control" required onchange="actualizarLotes()"></select>
           </div>
-          
-          <!-- Campos para Egreso -->
           <div id="camposEgreso" style="display:none;">
             <div class="form-group">
               <label class="form-label">Lote *</label>
               <select id="loteSelect" class="form-control"></select>
             </div>
           </div>
-
-          <!-- Campos para Ingreso -->
           <div id="camposIngreso" style="display:none;">
             <div class="form-group">
               <label class="form-label">Lote *</label>
               <input type="text" id="loteInput" class="form-control" placeholder="Ingrese número de lote">
             </div>
           </div>
-
           <div class="form-group" id="vencimientoRow">
             <label class="form-label">Vencimiento *</label>
             <input type="date" id="vencimiento" class="form-control">
           </div>
-
           <div class="form-group">
             <label class="form-label">Cantidad *</label>
             <input type="number" id="cantidad" class="form-control" required min="1">
@@ -235,7 +204,6 @@
             <label class="form-label">Responsable *</label>
             <input type="text" id="responsable" class="form-control" required>
           </div>
-
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <div class="form-group">
               <label class="form-label">Región *</label>
@@ -252,19 +220,16 @@
               </select>
             </div>
           </div>
-
           <div class="form-group">
             <label class="form-label">Establecimiento *</label>
             <select id="establecimientoMov" class="form-control" required>
               <option value="">Primero selecciona localidad</option>
             </select>
           </div>
-
           <div class="form-group">
             <label class="form-label">Observaciones</label>
             <textarea id="observaciones" class="form-control" rows="2"></textarea>
           </div>
-
           <button type="submit" id="btnSubmit" class="btn btn-success" style="width:100%; margin-top:10px; padding:15px;">Confirmar Registro</button>
         </form>
       </div>
@@ -299,9 +264,7 @@
       <h1 style="color:#00384d;">Reporte de Movimiento de Vacunas</h1>
       <p>Sistema RSAMIO - Gestión de Inmunización</p>
     </div>
-    <div id="pdf-content">
-      <!-- Se llena dinámicamente -->
-    </div>
+    <div id="pdf-content"></div>
     <div class="pdf-footer">
       <p>Este documento es un comprobante oficial del sistema. Trazabilidad: <span id="pdf-trazabilidad"></span></p>
       <p>Fecha de emisión: <span id="pdf-fecha"></span></p>
@@ -309,8 +272,8 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygRU32CAxYNINamWr88HAQOCRfb11NIkylIk9nbLgKlAkvE9_T79cqQrlx-5U4a1QP/exec'; // REEMPLAZAR CON TU URL REAL
-    
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2Txy5voO-aKp1BSU1JQnLnxdoHOh_k-rMn-qp20sylUCb3mU1ezcy3f-O5Dw3hP4u/exec';
+
     const VACUNAS_LABORATORIOS = {
       "Antigripal Adulto": ["Viraflu", "Fluxvir"],
       "Antigripal Pediátrica": ["Viraflu Ped", "Istivac Ped"],
@@ -349,19 +312,19 @@
 
     let DATOS_GLOBALES = { stock: [], ingresos: [], egresos: [] };
     let modoMovimiento = 'Egreso';
-    let ultimoPDFUrl = ''; // Variable para almacenar la URL del último PDF generado
+    let ultimoPDFUrl = '';
 
     function mostrarLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
     }
 
-    function cargarDatos(region = null, localidad = null, establecimiento = null) {
+    function cargarDatos(region, localidad, establecimiento) {
+      region = region || null; localidad = localidad || null; establecimiento = establecimiento || null;
       mostrarLoading(true);
-      let url = APPS_SCRIPT_URL + '?action=getDatosAgregados';
+      var url = APPS_SCRIPT_URL + '?action=getDatosAgregados';
       if (region) url += '&region=' + encodeURIComponent(region);
       if (localidad) url += '&localidad=' + encodeURIComponent(localidad);
       if (establecimiento) url += '&establecimiento=' + encodeURIComponent(establecimiento);
-
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
       xhr.onload = function() {
@@ -379,51 +342,47 @@
     }
 
     function renderizarTablas(data, currentRegion, currentLocalidad, currentEstablecimiento) {
-      // Renderizar tabla de Stock en la vista principal
       var tbodyStockInventario = document.getElementById('stockBodyInventario');
       if (tbodyStockInventario) {
-        if (!data.stock || !data.stock.length) { tbodyStockInventario.innerHTML='<tr><td colspan="9" style="text-align:center;">No hay datos de stock disponibles</td></tr>'; }
-        else {
-          var htmlStock = '';
-          var hoy = new Date();
-          for (var i=0; i<data.stock.length; i++) {
-            var it=data.stock[i], venc=new Date(it.vencimiento), estado='Disponible', badge='badge-success';
-            if (venc < hoy) { estado='Vencido'; badge='badge-danger'; }
-            else if ((venc - hoy) / 86400000 <= 30) { estado='Proximo a Vencer'; badge='badge-warning'; }
-            htmlStock+='<tr><td>'+(it.vacuna||'-')+'</td><td>'+(it.laboratorio||'-')+'</td><td>'+(it.lote||'-')+'</td><td>'+venc.toLocaleDateString('es-AR')+'</td><td>'+(it.stock||0)+'</td><td>'+(it.region||'-')+'</td><td>'+(it.localidad||'-')+'</td><td>'+(it.establecimiento||'-')+'</td><td><span class="badge '+badge+'">'+estado+'</span></td></tr>';
+        if (!data.stock || !data.stock.length) {
+          tbodyStockInventario.innerHTML = '<tr><td colspan="9" style="text-align:center;">No hay datos de stock disponibles</td></tr>';
+        } else {
+          var htmlStock = '', hoy = new Date();
+          for (var i = 0; i < data.stock.length; i++) {
+            var it = data.stock[i], venc = new Date(it.vencimiento), estado = 'Disponible', badge = 'badge-success';
+            if (venc < hoy) { estado = 'Vencido'; badge = 'badge-danger'; }
+            else if ((venc - hoy) / 86400000 <= 30) { estado = 'Próximo a Vencer'; badge = 'badge-warning'; }
+            htmlStock += '<tr><td>' + (it.vacuna||'-') + '</td><td>' + (it.laboratorio||'-') + '</td><td>' + (it.lote||'-') + '</td><td>' + venc.toLocaleDateString('es-AR') + '</td><td>' + (it.stock||0) + '</td><td>' + (it.region||'-') + '</td><td>' + (it.localidad||'-') + '</td><td>' + (it.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td></tr>';
           }
           tbodyStockInventario.innerHTML = htmlStock;
         }
       }
-
-      // Renderizar tablas de Ingresos y Egresos según el nivel de navegación
-      // Vista Inventario Principal (sin filtros geográficos)
       if (!currentRegion && !currentLocalidad && !currentEstablecimiento) {
-        document.getElementById('tablasNivel1').innerHTML = 
-          buildTablasDetalle(data.stock, 'Stock General', ['Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Stock', 'Ubicacion', 'Region', 'Localidad', 'Establecimiento']) +
-          buildTablasDetalle(data.ingresos, 'Ingresos Recientes', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Region', 'Localidad', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) +
-          buildTablasDetalle(data.egresos, 'Egresos Recientes', ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Region', 'Localidad', 'Establecimiento', 'Observacion', 'Trazabilidad']);
-        document.getElementById('tablasNivel1Geografico').innerHTML = ''; // Limpiar si no estamos en vista geográfica
+        document.getElementById('tablasNivel1').innerHTML =
+          buildTablasDetalle(data.stock, 'Stock General', ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Ubicacion','Region','Localidad','Establecimiento']) +
+          buildTablasDetalle(data.ingresos, 'Ingresos Recientes', ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Region','Localidad','Establecimiento','Vencimiento','Observaciones','Trazabilidad']) +
+          buildTablasDetalle(data.egresos, 'Egresos Recientes', ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Region','Localidad','Establecimiento','Observacion','Trazabilidad']);
+        document.getElementById('tablasNivel1Geografico').innerHTML = '';
         document.getElementById('tablasNivel2').innerHTML = '';
         document.getElementById('tablasNivel3').innerHTML = '';
-      } else if (currentRegion && !currentLocalidad && !currentEstablecimiento) { // Vista de Región
-        document.getElementById('tablasNivel1Geografico').innerHTML = 
-          buildTablasDetalle(data.stock, 'Stock en ' + currentRegion, ['Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Stock', 'Ubicacion', 'Localidad', 'Establecimiento']) +
-          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentRegion, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Localidad', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) +
-          buildTablasDetalle(data.egresos, 'Egresos en ' + currentRegion, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Localidad', 'Establecimiento', 'Observacion', 'Trazabilidad']);
+      } else if (currentRegion && !currentLocalidad && !currentEstablecimiento) {
+        document.getElementById('tablasNivel1Geografico').innerHTML =
+          buildTablasDetalle(data.stock, 'Stock en ' + currentRegion, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Ubicacion','Localidad','Establecimiento']) +
+          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentRegion, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Localidad','Establecimiento','Vencimiento','Observaciones','Trazabilidad']) +
+          buildTablasDetalle(data.egresos, 'Egresos en ' + currentRegion, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Localidad','Establecimiento','Observacion','Trazabilidad']);
         document.getElementById('tablasNivel2').innerHTML = '';
         document.getElementById('tablasNivel3').innerHTML = '';
-      } else if (currentRegion && currentLocalidad && !currentEstablecimiento) { // Vista de Localidad
-        document.getElementById('tablasNivel2').innerHTML = 
-          buildTablasDetalle(data.stock, 'Stock en ' + currentLocalidad, ['Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Stock', 'Ubicacion', 'Establecimiento']) +
-          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentLocalidad, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Vencimiento', 'Observaciones', 'Trazabilidad']) +
-          buildTablasDetalle(data.egresos, 'Egresos en ' + currentLocalidad, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Establecimiento', 'Observacion', 'Trazabilidad']);
+      } else if (currentRegion && currentLocalidad && !currentEstablecimiento) {
+        document.getElementById('tablasNivel2').innerHTML =
+          buildTablasDetalle(data.stock, 'Stock en ' + currentLocalidad, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Ubicacion','Establecimiento']) +
+          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentLocalidad, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Establecimiento','Vencimiento','Observaciones','Trazabilidad']) +
+          buildTablasDetalle(data.egresos, 'Egresos en ' + currentLocalidad, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Establecimiento','Observacion','Trazabilidad']);
         document.getElementById('tablasNivel3').innerHTML = '';
-      } else if (currentRegion && currentLocalidad && currentEstablecimiento) { // Vista de Establecimiento
-        document.getElementById('tablasNivel3').innerHTML = 
-          buildTablasDetalle(data.stock, 'Stock en ' + currentEstablecimiento, ['Vacuna', 'Laboratorio', 'Lote', 'Vencimiento', 'Stock', 'Ubicacion']) +
-          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentEstablecimiento, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Vencimiento', 'Observaciones', 'Trazabilidad']) +
-          buildTablasDetalle(data.egresos, 'Egresos en ' + currentEstablecimiento, ['Fecha', 'Vacuna', 'Laboratorio', 'Lote', 'Cantidad', 'Responsable', 'Observacion', 'Trazabilidad']);
+      } else if (currentRegion && currentLocalidad && currentEstablecimiento) {
+        document.getElementById('tablasNivel3').innerHTML =
+          buildTablasDetalle(data.stock, 'Stock en ' + currentEstablecimiento, ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Ubicacion']) +
+          buildTablasDetalle(data.ingresos, 'Ingresos en ' + currentEstablecimiento, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Vencimiento','Observaciones','Trazabilidad']) +
+          buildTablasDetalle(data.egresos, 'Egresos en ' + currentEstablecimiento, ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Observacion','Trazabilidad']);
       }
     }
 
@@ -432,49 +391,17 @@
       for (var i = 0; i < headers.length; i++) { html += '<th>' + headers[i] + '</th>'; }
       html += '</tr></thead><tbody>';
       if (!data || data.length === 0) {
-        html += '<tr><td colspan="' + headers.length + '" style="text-align:center;">No hay datos de ' + titulo.toLowerCase() + '</td></tr>';
+        html += '<tr><td colspan="' + headers.length + '" style="text-align:center;">No hay datos</td></tr>';
       } else {
         for (var i = 0; i < data.length; i++) {
           html += '<tr>';
           for (var j = 0; j < headers.length; j++) {
             var key = headers[j].toLowerCase().replace(/ /g, '');
-            // Mapeo de nombres de encabezado a claves de objeto para Ingresos y Egresos
-            if (titulo.includes('Ingresos') || titulo.includes('Egresos')) {
-                switch(key) {
-                    case 'fecha': key = 'fecha'; break;
-                    case 'vacuna': key = 'vacuna'; break;
-                    case 'laboratorio': key = 'laboratorio'; break;
-                    case 'lote': key = 'lote'; break;
-                    case 'cantidad': key = 'cantidad'; break;
-                    case 'responsable': key = 'responsable'; break;
-                    case 'region': key = 'region'; break;
-                    case 'localidad': key = 'localidad'; break;
-                    case 'establecimiento': key = 'establecimiento'; break;
-                    case 'vencimiento': key = 'vencimiento'; break;
-                    case 'observaciones': key = 'observaciones'; break;
-                    case 'observacion': key = 'observacion'; break;
-                    case 'trazabilidad': key = 'trazabilidad'; break;
-                    default: key = headers[j]; // Fallback si no se encuentra
-                }
-            } else { // Para Stock
-                switch(key) {
-                    case 'vacuna': key = 'vacuna'; break;
-                    case 'laboratorio': key = 'laboratorio'; break;
-                    case 'lote': key = 'lote'; break;
-                    case 'vencimiento': key = 'vencimiento'; break;
-                    case 'stock': key = 'stock'; break;
-                    case 'ubicacion': key = 'ubicacion'; break;
-                    case 'region': key = 'region'; break;
-                    case 'localidad': key = 'localidad'; break;
-                    case 'establecimiento': key = 'establecimiento'; break;
-                    default: key = headers[j]; // Fallback si no se encuentra
-                }
-            }
-
+            var val = data[i][key];
             if (key === 'fecha' || key === 'vencimiento') {
-              html += '<td>' + (data[i][key] ? new Date(data[i][key]).toLocaleDateString('es-AR') : '-') + '</td>';
+              html += '<td>' + (val ? new Date(val).toLocaleDateString('es-AR') : '-') + '</td>';
             } else {
-              html += '<td>' + (data[i][key] || '-') + '</td>';
+              html += '<td>' + (val !== undefined && val !== null && val !== '' ? val : '-') + '</td>';
             }
           }
           html += '</tr>';
@@ -485,15 +412,16 @@
     }
 
     function actualizarEstadisticas(stock) {
-      var total=0,proximos=0,vencidos=0,hoy=new Date();
-      for(var i=0;i<(stock||[]).length;i++){
-        var s=parseInt(stock[i].stock)||0; total+=s;
-        var v=new Date(stock[i].vencimiento);
-        if(v<hoy)vencidos+=s; else if((v-hoy)/86400000<=30)proximos+=s;
+      var total = 0, proximos = 0, vencidos = 0, hoy = new Date();
+      for (var i = 0; i < (stock || []).length; i++) {
+        var s = parseInt(stock[i].stock) || 0; total += s;
+        var v = new Date(stock[i].vencimiento);
+        if (v < hoy) vencidos += s;
+        else if ((v - hoy) / 86400000 <= 30) proximos += s;
       }
-      document.getElementById('totalDosis').textContent=total;
-      document.getElementById('proximosVencer').textContent=proximos;
-      document.getElementById('vencidos').textContent=vencidos;
+      document.getElementById('totalDosis').textContent = total;
+      document.getElementById('proximosVencer').textContent = proximos;
+      document.getElementById('vencidos').textContent = vencidos;
     }
 
     function mostrarVistaGeografica() {
@@ -514,16 +442,16 @@
       document.getElementById('nivelProvincia').style.display = 'block';
       document.getElementById('breadcrumbRegion').style.display = 'none';
       document.getElementById('breadcrumbLocalidad').style.display = 'none';
-      cargarDatos(); // Cargar datos globales al volver a la vista de provincia
-      resizeMap(); // Asegurar que el mapa sea clickeable
+      cargarDatos();
+      resizeMap();
     }
 
     function volverANivelRegion() {
       document.getElementById('nivelLocalidad').style.display = 'none';
       document.getElementById('nivelRegion').style.display = 'block';
       document.getElementById('breadcrumbLocalidad').style.display = 'none';
-      let currentRegion = document.getElementById('breadcrumbRegion').textContent;
-      cargarDatos(currentRegion); // Cargar datos de la región actual al volver a este nivel
+      var currentRegion = document.getElementById('breadcrumbRegion').textContent;
+      cargarDatos(currentRegion);
     }
 
     function navegarARegion(region) {
@@ -532,20 +460,17 @@
       document.getElementById('tituloRegion').textContent = 'Región: ' + region;
       document.getElementById('breadcrumbRegion').style.display = 'inline-block';
       document.getElementById('breadcrumbRegion').textContent = region;
-      
-      // Llenar grid de localidades
       var grid = document.getElementById('localidades-grid');
       grid.innerHTML = '';
       var locs = Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {});
-      for (var i=0; i<locs.length; i++) {
+      for (var i = 0; i < locs.length; i++) {
         var card = document.createElement('div');
         card.className = 'selection-card';
         card.textContent = locs[i];
         card.onclick = (function(r, l) { return function() { navegarALocalidad(r, l); }; })(region, locs[i]);
         grid.appendChild(card);
       }
-      
-      cargarDatos(region); // Cargar datos filtrados por región
+      cargarDatos(region);
     }
 
     function navegarALocalidad(region, localidad) {
@@ -554,7 +479,6 @@
       document.getElementById('tituloLocalidad').textContent = 'Localidad: ' + localidad;
       document.getElementById('breadcrumbLocalidad').style.display = 'inline-block';
       document.getElementById('breadcrumbLocalidad').textContent = localidad;
-      
       var menu = document.getElementById('establecimientos-menu');
       menu.innerHTML = '';
       var ests = (ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || [];
@@ -565,9 +489,79 @@
         btn.onclick = (function(r, l, e) { return function() { cargarDatos(r, l, e); }; })(region, localidad, ests[i]);
         menu.appendChild(btn);
       }
-      cargarDatos(region, localidad); // Cargar datos filtrados por localidad
+      cargarDatos(region, localidad);
     }
 
+    // ── MODAL MOVIMIENTO ──────────────────────────────────────────────────────
+    function abrirModalMov(tipo) {
+      modoMovimiento = tipo;
+      document.getElementById('modalTitulo').textContent = tipo === 'Ingreso' ? '📥 Registrar Ingreso' : '📤 Registrar Egreso';
+      document.getElementById('camposEgreso').style.display = tipo === 'Egreso' ? 'block' : 'none';
+      document.getElementById('camposIngreso').style.display = tipo === 'Ingreso' ? 'block' : 'none';
+      document.getElementById('vencimientoRow').style.display = tipo === 'Ingreso' ? 'block' : 'none';
+      document.getElementById('formMov').reset();
+      actualizarVacunas();
+      document.getElementById('modalMov').style.display = 'block';
+    }
+
+    function cerrarModalMov() {
+      document.getElementById('modalMov').style.display = 'none';
+    }
+
+    function actualizarVacunas() {
+      var sel = document.getElementById('vacuna');
+      sel.innerHTML = '<option value="">Seleccionar vacuna</option>';
+      Object.keys(VACUNAS_LABORATORIOS).forEach(function(v) {
+        sel.innerHTML += '<option value="' + v + '">' + v + '</option>';
+      });
+      document.getElementById('laboratorio').innerHTML = '<option value="">Primero selecciona vacuna</option>';
+      document.getElementById('loteSelect').innerHTML = '<option value="">Primero selecciona laboratorio</option>';
+    }
+
+    function actualizarLaboratorios() {
+      var vacuna = document.getElementById('vacuna').value;
+      var sel = document.getElementById('laboratorio');
+      sel.innerHTML = '<option value="">Seleccionar laboratorio</option>';
+      (VACUNAS_LABORATORIOS[vacuna] || []).forEach(function(l) {
+        sel.innerHTML += '<option value="' + l + '">' + l + '</option>';
+      });
+      document.getElementById('loteSelect').innerHTML = '<option value="">Primero selecciona laboratorio</option>';
+    }
+
+    function actualizarLotes() {
+      if (modoMovimiento !== 'Egreso') return;
+      var vacuna = document.getElementById('vacuna').value;
+      var lab = document.getElementById('laboratorio').value;
+      var sel = document.getElementById('loteSelect');
+      sel.innerHTML = '<option value="">Seleccionar lote</option>';
+      (DATOS_GLOBALES.stock || []).filter(function(s) {
+        return s.vacuna === vacuna && s.laboratorio === lab && parseInt(s.stock) > 0;
+      }).forEach(function(s) {
+        sel.innerHTML += '<option value="' + s.lote + '">' + s.lote + ' (Stock: ' + s.stock + ', Vence: ' + new Date(s.vencimiento).toLocaleDateString('es-AR') + ')</option>';
+      });
+    }
+
+    function actualizarLocalidadesMov() {
+      var region = document.getElementById('regionMov').value;
+      var sel = document.getElementById('localidadMov');
+      sel.innerHTML = '<option value="">Seleccionar localidad</option>';
+      Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {}).forEach(function(l) {
+        sel.innerHTML += '<option value="' + l + '">' + l + '</option>';
+      });
+      document.getElementById('establecimientoMov').innerHTML = '<option value="">Primero selecciona localidad</option>';
+    }
+
+    function actualizarEstablecimientosMov() {
+      var region = document.getElementById('regionMov').value;
+      var localidad = document.getElementById('localidadMov').value;
+      var sel = document.getElementById('establecimientoMov');
+      sel.innerHTML = '<option value="">Seleccionar establecimiento</option>';
+      ((ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || []).forEach(function(e) {
+        sel.innerHTML += '<option value="' + e + '">' + e + '</option>';
+      });
+    }
+
+    // ── REGISTRAR MOVIMIENTO (GET, como espera el backend) ────────────────────
     function registrarMovimiento(event) {
       event.preventDefault();
       var vacuna = document.getElementById('vacuna').value;
@@ -579,7 +573,7 @@
       var establecimiento = document.getElementById('establecimientoMov').value;
       var observaciones = document.getElementById('observaciones').value;
       var lote = '', vencimiento = '';
-      
+
       if (modoMovimiento === 'Ingreso') {
         lote = document.getElementById('loteInput').value;
         vencimiento = document.getElementById('vencimiento').value;
@@ -587,18 +581,25 @@
         lote = document.getElementById('loteSelect').value;
       }
 
-      if (!vacuna||!lab||!lote||!cantidad||!responsable||!region||!localidad||!establecimiento) {
+      if (!vacuna || !lab || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
         alert('Por favor completa todos los campos requeridos'); return;
       }
 
       mostrarLoading(true);
-      var url = APPS_SCRIPT_URL + '?action=registrarMovimiento&tipo=' + modoMovimiento +
-        '&vacuna=' + encodeURIComponent(vacuna) + '&laboratorio=' + encodeURIComponent(lab) +
-        '&lote=' + encodeURIComponent(lote) + '&cantidad=' + cantidad +
-        '&responsable=' + encodeURIComponent(responsable) + '&region=' + encodeURIComponent(region) +
-        '&localidad=' + encodeURIComponent(localidad) + '&establecimiento=' + encodeURIComponent(establecimiento) +
-        '&observaciones=' + encodeURIComponent(observaciones) + '&vencimiento=' + encodeURIComponent(vencimiento);
-      
+      var url = APPS_SCRIPT_URL +
+        '?action=registrarMovimiento' +
+        '&tipo=' + encodeURIComponent(modoMovimiento) +
+        '&vacuna=' + encodeURIComponent(vacuna) +
+        '&laboratorio=' + encodeURIComponent(lab) +
+        '&lote=' + encodeURIComponent(lote) +
+        '&cantidad=' + encodeURIComponent(cantidad) +
+        '&responsable=' + encodeURIComponent(responsable) +
+        '&region=' + encodeURIComponent(region) +
+        '&localidad=' + encodeURIComponent(localidad) +
+        '&establecimiento=' + encodeURIComponent(establecimiento) +
+        '&observaciones=' + encodeURIComponent(observaciones) +
+        '&vencimiento=' + encodeURIComponent(vencimiento);
+
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
       xhr.onload = function() {
@@ -607,24 +608,14 @@
           var result = JSON.parse(xhr.responseText);
           if (result.result) {
             cerrarModalMov();
-            document.getElementById('confirmacionMensaje').innerHTML = '<b>Registrado correctamente.</b><br><small>Trazabilidad: ' + (result.trazabilidad||'') + '</small>';
+            document.getElementById('confirmacionMensaje').innerHTML = '<b>Registrado correctamente.</b><br><small>Trazabilidad: ' + (result.trazabilidad || '') + '</small>';
             document.getElementById('modalConfirmacion').style.display = 'block';
-            
-            // Generar y guardar PDF
             generarYGuardarPDF({
-              tipo: modoMovimiento,
-              vacuna: vacuna,
-              laboratorio: lab,
-              lote: lote,
-              cantidad: cantidad,
-              responsable: responsable,
-              region: region,
-              localidad: localidad,
-              establecimiento: establecimiento,
-              trazabilidad: result.trazabilidad,
-              observaciones: observaciones
+              tipo: modoMovimiento, vacuna: vacuna, laboratorio: lab, lote: lote,
+              cantidad: cantidad, responsable: responsable, region: region,
+              localidad: localidad, establecimiento: establecimiento,
+              trazabilidad: result.trazabilidad, observaciones: observaciones
             });
-
             cargarDatos();
           } else { alert('Error: ' + result.message); }
         } catch(e) { alert('Error al procesar respuesta.'); }
@@ -633,31 +624,28 @@
       xhr.send();
     }
 
+    // ── PDF ───────────────────────────────────────────────────────────────────
     function generarYGuardarPDF(datos) {
-      const element = document.getElementById('pdf-template');
+      var element = document.getElementById('pdf-template');
       element.style.display = 'block';
-      
       document.getElementById('pdf-trazabilidad').textContent = datos.trazabilidad;
       document.getElementById('pdf-fecha').textContent = new Date().toLocaleString();
-      
-      let html = `
-        <table class="pdf-table">
-          <tr><th>Campo</th><th>Detalle</th></tr>
-          <tr><td>Tipo de Movimiento</td><td>${datos.tipo}</td></tr>
-          <tr><td>Vacuna</td><td>${datos.vacuna}</td></tr>
-          <tr><td>Laboratorio</td><td>${datos.laboratorio}</td></tr>
-          <tr><td>Lote</td><td>${datos.lote}</td></tr>
-          <tr><td>Cantidad</td><td>${datos.cantidad}</td></tr>
-          <tr><td>Responsable</td><td>${datos.responsable}</td></tr>
-          <tr><td>Ubicación</td><td>${datos.region} - ${datos.localidad} - ${datos.establecimiento}</td></tr>
-          <tr><td>Observaciones</td><td>${datos.observaciones || '-'}</td></tr>
-        </table>
-      `;
-      document.getElementById('pdf-content').innerHTML = html;
+      document.getElementById('pdf-content').innerHTML =
+        '<table class="pdf-table">' +
+        '<tr><th>Campo</th><th>Detalle</th></tr>' +
+        '<tr><td>Tipo de Movimiento</td><td>' + datos.tipo + '</td></tr>' +
+        '<tr><td>Vacuna</td><td>' + datos.vacuna + '</td></tr>' +
+        '<tr><td>Laboratorio</td><td>' + datos.laboratorio + '</td></tr>' +
+        '<tr><td>Lote</td><td>' + datos.lote + '</td></tr>' +
+        '<tr><td>Cantidad</td><td>' + datos.cantidad + '</td></tr>' +
+        '<tr><td>Responsable</td><td>' + datos.responsable + '</td></tr>' +
+        '<tr><td>Ubicación</td><td>' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
+        '<tr><td>Observaciones</td><td>' + (datos.observaciones || '-') + '</td></tr>' +
+        '</table>';
 
-      const opt = {
+      var opt = {
         margin: 10,
-        filename: `Reporte_${datos.trazabilidad}.pdf`,
+        filename: 'Reporte_' + datos.trazabilidad + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -665,33 +653,22 @@
 
       html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
         element.style.display = 'none';
-        
-        // Enviar a Apps Script para guardar en Drive
         var xhr = new XMLHttpRequest();
         xhr.open('POST', APPS_SCRIPT_URL + '?action=guardarPDF', true);
         xhr.setRequestHeader('Content-Type', 'text/plain');
         xhr.onload = function() {
-          console.log("PDF guardado en Drive:", xhr.responseText);
           try {
-            const response = JSON.parse(xhr.responseText);
-            if (response.result && response.url) {
-              ultimoPDFUrl = response.url; // Almacenar la URL para la descarga
-            }
-          } catch (e) { console.error("Error parseando respuesta de guardarPDF", e); }
+            var response = JSON.parse(xhr.responseText);
+            if (response.result && response.url) { ultimoPDFUrl = response.url; }
+          } catch(e) { console.error("Error parseando respuesta de guardarPDF", e); }
         };
-        xhr.send(JSON.stringify({
-          pdfData: pdfBase64,
-          filename: opt.filename
-        }));
+        xhr.send(JSON.stringify({ pdfData: pdfBase64, filename: opt.filename }));
       });
     }
 
     function descargarUltimoPDF() {
-      if (ultimoPDFUrl) {
-        window.open(ultimoPDFUrl, '_blank');
-      } else {
-        alert('No hay un PDF reciente para descargar.');
-      }
+      if (ultimoPDFUrl) { window.open(ultimoPDFUrl, '_blank'); }
+      else { alert('No hay un PDF reciente para descargar.'); }
     }
 
     function toggleNormativa() {
@@ -703,24 +680,15 @@
       document.getElementById('modalConfirmacion').style.display = 'none';
     }
 
-    // Función para ajustar el tamaño del mapa y las áreas (solución al problema de click)
     function resizeMap() {
-      var img = document.querySelector('#nivelProvincia .img-mapa'); // Seleccionar solo el mapa de regiones
+      var img = document.querySelector('#nivelProvincia .img-mapa');
       if (!img) return;
-      var imgWidth = img.offsetWidth;
-      var imgHeight = img.offsetHeight;
       var map = document.getElementById('mapaRegiones');
       if (!map) return;
-
-      // Asumimos que la imagen original es de 714x491 y escalamos proporcionalmente
-      var originalWidth = 714; 
-      var originalHeight = 491;
-      var scaleX = imgWidth / originalWidth;
-      var scaleY = imgHeight / originalHeight;
-
+      var scaleX = img.offsetWidth / 714;
+      var scaleY = img.offsetHeight / 491;
       var areas = map.getElementsByTagName('area');
       for (var i = 0; i < areas.length; i++) {
-        // Restaurar las coordenadas originales antes de escalar para evitar errores acumulativos
         var originalCoords = areas[i].getAttribute('data-original-coords');
         if (!originalCoords) {
           originalCoords = areas[i].getAttribute('coords');
@@ -730,7 +698,7 @@
         var newCoords = [];
         for (var j = 0; j < coords.length; j += 2) {
           newCoords.push(Math.round(coords[j] * scaleX));
-          newCoords.push(Math.round(coords[j+1] * scaleY));
+          newCoords.push(Math.round(coords[j + 1] * scaleY));
         }
         areas[i].setAttribute('coords', newCoords.join(','));
       }
@@ -739,7 +707,6 @@
     window.addEventListener('resize', resizeMap);
     window.onload = function() {
       cargarDatos();
-      // Guardar las coordenadas originales al cargar la página por primera vez
       var map = document.getElementById('mapaRegiones');
       if (map) {
         var areas = map.getElementsByTagName('area');
@@ -747,7 +714,7 @@
           areas[i].setAttribute('data-original-coords', areas[i].getAttribute('coords'));
         }
       }
-      resizeMap(); // Llamar al cargar para asegurar que el mapa sea clickeable
+      resizeMap();
     };
   </script>
 </body>
