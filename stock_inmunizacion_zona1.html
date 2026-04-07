@@ -120,7 +120,7 @@
           </tbody>
         </table>
       </div>
-      <div id="tablasNivel1" style="margin-top: 30px;"></div>
+      <div id="tablasNivel1" style="margin-top: 30px; display:none;"></div>
     </div>
   </div>
 
@@ -358,11 +358,11 @@
         }
       }
       if (!currentRegion && !currentLocalidad && !currentEstablecimiento) {
-        document.getElementById('tablasNivel1').innerHTML =
+        document.getElementById('tablasNivel1').innerHTML = '';
+        document.getElementById('tablasNivel1Geografico').innerHTML =
           buildTablasDetalle(data.stock, 'Stock General', ['Vacuna','Laboratorio','Lote','Vencimiento','Stock','Region','Localidad','Establecimiento']) +
           buildTablasDetalle(data.ingresos, 'Ingresos Recientes', ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Region','Localidad','Establecimiento','Vencimiento','Observaciones','Trazabilidad']) +
           buildTablasDetalle(data.egresos, 'Egresos Recientes', ['Fecha','Vacuna','Laboratorio','Lote','Cantidad','Responsable','Region','Localidad','Establecimiento','Observacion','Trazabilidad']);
-        document.getElementById('tablasNivel1Geografico').innerHTML = '';
         document.getElementById('tablasNivel2').innerHTML = '';
         document.getElementById('tablasNivel3').innerHTML = '';
       } else if (currentRegion && !currentLocalidad && !currentEstablecimiento) {
