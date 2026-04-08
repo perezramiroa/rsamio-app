@@ -141,6 +141,11 @@
         <map name="mapaRegiones" id="mapaRegiones">
           <area shape="rect" coords="35,401,311,429" alt="Confluencia" onclick="navegarARegion('Confluencia')" style="cursor:pointer;">
           <area shape="rect" coords="35,332,311,360" alt="Vaca Muerta" onclick="navegarARegion('Vaca Muerta')" style="cursor:pointer;">
+          <area shape="rect" coords="35,195,310,223" alt="Alto Neuquén" onclick="navegarARegion('Alto Neuquén')" style="cursor:pointer;">
+          <area shape="rect" coords="35,229,310,256" alt="Del Pehuén" onclick="navegarARegion('Del Pehuén')" style="cursor:pointer;">
+          <area shape="rect" coords="35,263,310,293" alt="Lagos del Sur" onclick="navegarARegion('Lagos del Sur')" style="cursor:pointer;">
+          <area shape="rect" coords="35,298,310,327" alt="Del Limay" onclick="navegarARegion('Del Limay')" style="cursor:pointer;">
+          <area shape="rect" coords="35,366,310,397" alt="De la Comarca" onclick="navegarARegion('De la Comarca')" style="cursor:pointer;">
         </map>
       </div>
       <a href="https://drive.google.com/file/d/1hmZy84NNU7y9EQorJdxBBJFds2JTIyl6/view" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
@@ -212,6 +217,11 @@
                 <option value="">Seleccionar región</option>
                 <option value="Confluencia">Confluencia</option>
                 <option value="Vaca Muerta">Vaca Muerta</option>
+                <option value="Del Pehuén">Del Pehuén</option>
+                <option value="Alto Neuquén">Alto Neuquén</option>
+                <option value="Lagos del Sur">Lagos del Sur</option>
+                <option value="De la Comarca">De la Comarca</option>
+                <option value="Del Limay">Del Limay</option>
               </select>
             </div>
             <div class="form-group">
@@ -309,17 +319,64 @@
 
     const ESTRUCTURA_GEOGRAFICA = {
       "Confluencia": {
-        "Neuquén": ["Hosp. Castro Rendón", "Hosp. Heller", "Hosp. Bouquet Roldán", "Centro de Salud Progreso", "Centro de Salud San Lorenzo"],
-        "Plottier": ["Hosp. Plottier", "Centro de Salud Los Hornos"],
-        "Senillosa": ["Hosp. Senillosa"],
-        "Centenario": ["Hosp. Centenario", "Centro de Salud Sarmiento"],
-        "Vista Alegre": ["Centro de Salud Vista Alegre Sur"],
+        "Neuquén Capital": ["Hosp. Dr.Castro Rendón (HPN)", "Hosp. Dr. Horacio Heller", "Hosp. Bouquet Roldán", "C.S. Sapere", "C.S. V. Farrel", "C.S. Don Bosco", "C.S. Confluencia", "C.S. San Lorenzo Sur", "C.S. Valentina Sur", "C.S. Parque Industrial", "C.S. San Lorenzo Norte", "C.S. Nueva Esperanza", "C.S. Progreso", "C.S. Villa Florencia", "C.S. Villa Maria", "C.S. Mariano Moreno", "C.S Bouquet Roldan", "C.S Almafuerte", "C.S. Valentina Norte", "C.S. Valentina Norte Rural - Los Hornos", "C.S Colonia Rural Nueva Esperanza", "P.S 14 de Octubre", "P.S Rincon de Emilio", "Deposito Region Confluencia"],
+        "Centenario": ["Hosp. Dr. Natalio Burd", "C.S. Sarmiento II", "C.S. Villa Obrera", "C.S. Sarmiento I", "C.S. Vista Hermosa", "C.S. 11 de Octubre", "C.S. Nueva España"],
+        "Vista Alegre": ["C.S. Vista Alegre Norte", "C.S. Vista Alegre Sur", "C.S. Costa de Reyes"],
+        "Plottier": ["Hosp. Plottier", "C.S. Los Aromos", "C.S. Soldado Aguila", "C.S. El Chacay", "C.S. La Esperanza", "C.S. Los Hornos", "C.S. Union", "C.S. Los Alamos"],
+        "Senillosa": ["Hosp. Don Adolfo del Valle"],
         "Villa El Chocón": ["Hosp. El Chocón"]
       },
       "Vaca Muerta": {
-        "Añelo": ["Hosp. Añelo"],
-        "San Patricio del Chañar": ["Hosp. El Chañar"],
-        "Rincón de los Sauces": ["Hosp. Rincón de los Sauces"]
+        "Añelo": ["Hosp. Añelo", "C.S. La Meseta"],
+        "Rincón de los Sauces": ["Hosp. Rincón de los Sauces", "C.S. La Costa", "C.S. La Falda"],
+        "Octavio Pico": ["C.S. Octavio Pico"],
+        "San Patricio del Chañar": ["Hosp. San Patricio del Chañar"],
+        "Buta Ranquil": ["Hosp. Buta Ranquil"],
+        "Barrancas": ["C.S. Barrancas"],
+        "Deposito": ["Deposito Region Vaca Muerta"]
+      },
+      "Del Pehuén": {
+        "Zapala": ["Hosp. Dr. Jorge Juan Pose", "C.S. Alborada", "C.S. Ampliación", "C.S. CGT", "C.S. 582 Viviendas", "C.S. C.I.C Caleuche", "C.S. Don Bosco", "C.S. Nueva Esperanza"],
+        "Baja del Agrio": ["Hosp. Bajada del Agrio"],
+        "Aluminé": ["Hosp. Aluminé", "C.S. Las Latas", "C.S. Ruca Choroi - Raguiñ Ken"],
+        "Villa Pehuenia": ["C.S. Villa Pehuenia"],
+        "Las Lajas": ["Hosp. Dr. Jose Agustin Venier"],
+        "Las Coloradas": ["Hosp. Dr. Carlos Potante"],
+        "Mariano Moreno": ["Hosp. Dr. Carlos Burdes"],
+        "Deposito": ["Deposito Region Del Pehuen"]
+      },
+      "Alto Neuquén": {
+        "Chos Malal": ["Hosp. Chos Malal", "C.S. Uriburu", "C.S. Tiro Federal", "C.S. Area Frontera", "C.S. Cordillera del Viento", "C.S. 4° Division Enfermero Moya", "C.S. Seccion Chacras Enfermero Roca"],
+        "Andacollo": ["Hosp. Dr. Antonio M. Gorgni"],
+        "Tricao Malal": ["Hosp. Tricao Malal"],
+        "Huinganco": ["C.S. Huinganco"],
+        "Las Ovejas": ["Hosp. Las Ovejas"],
+        "Los Miches": ["C.S. Los Miches Abajo"],
+        "Varvarco": ["C.S. Varvarco"],
+        "Manzano Amargo": ["C.S. Manzano Amargo"],
+        "Taquimilan": ["C.S Taquimilan Abajo"],
+        "El Cholar": ["Hosp. El Cholar"],
+        "El Huecu": ["Hosp. El Huecu"],
+        "Caviahue": ["C.S. Caviahue"],
+        "Loncopue": ["Hosp. Loncopue"],
+        "Deposito": ["Deposito Region Alto Neuquen"]
+      },
+      "Lagos del Sur": {
+        "S. M. de los Andes": ["Hosp. Dr. Ramón Carrillo", "C.S. El Arena", "C.S. Chacra 30", "C.S. Los Radales", "C.S. Cordones del Chapelco", "C.S El Portal", "C.S. Vamep 48", "C.S. Las Rosas", "C.S Cantera", "C.S. Covisal"],
+        "Junín de los Andes": ["Hosp. Junín de los Andes", "C.S. Lanin", "C.S. Lonquimay", "C.S. 15 de febrero", "C.S. Primeros Pobladores", "C.S. Lanín, Primeros Pobladores"],
+        "V. La Angostura": ["Hosp. Dr. Oscar Arraiz", "C.S. B° Norte", "C.S. Margaritas", "C.S. Las Piedritas"],
+        "Villa Traful": ["C.S. Enfermera Olga Viyares"],
+        "Deposito": ["Deposito Region Lagos del Sur"]
+      },
+      "De la Comarca": {
+        "Cutral Co / Plaza Huincul": ["Hosp. Dr. Aldo V. Maulú", "C.S. Aeroparque", "C.S. B° Belgrano", "C.S. B° San Martín", "C.S. Brentana", "C.S. Parque Oeste", "C.S. Pampa", "C.S. Otaño", "C.S. Centenario", "C.S. Campamento Central", "C.S. Peñi Trapun", "C.S. Union"],
+        "Deposito": ["Deposito Region De la Comarca"]
+      },
+      "Del Limay": {
+        "Picún Leufú": ["Hosp. Dra. Nancy Ferrari de Diby"],
+        "Piedra del Águila": ["Hosp. Piedra del Águila"],
+        "Santo Tomás": ["C.S. Santo Tomás"],
+        "Deposito": ["Deposito Region Del Limay"]
       }
     };
 
