@@ -295,7 +295,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBmlrYBMwIh4xEYSnvyeUq2gLqXoE5Hx0G76uckdmBArj4V0Hv0JKTmMwSCYhU65FN/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx7AKXbblWRVgz9NB_rnnboFsiU7_vR7HlwUOKBQywYKS9HrpNujyPMJFPiZxJlqXk/exec';
 
     const VACUNAS_LABORATORIOS = {
       "Antigripal Adulto": ["Viraflu", "Fluxvir"],
@@ -776,7 +776,7 @@
             if (response.result && response.url) { ultimoPDFUrl = response.url; }
           } catch(e) { console.error("Error parseando respuesta de guardarPDF", e); }
         };
-        xhr.send(JSON.stringify({ pdfData: pdfBase64, filename: opt.filename }));
+        xhr.send(JSON.stringify({ pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo }));
       });
     }
 
