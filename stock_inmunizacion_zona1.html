@@ -189,7 +189,31 @@
           <div id="camposEgreso" style="display:none;">
             <div class="form-group">
               <label class="form-label">Lote *</label>
-              <select id="loteSelect" class="form-control"></select>
+              <select id="loteSelect" class="form-control" onchange="actualizarRegionesEgreso()"></select>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div class="form-group">
+                <label class="form-label">Región *</label>
+                <select id="regionMov" class="form-control" required onchange="actualizarLocalidadesEgreso()">
+                  <option value="">Seleccionar lote primero</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Localidad *</label>
+                <select id="localidadMov" class="form-control" required onchange="actualizarEstablecimientosEgreso()">
+                  <option value="">Seleccionar región primero</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Establecimiento *</label>
+              <select id="establecimientoMov" class="form-control" required onchange="actualizarStockDisponible()">
+                <option value="">Seleccionar localidad primero</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cantidad * <span id="stockDisponibleLabel" style="color:#64748b; font-weight:normal;"></span></label>
+              <input type="number" id="cantidad" class="form-control" required min="1">
             </div>
           </div>
           <div id="camposIngreso" style="display:none;">
@@ -197,45 +221,45 @@
               <label class="form-label">Lote *</label>
               <input type="text" id="loteInput" class="form-control" placeholder="Ingrese número de lote">
             </div>
-          </div>
-          <div class="form-group" id="vencimientoRow">
-            <label class="form-label">Vencimiento *</label>
-            <input type="date" id="vencimiento" class="form-control">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Cantidad *</label>
-            <input type="number" id="cantidad" class="form-control" required min="1">
+            <div class="form-group" id="vencimientoRow">
+              <label class="form-label">Vencimiento *</label>
+              <input type="date" id="vencimiento" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cantidad *</label>
+              <input type="number" id="cantidadIngreso" class="form-control" required min="1">
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div class="form-group">
+                <label class="form-label">Región *</label>
+                <select id="regionMovIngreso" class="form-control" required onchange="actualizarLocalidadesMov()">
+                  <option value="">Seleccionar región</option>
+                  <option value="Confluencia">Confluencia</option>
+                  <option value="Vaca Muerta">Vaca Muerta</option>
+                  <option value="Del Pehuén">Del Pehuén</option>
+                  <option value="Alto Neuquén">Alto Neuquén</option>
+                  <option value="Lagos del Sur">Lagos del Sur</option>
+                  <option value="De la Comarca">De la Comarca</option>
+                  <option value="Del Limay">Del Limay</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Localidad *</label>
+                <select id="localidadMovIngreso" class="form-control" required onchange="actualizarEstablecimientosMov()">
+                  <option value="">Primero selecciona región</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Establecimiento *</label>
+              <select id="establecimientoMovIngreso" class="form-control" required>
+                <option value="">Primero selecciona localidad</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Responsable *</label>
             <input type="text" id="responsable" class="form-control" required>
-          </div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="form-group">
-              <label class="form-label">Región *</label>
-              <select id="regionMov" class="form-control" required onchange="actualizarLocalidadesMov()">
-                <option value="">Seleccionar región</option>
-                <option value="Confluencia">Confluencia</option>
-                <option value="Vaca Muerta">Vaca Muerta</option>
-                <option value="Del Pehuén">Del Pehuén</option>
-                <option value="Alto Neuquén">Alto Neuquén</option>
-                <option value="Lagos del Sur">Lagos del Sur</option>
-                <option value="De la Comarca">De la Comarca</option>
-                <option value="Del Limay">Del Limay</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Localidad *</label>
-              <select id="localidadMov" class="form-control" required onchange="actualizarEstablecimientosMov()">
-                <option value="">Primero selecciona región</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Establecimiento *</label>
-            <select id="establecimientoMov" class="form-control" required>
-              <option value="">Primero selecciona localidad</option>
-            </select>
           </div>
           <div class="form-group">
             <label class="form-label">Observaciones</label>
@@ -617,9 +641,18 @@
     function actualizarVacunas() {
       var sel = document.getElementById('vacuna');
       sel.innerHTML = '<option value="">Seleccionar vacuna</option>';
-      Object.keys(VACUNAS_LABORATORIOS).forEach(function(v) {
-        sel.innerHTML += '<option value="' + v + '">' + v + '</option>';
-      });
+      if (modoMovimiento === 'Egreso') {
+        // Solo vacunas con stock > 0
+        var vacunas = [];
+        (DATOS_GLOBALES.stock || []).forEach(function(s) {
+          if (parseInt(s.stock) > 0 && vacunas.indexOf(s.vacuna) === -1) vacunas.push(s.vacuna);
+        });
+        vacunas.forEach(function(v) { sel.innerHTML += '<option value="' + v + '">' + v + '</option>'; });
+      } else {
+        Object.keys(VACUNAS_LABORATORIOS).forEach(function(v) {
+          sel.innerHTML += '<option value="' + v + '">' + v + '</option>';
+        });
+      }
       document.getElementById('laboratorio').innerHTML = '<option value="">Primero selecciona vacuna</option>';
       document.getElementById('loteSelect').innerHTML = '<option value="">Primero selecciona laboratorio</option>';
     }
@@ -628,9 +661,19 @@
       var vacuna = document.getElementById('vacuna').value;
       var sel = document.getElementById('laboratorio');
       sel.innerHTML = '<option value="">Seleccionar laboratorio</option>';
-      (VACUNAS_LABORATORIOS[vacuna] || []).forEach(function(l) {
-        sel.innerHTML += '<option value="' + l + '">' + l + '</option>';
-      });
+      if (modoMovimiento === 'Egreso') {
+        var labs = [];
+        (DATOS_GLOBALES.stock || []).filter(function(s) {
+          return s.vacuna === vacuna && parseInt(s.stock) > 0;
+        }).forEach(function(s) {
+          if (labs.indexOf(s.laboratorio) === -1) labs.push(s.laboratorio);
+        });
+        labs.forEach(function(l) { sel.innerHTML += '<option value="' + l + '">' + l + '</option>'; });
+      } else {
+        (VACUNAS_LABORATORIOS[vacuna] || []).forEach(function(l) {
+          sel.innerHTML += '<option value="' + l + '">' + l + '</option>';
+        });
+      }
       document.getElementById('loteSelect').innerHTML = '<option value="">Primero selecciona laboratorio</option>';
     }
 
@@ -643,48 +686,122 @@
       (DATOS_GLOBALES.stock || []).filter(function(s) {
         return s.vacuna === vacuna && s.laboratorio === lab && parseInt(s.stock) > 0;
       }).forEach(function(s) {
-        sel.innerHTML += '<option value="' + s.lote + '">' + s.lote + ' (Stock: ' + s.stock + ', Vence: ' + new Date(s.vencimiento).toLocaleDateString('es-AR') + ')</option>';
+        sel.innerHTML += '<option value="' + s.lote + '">' + s.lote + ' (Vence: ' + new Date(s.vencimiento).toLocaleDateString('es-AR') + ')</option>';
       });
+      actualizarRegionesEgreso();
+    }
+
+    function actualizarRegionesEgreso() {
+      var vacuna = document.getElementById('vacuna').value;
+      var lab = document.getElementById('laboratorio').value;
+      var lote = document.getElementById('loteSelect').value;
+      var sel = document.getElementById('regionMov');
+      sel.innerHTML = '<option value="">Seleccionar región</option>';
+      var regiones = [];
+      (DATOS_GLOBALES.stock || []).filter(function(s) {
+        return s.vacuna === vacuna && s.laboratorio === lab && s.lote === lote && parseInt(s.stock) > 0;
+      }).forEach(function(s) {
+        if (regiones.indexOf(s.region) === -1) regiones.push(s.region);
+      });
+      regiones.forEach(function(r) { sel.innerHTML += '<option value="' + r + '">' + r + '</option>'; });
+      document.getElementById('localidadMov').innerHTML = '<option value="">Seleccionar región primero</option>';
+      document.getElementById('establecimientoMov').innerHTML = '<option value="">Seleccionar localidad primero</option>';
+      document.getElementById('stockDisponibleLabel').textContent = '';
+    }
+
+    function actualizarLocalidadesEgreso() {
+      var vacuna = document.getElementById('vacuna').value;
+      var lab = document.getElementById('laboratorio').value;
+      var lote = document.getElementById('loteSelect').value;
+      var region = document.getElementById('regionMov').value;
+      var sel = document.getElementById('localidadMov');
+      sel.innerHTML = '<option value="">Seleccionar localidad</option>';
+      var localidades = [];
+      (DATOS_GLOBALES.stock || []).filter(function(s) {
+        return s.vacuna === vacuna && s.laboratorio === lab && s.lote === lote && s.region === region && parseInt(s.stock) > 0;
+      }).forEach(function(s) {
+        if (localidades.indexOf(s.localidad) === -1) localidades.push(s.localidad);
+      });
+      localidades.forEach(function(l) { sel.innerHTML += '<option value="' + l + '">' + l + '</option>'; });
+      document.getElementById('establecimientoMov').innerHTML = '<option value="">Seleccionar localidad primero</option>';
+      document.getElementById('stockDisponibleLabel').textContent = '';
+    }
+
+    function actualizarEstablecimientosEgreso() {
+      var vacuna = document.getElementById('vacuna').value;
+      var lab = document.getElementById('laboratorio').value;
+      var lote = document.getElementById('loteSelect').value;
+      var region = document.getElementById('regionMov').value;
+      var localidad = document.getElementById('localidadMov').value;
+      var sel = document.getElementById('establecimientoMov');
+      sel.innerHTML = '<option value="">Seleccionar establecimiento</option>';
+      var ests = [];
+      (DATOS_GLOBALES.stock || []).filter(function(s) {
+        return s.vacuna === vacuna && s.laboratorio === lab && s.lote === lote && s.region === region && s.localidad === localidad && parseInt(s.stock) > 0;
+      }).forEach(function(s) {
+        if (ests.indexOf(s.establecimiento) === -1) ests.push(s.establecimiento);
+      });
+      ests.forEach(function(e) { sel.innerHTML += '<option value="' + e + '">' + e + '</option>'; });
+      document.getElementById('stockDisponibleLabel').textContent = '';
+    }
+
+    function actualizarStockDisponible() {
+      var vacuna = document.getElementById('vacuna').value;
+      var lab = document.getElementById('laboratorio').value;
+      var lote = document.getElementById('loteSelect').value;
+      var region = document.getElementById('regionMov').value;
+      var localidad = document.getElementById('localidadMov').value;
+      var establecimiento = document.getElementById('establecimientoMov').value;
+      var stockItem = (DATOS_GLOBALES.stock || []).find(function(s) {
+        return s.vacuna === vacuna && s.laboratorio === lab && s.lote === lote && s.region === region && s.localidad === localidad && s.establecimiento === establecimiento;
+      });
+      var max = stockItem ? parseInt(stockItem.stock) : 0;
+      var cantInput = document.getElementById('cantidad');
+      cantInput.max = max;
+      cantInput.placeholder = 'Máx: ' + max;
+      document.getElementById('stockDisponibleLabel').textContent = '(Disponible: ' + max + ')';
     }
 
     function actualizarLocalidadesMov() {
-      var region = document.getElementById('regionMov').value;
-      var sel = document.getElementById('localidadMov');
+      var region = document.getElementById('regionMovIngreso').value;
+      var sel = document.getElementById('localidadMovIngreso');
       sel.innerHTML = '<option value="">Seleccionar localidad</option>';
       Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {}).forEach(function(l) {
         sel.innerHTML += '<option value="' + l + '">' + l + '</option>';
       });
-      document.getElementById('establecimientoMov').innerHTML = '<option value="">Primero selecciona localidad</option>';
+      document.getElementById('establecimientoMovIngreso').innerHTML = '<option value="">Primero selecciona localidad</option>';
     }
 
     function actualizarEstablecimientosMov() {
-      var region = document.getElementById('regionMov').value;
-      var localidad = document.getElementById('localidadMov').value;
-      var sel = document.getElementById('establecimientoMov');
+      var region = document.getElementById('regionMovIngreso').value;
+      var localidad = document.getElementById('localidadMovIngreso').value;
+      var sel = document.getElementById('establecimientoMovIngreso');
       sel.innerHTML = '<option value="">Seleccionar establecimiento</option>';
       ((ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || []).forEach(function(e) {
         sel.innerHTML += '<option value="' + e + '">' + e + '</option>';
       });
     }
-
-    // ── REGISTRAR MOVIMIENTO (GET, como espera el backend) ────────────────────
     function registrarMovimiento(event) {
       event.preventDefault();
       var vacuna = document.getElementById('vacuna').value;
       var lab = document.getElementById('laboratorio').value;
-      var cantidad = document.getElementById('cantidad').value;
       var responsable = document.getElementById('responsable').value;
-      var region = document.getElementById('regionMov').value;
-      var localidad = document.getElementById('localidadMov').value;
-      var establecimiento = document.getElementById('establecimientoMov').value;
       var observaciones = document.getElementById('observaciones').value;
-      var lote = '', vencimiento = '';
+      var lote = '', vencimiento = '', cantidad = '', region = '', localidad = '', establecimiento = '';
 
       if (modoMovimiento === 'Ingreso') {
         lote = document.getElementById('loteInput').value;
         vencimiento = document.getElementById('vencimiento').value;
+        cantidad = document.getElementById('cantidadIngreso').value;
+        region = document.getElementById('regionMovIngreso').value;
+        localidad = document.getElementById('localidadMovIngreso').value;
+        establecimiento = document.getElementById('establecimientoMovIngreso').value;
       } else {
         lote = document.getElementById('loteSelect').value;
+        cantidad = document.getElementById('cantidad').value;
+        region = document.getElementById('regionMov').value;
+        localidad = document.getElementById('localidadMov').value;
+        establecimiento = document.getElementById('establecimientoMov').value;
       }
 
       if (!vacuna || !lab || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
