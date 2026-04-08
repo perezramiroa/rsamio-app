@@ -180,11 +180,11 @@
         <form id="formMov" onsubmit="registrarMovimiento(event)">
           <div class="form-group">
             <label class="form-label">Vacuna *</label>
-            <select id="vacuna" class="form-control" required onchange="actualizarLaboratorios()"></select>
+            <select id="vacuna" class="form-control" onchange="actualizarLaboratorios()"></select>
           </div>
           <div class="form-group">
             <label class="form-label">Laboratorio *</label>
-            <select id="laboratorio" class="form-control" required onchange="actualizarLotes()"></select>
+            <select id="laboratorio" class="form-control" onchange="actualizarLotes()"></select>
           </div>
           <div id="camposEgreso" style="display:none;">
             <div class="form-group">
@@ -194,26 +194,26 @@
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
               <div class="form-group">
                 <label class="form-label">Región *</label>
-                <select id="regionMov" class="form-control" required onchange="actualizarLocalidadesEgreso()">
+                <select id="regionMov" class="form-control" onchange="actualizarLocalidadesEgreso()">
                   <option value="">Seleccionar lote primero</option>
                 </select>
               </div>
               <div class="form-group">
                 <label class="form-label">Localidad *</label>
-                <select id="localidadMov" class="form-control" required onchange="actualizarEstablecimientosEgreso()">
+                <select id="localidadMov" class="form-control" onchange="actualizarEstablecimientosEgreso()">
                   <option value="">Seleccionar región primero</option>
                 </select>
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">Establecimiento *</label>
-              <select id="establecimientoMov" class="form-control" required onchange="actualizarStockDisponible()">
+              <select id="establecimientoMov" class="form-control" onchange="actualizarStockDisponible()">
                 <option value="">Seleccionar localidad primero</option>
               </select>
             </div>
             <div class="form-group">
               <label class="form-label">Cantidad * <span id="stockDisponibleLabel" style="color:#64748b; font-weight:normal;"></span></label>
-              <input type="number" id="cantidad" class="form-control" required min="1">
+              <input type="number" id="cantidad" class="form-control" min="1">
             </div>
           </div>
           <div id="camposIngreso" style="display:none;">
@@ -227,12 +227,12 @@
             </div>
             <div class="form-group">
               <label class="form-label">Cantidad *</label>
-              <input type="number" id="cantidadIngreso" class="form-control" required min="1">
+              <input type="number" id="cantidadIngreso" class="form-control" min="1">
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
               <div class="form-group">
                 <label class="form-label">Región *</label>
-                <select id="regionMovIngreso" class="form-control" required onchange="actualizarLocalidadesMov()">
+                <select id="regionMovIngreso" class="form-control" onchange="actualizarLocalidadesMov()">
                   <option value="">Seleccionar región</option>
                   <option value="Confluencia">Confluencia</option>
                   <option value="Vaca Muerta">Vaca Muerta</option>
@@ -245,14 +245,14 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Localidad *</label>
-                <select id="localidadMovIngreso" class="form-control" required onchange="actualizarEstablecimientosMov()">
+                <select id="localidadMovIngreso" class="form-control" onchange="actualizarEstablecimientosMov()">
                   <option value="">Primero selecciona región</option>
                 </select>
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">Establecimiento *</label>
-              <select id="establecimientoMovIngreso" class="form-control" required>
+              <select id="establecimientoMovIngreso" class="form-control">
                 <option value="">Primero selecciona localidad</option>
               </select>
             </div>
