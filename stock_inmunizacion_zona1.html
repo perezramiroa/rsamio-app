@@ -112,7 +112,7 @@
         <table>
           <thead>
             <tr>
-              <th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Stock</th><th>Región</th><th>Localidad</th><th>Establecimiento</th><th>Estado</th>
+              <th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Stock</th><th>Región</th><th>Localidad</th><th>Establecimiento</th><th>Estado</th><th>Días para vencer</th>
             </tr>
           </thead>
           <tbody id="stockBodyInventario">
@@ -422,7 +422,8 @@
             var it = data.stock[i], venc = new Date(it.vencimiento), estado = 'Disponible', badge = 'badge-success';
             if (venc < hoy) { estado = 'Vencido'; badge = 'badge-danger'; }
             else if ((venc - hoy) / 86400000 <= 30) { estado = 'Próximo a Vencer'; badge = 'badge-warning'; }
-            htmlStock += '<tr><td>' + (it.vacuna||'-') + '</td><td>' + (it.laboratorio||'-') + '</td><td>' + (it.lote||'-') + '</td><td>' + venc.toLocaleDateString('es-AR') + '</td><td>' + (it.stock||0) + '</td><td>' + (it.region||'-') + '</td><td>' + (it.localidad||'-') + '</td><td>' + (it.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td></tr>';
+            var diasVenc = Math.ceil((venc - hoy) / 86400000);
+            htmlStock += '<tr><td>' + (it.vacuna||'-') + '</td><td>' + (it.laboratorio||'-') + '</td><td>' + (it.lote||'-') + '</td><td>' + venc.toLocaleDateString('es-AR') + '</td><td>' + (it.stock||0) + '</td><td>' + (it.region||'-') + '</td><td>' + (it.localidad||'-') + '</td><td>' + (it.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td><td>' + (venc < hoy ? 'Vencido' : diasVenc + ' días') + '</td></tr>';
           }
           tbodyStockInventario.innerHTML = htmlStock;
         }
@@ -457,12 +458,16 @@
     }
 
     function buildTablasDetalle(data, titulo, headers) {
+      var esStock = titulo.toLowerCase().indexOf('stock') !== -1;
+      var extraHeaders = esStock ? ['Estado', 'Días para vencer'] : [];
+      var allHeaders = headers.concat(extraHeaders);
       var html = '<h3>' + titulo + '</h3><div class="table-wrapper"><table><thead><tr>';
-      for (var i = 0; i < headers.length; i++) { html += '<th>' + headers[i] + '</th>'; }
+      for (var i = 0; i < allHeaders.length; i++) { html += '<th>' + allHeaders[i] + '</th>'; }
       html += '</tr></thead><tbody>';
       if (!data || data.length === 0) {
-        html += '<tr><td colspan="' + headers.length + '" style="text-align:center;">No hay datos</td></tr>';
+        html += '<tr><td colspan="' + allHeaders.length + '" style="text-align:center;">No hay datos</td></tr>';
       } else {
+        var hoy = new Date();
         for (var i = 0; i < data.length; i++) {
           html += '<tr>';
           for (var j = 0; j < headers.length; j++) {
@@ -473,6 +478,15 @@
             } else {
               html += '<td>' + (val !== undefined && val !== null && val !== '' ? val : '-') + '</td>';
             }
+          }
+          if (esStock) {
+            var venc = new Date(data[i].vencimiento);
+            var dias = Math.ceil((venc - hoy) / 86400000);
+            var estado = 'Disponible', badge = 'badge-success';
+            if (venc < hoy) { estado = 'Vencido'; badge = 'badge-danger'; }
+            else if (dias <= 30) { estado = 'Próximo a Vencer'; badge = 'badge-warning'; }
+            html += '<td><span class="badge ' + badge + '">' + estado + '</span></td>';
+            html += '<td>' + (venc < hoy ? 'Vencido' : dias + ' días') + '</td>';
           }
           html += '</tr>';
         }
