@@ -295,7 +295,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMoqBaqpSW1X0DIjXRQCglPw5DcMDkWlCTY1eXmQCvuMk8CrUcfz1CR-A6FlwnjS5x/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBmlrYBMwIh4xEYSnvyeUq2gLqXoE5Hx0G76uckdmBArj4V0Hv0JKTmMwSCYhU65FN/exec';
 
     const VACUNAS_LABORATORIOS = {
       "Antigripal Adulto": ["Viraflu", "Fluxvir"],
@@ -383,6 +383,8 @@
     let DATOS_GLOBALES = { stock: [], ingresos: [], egresos: [] };
     let modoMovimiento = 'Egreso';
     let ultimoPDFUrl = '';
+    let ultimoPDFBlob = '';
+    let ultimoPDFNombre = '';
 
     function mostrarLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -763,6 +765,8 @@
 
       html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
         element.style.display = 'none';
+        ultimoPDFBlob = pdfBase64;
+        ultimoPDFNombre = opt.filename;
         var xhr = new XMLHttpRequest();
         xhr.open('POST', APPS_SCRIPT_URL + '?action=guardarPDF', true);
         xhr.setRequestHeader('Content-Type', 'text/plain');
@@ -778,7 +782,12 @@
 
     function descargarUltimoPDF() {
       if (ultimoPDFUrl) { window.open(ultimoPDFUrl, '_blank'); }
-      else { alert('No hay un PDF reciente para descargar.'); }
+      else if (ultimoPDFBlob) {
+        var link = document.createElement('a');
+        link.href = ultimoPDFBlob;
+        link.download = ultimoPDFNombre;
+        link.click();
+      } else { alert('El PDF todavía se está generando, esperá unos segundos e intentá de nuevo.'); }
     }
 
     function toggleNormativa() {
