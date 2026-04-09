@@ -336,12 +336,12 @@
   </div>
 
   <!-- TEMPLATE PDF VENCIMIENTOS (OCULTO) -->
-  <div id="pdf-vencimientos-template" style="display:none; padding:30px; background:white; color:black;">
+  <div id="pdf-vencimientos-template" style="display:none; padding:20px; background:white; color:black; font-size:9pt;">
     <div style="border-bottom:2px solid #f59e0b; margin-bottom:15px; padding-bottom:10px;">
-      <h2 style="color:#f59e0b;">Reporte de Próximos Vencimientos</h2>
+      <h2 style="color:#f59e0b; font-size:14pt;">Reporte de Próximos Vencimientos (15 días)</h2>
       <p>Sistema RSAMIO - Generado: <span id="pdf-venc-fecha"></span></p>
     </div>
-    <div id="pdf-venc-content"></div>
+    <div id="pdf-venc-content" style="font-size:8pt;"></div>
   </div>
 
   <script>
@@ -967,10 +967,10 @@
       template.style.display = 'block';
 
       var opt = {
-        margin: 10,
+        margin: [8, 5, 8, 5],
         filename: 'Vencimientos_' + new Date().toISOString().slice(0,10) + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 1.5, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
 
@@ -983,7 +983,7 @@
         link.click();
         // Guardar en Drive
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', APPS_SCRIPT_URL + '?action=guardarPDFVencimientos', true);
+        xhr.open('POST', APPS_SCRIPT_URL, true);
         xhr.setRequestHeader('Content-Type', 'text/plain');
         xhr.send(JSON.stringify({ action: 'guardarPDFVencimientos', pdfData: pdfBase64, filename: opt.filename }));
       });
