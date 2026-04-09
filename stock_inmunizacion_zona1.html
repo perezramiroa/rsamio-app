@@ -86,7 +86,7 @@
   <!-- STATS BAR -->
   <div class="stats-bar">
     <div class="stat-card"><div class="label">Total Dosis</div><div class="value" id="totalDosis">0</div></div>
-    <div class="stat-card" style="border-left-color: #f59e0b;"><div class="label">Próximos a Vencer</div><div class="value" id="proximosVencer">0</div></div>
+    <div class="stat-card" style="border-left-color: #f59e0b;"><div class="label">Próximos a Vencer</div><div class="value" id="proximosVencer">0</div><button class="btn btn-outline" onclick="abrirModalVencimientos()" style="margin-top:8px; font-size:0.8rem; padding:4px 10px;">Ver detalle</button></div>
     <div class="stat-card" style="border-left-color: #ef4444;"><div class="label">Vencidos</div><div class="value" id="vencidos">0</div></div>
   </div>
 
@@ -148,7 +148,7 @@
           <area shape="rect" coords="35,366,310,397" alt="De la Comarca" onclick="navegarARegion('De la Comarca')" style="cursor:pointer;">
         </map>
       </div>
-      <a href="https://drive.google.com/file/d/1hmZy84NNU7y9EQorJdxBBJFds2JTIyl6/view" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
+      <a href="https://script.google.com/macros/s/AKfycbw2ggM5lyoxZVWWF4uidxuva_Le_BQ0tQc-q-SFooEmC1FvpwIMW99KQnkKoW8SZ4Cb/exec" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
       <div id="tablasNivel1Geografico" style="margin-top: 30px;"></div>
     </div>
 
@@ -316,6 +316,32 @@
       <p>Este documento es un comprobante oficial del sistema. Trazabilidad: <span id="pdf-trazabilidad"></span></p>
       <p>Fecha de emisión: <span id="pdf-fecha"></span></p>
     </div>
+  </div>
+
+  <!-- MODAL VENCIMIENTOS -->
+  <div id="modalVencimientos" class="modal">
+    <div class="modal-content" style="max-width:900px;">
+      <div class="modal-header">
+        <h2>⚠️ Próximos a Vencer (15 días)</h2>
+        <button class="modal-close" onclick="document.getElementById('modalVencimientos').style.display='none'">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="tablaVencimientos"></div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+          <button class="btn btn-primary" onclick="descargarPDFVencimientos()" style="flex:1;">⬇️ Descargar PDF</button>
+          <button class="btn btn-outline" onclick="document.getElementById('modalVencimientos').style.display='none'" style="flex:1;">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE PDF VENCIMIENTOS (OCULTO) -->
+  <div id="pdf-vencimientos-template" style="display:none; padding:30px; background:white; color:black;">
+    <div style="border-bottom:2px solid #f59e0b; margin-bottom:15px; padding-bottom:10px;">
+      <h2 style="color:#f59e0b;">Reporte de Próximos Vencimientos</h2>
+      <p>Sistema RSAMIO - Generado: <span id="pdf-venc-fecha"></span></p>
+    </div>
+    <div id="pdf-venc-content"></div>
   </div>
 
   <script>
@@ -905,6 +931,62 @@
         link.download = ultimoPDFNombre;
         link.click();
       } else { alert('El PDF todavía se está generando, esperá unos segundos e intentá de nuevo.'); }
+    }
+
+    function abrirModalVencimientos() {
+      var hoy = new Date();
+      var limite = new Date(hoy.getTime() + 15 * 86400000);
+      var items = (DATOS_GLOBALES.stock || []).filter(function(s) {
+        var v = new Date(s.vencimiento);
+        return v >= hoy && v <= limite && parseInt(s.stock) > 0;
+      }).sort(function(a, b) {
+        return new Date(a.vencimiento) - new Date(b.vencimiento);
+      });
+
+      var html = '<div class="table-wrapper"><table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Días para vencer</th><th>Stock</th><th>Región</th><th>Localidad</th><th>Establecimiento</th><th>Estado</th></tr></thead><tbody>';
+      if (!items.length) {
+        html += '<tr><td colspan="10" style="text-align:center;">No hay stock próximo a vencer en los próximos 15 días</td></tr>';
+      } else {
+        items.forEach(function(s) {
+          var v = new Date(s.vencimiento);
+          var dias = Math.ceil((v - hoy) / 86400000);
+          var badge = dias <= 7 ? 'badge-danger' : 'badge-warning';
+          var estado = dias <= 7 ? 'Crítico' : 'Próximo a Vencer';
+          html += '<tr><td>' + (s.vacuna||'-') + '</td><td>' + (s.laboratorio||'-') + '</td><td>' + (s.lote||'-') + '</td><td>' + v.toLocaleDateString('es-AR') + '</td><td>' + dias + ' días</td><td>' + (s.stock||0) + '</td><td>' + (s.region||'-') + '</td><td>' + (s.localidad||'-') + '</td><td>' + (s.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td></tr>';
+        });
+      }
+      html += '</tbody></table></div>';
+      document.getElementById('tablaVencimientos').innerHTML = html;
+      document.getElementById('modalVencimientos').style.display = 'block';
+    }
+
+    function descargarPDFVencimientos() {
+      var template = document.getElementById('pdf-vencimientos-template');
+      document.getElementById('pdf-venc-fecha').textContent = new Date().toLocaleString('es-AR');
+      document.getElementById('pdf-venc-content').innerHTML = document.getElementById('tablaVencimientos').innerHTML;
+      template.style.display = 'block';
+
+      var opt = {
+        margin: 10,
+        filename: 'Vencimientos_' + new Date().toISOString().slice(0,10) + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      html2pdf().set(opt).from(template).outputPdf('datauristring').then(function(pdfBase64) {
+        template.style.display = 'none';
+        // Descarga local
+        var link = document.createElement('a');
+        link.href = pdfBase64;
+        link.download = opt.filename;
+        link.click();
+        // Guardar en Drive
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', APPS_SCRIPT_URL + '?action=guardarPDFVencimientos', true);
+        xhr.setRequestHeader('Content-Type', 'text/plain');
+        xhr.send(JSON.stringify({ action: 'guardarPDFVencimientos', pdfData: pdfBase64, filename: opt.filename }));
+      });
     }
 
     function toggleNormativa() {
