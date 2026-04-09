@@ -178,6 +178,16 @@
       </div>
       <div class="modal-body">
         <form id="formMov" onsubmit="registrarMovimiento(event)">
+          <div class="form-group" id="tipoEgresoRow" style="display:none;">
+            <label class="form-label">Tipo de Egreso *</label>
+            <select id="tipoEgreso" class="form-control" onchange="toggleCamposTraslado()">
+              <option value="">Seleccionar tipo</option>
+              <option value="Vacunación">Vacunación</option>
+              <option value="Pérdida de cadena de frío">Pérdida de cadena de frío</option>
+              <option value="Rotura de ampollas">Rotura de ampollas</option>
+              <option value="Traslado">Traslado</option>
+            </select>
+          </div>
           <div class="form-group">
             <label class="form-label">Vacuna *</label>
             <select id="vacuna" class="form-control" onchange="actualizarLaboratorios()"></select>
@@ -187,16 +197,6 @@
             <select id="laboratorio" class="form-control" onchange="actualizarLotes()"></select>
           </div>
           <div id="camposEgreso" style="display:none;">
-            <div class="form-group">
-              <label class="form-label">Tipo de Egreso *</label>
-              <select id="tipoEgreso" class="form-control" onchange="toggleCamposTraslado()">
-                <option value="">Seleccionar tipo</option>
-                <option value="Vacunación">Vacunación</option>
-                <option value="Pérdida de cadena de frío">Pérdida de cadena de frío</option>
-                <option value="Rotura de ampollas">Rotura de ampollas</option>
-                <option value="Traslado">Traslado</option>
-              </select>
-            </div>
             <div class="form-group">
               <label class="form-label">Lote *</label>
               <select id="loteSelect" class="form-control" onchange="actualizarRegionesEgreso()"></select>
@@ -517,7 +517,9 @@
         } else {
           var htmlStock = '', hoy = new Date();
           for (var i = 0; i < data.stock.length; i++) {
-            var it = data.stock[i], venc = new Date(it.vencimiento), estado = 'Disponible', badge = 'badge-success';
+            var it = data.stock[i];
+            if (parseInt(it.stock) <= 0) continue;
+            var venc = new Date(it.vencimiento), estado = 'Disponible', badge = 'badge-success';
             if (venc < hoy) { estado = 'Vencido'; badge = 'badge-danger'; }
             else if ((venc - hoy) / 86400000 <= 30) { estado = 'Próximo a Vencer'; badge = 'badge-warning'; }
             var diasVenc = Math.ceil((venc - hoy) / 86400000);
@@ -567,6 +569,7 @@
       } else {
         var hoy = new Date();
         for (var i = 0; i < data.length; i++) {
+          if (esStock && parseInt(data[i].stock) <= 0) continue;
           html += '<tr>';
           for (var j = 0; j < headers.length; j++) {
             var key = headers[j].toLowerCase().replace(/ /g, '');
@@ -681,6 +684,7 @@
       document.getElementById('camposEgreso').style.display = tipo === 'Egreso' ? 'block' : 'none';
       document.getElementById('camposIngreso').style.display = tipo === 'Ingreso' ? 'block' : 'none';
       document.getElementById('vencimientoRow').style.display = tipo === 'Ingreso' ? 'block' : 'none';
+      document.getElementById('tipoEgresoRow').style.display = tipo === 'Egreso' ? 'block' : 'none';
       document.getElementById('formMov').reset();
 
       if (tipo === 'Egreso') {
@@ -949,14 +953,25 @@
           var result = JSON.parse(xhr.responseText);
           if (result.result) {
             cerrarModalMov();
-            document.getElementById('confirmacionMensaje').innerHTML = '<b>Registrado correctamente.</b><br><small>Trazabilidad: ' + (result.trazabilidad || '') + '</small>';
+            var msg = '<b>Registrado correctamente.</b><br><small>Trazabilidad: ' + (result.trazabilidad || '') + '</small>';
+            if (tipoEgreso === 'Traslado') msg += '<br><small>Ingreso en destino registrado automáticamente.</small>';
+            document.getElementById('confirmacionMensaje').innerHTML = msg;
             document.getElementById('modalConfirmacion').style.display = 'block';
             generarYGuardarPDF({
-              tipo: modoMovimiento, vacuna: vacuna, laboratorio: lab, lote: lote,
+              tipo: modoMovimiento, tipoEgreso: tipoEgreso, vacuna: vacuna, laboratorio: lab, lote: lote,
               cantidad: cantidad, responsable: responsable, region: region,
               localidad: localidad, establecimiento: establecimiento,
               trazabilidad: result.trazabilidad, observaciones: observaciones
             });
+            if (tipoEgreso === 'Traslado' && establecimientoDest) {
+              generarYGuardarPDF({
+                tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)', vacuna: vacuna, laboratorio: lab, lote: lote,
+                cantidad: cantidad, responsable: responsable, region: regionDest,
+                localidad: localidadDest, establecimiento: establecimientoDest,
+                trazabilidad: 'TRZ-ING-TRASLADO-REF-' + result.trazabilidad,
+                observaciones: 'Traslado desde ' + establecimiento
+              });
+            }
             cargarDatos();
           } else { alert('Error: ' + result.message); }
         } catch(e) { alert('Error al procesar respuesta.'); }
@@ -974,7 +989,7 @@
       document.getElementById('pdf-content').innerHTML =
         '<table class="pdf-table">' +
         '<tr><th>Campo</th><th>Detalle</th></tr>' +
-        '<tr><td>Tipo de Movimiento</td><td>' + datos.tipo + '</td></tr>' +
+        '<tr><td>Tipo de Movimiento</td><td>' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td></tr>' +
         '<tr><td>Vacuna</td><td>' + datos.vacuna + '</td></tr>' +
         '<tr><td>Laboratorio</td><td>' + datos.laboratorio + '</td></tr>' +
         '<tr><td>Lote</td><td>' + datos.lote + '</td></tr>' +
