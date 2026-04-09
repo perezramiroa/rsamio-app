@@ -997,17 +997,10 @@
     // ── PDF ───────────────────────────────────────────────────────────────────
     function generarYGuardarPDF(datos, callback) {
       var element = document.getElementById('pdf-template');
-      // Clonar para evitar que llamadas simultáneas se pisen
-      var clone = element.cloneNode(true);
-      clone.id = 'pdf-template-clone-' + Date.now();
-      clone.style.display = 'block';
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      document.body.appendChild(clone);
-
-      clone.querySelector('#pdf-trazabilidad').textContent = datos.trazabilidad;
-      clone.querySelector('#pdf-fecha').textContent = new Date().toLocaleString();
-      clone.querySelector('#pdf-content').innerHTML =
+      element.style.display = 'block';
+      element.querySelector('#pdf-trazabilidad').textContent = datos.trazabilidad;
+      element.querySelector('#pdf-fecha').textContent = new Date().toLocaleString();
+      element.querySelector('#pdf-content').innerHTML =
         '<table class="pdf-table">' +
         '<tr><th>Campo</th><th>Detalle</th></tr>' +
         '<tr><td>Tipo de Movimiento</td><td>' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td></tr>' +
@@ -1028,8 +1021,8 @@
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(clone).outputPdf('datauristring').then(function(pdfBase64) {
-        document.body.removeChild(clone);
+      html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
+        element.style.display = 'none';
         if (datos.tipo === 'Ingreso') {
           ultimoPDFBlobIngreso = pdfBase64;
           ultimoPDFNombreIngreso = opt.filename;
