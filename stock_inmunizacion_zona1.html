@@ -977,15 +977,29 @@
               cantidad: cantidad, responsable: responsable, region: region,
               localidad: localidad, establecimiento: establecimiento,
               trazabilidad: result.trazabilidad, observaciones: observaciones
-            }, tipoEgreso === 'Traslado' && establecimientoDest ? function() {
-              generarYGuardarPDF({
+            }, tipoEgreso === 'Traslado' && establecimientoDest ? function() {              generarYGuardarPDF({
                 tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)', vacuna: vacuna, laboratorio: lab, lote: lote,
                 cantidad: cantidad, responsable: responsable, region: regionDest,
                 localidad: localidadDest, establecimiento: establecimientoDest,
                 trazabilidad: 'TRZ-ING-TRASLADO-REF-' + result.trazabilidad,
                 observaciones: 'Traslado desde ' + establecimiento
+              }, function() {
+                // Descargar ambos PDFs al terminar
+                if (ultimoPDFBlob) {
+                  var l1 = document.createElement('a'); l1.href = ultimoPDFBlob; l1.download = ultimoPDFNombre; l1.click();
+                }
+                setTimeout(function() {
+                  if (ultimoPDFBlobIngreso) {
+                    var l2 = document.createElement('a'); l2.href = ultimoPDFBlobIngreso; l2.download = ultimoPDFNombreIngreso; l2.click();
+                  }
+                }, 500);
               });
-            } : null);
+            } : function() {
+              // Egreso simple: descargar solo el egreso
+              if (ultimoPDFBlob) {
+                var l = document.createElement('a'); l.href = ultimoPDFBlob; l.download = ultimoPDFNombre; l.click();
+              }
+            });
             cargarDatos();
           } else { alert('Error: ' + result.message); }
         } catch(e) { alert('Error al procesar respuesta.'); }
@@ -997,7 +1011,7 @@
     // ── PDF ───────────────────────────────────────────────────────────────────
     function generarYGuardarPDF(datos, callback) {
       var contenido =
-        '<div style="font-family:Segoe UI,sans-serif; padding:30px; color:#1e293b;">' +
+        '<div style="font-family:Segoe UI,sans-serif; padding:15px 20px; color:#1e293b;">' +
         '<div style="border-bottom:2px solid #00384d; margin-bottom:20px; padding-bottom:10px;">' +
         '<h2 style="color:#00384d; margin:0;">Reporte de Movimiento de Vacunas</h2>' +
         '<p style="color:#64748b; margin:4px 0 0;">Sistema RSAMIO - Gestión de Inmunización</p>' +
@@ -1031,11 +1045,6 @@
         if (datos.tipo === 'Ingreso') {
           ultimoPDFBlobIngreso = pdfBase64;
           ultimoPDFNombreIngreso = opt.filename;
-          // Descargar ingreso automáticamente (traslado)
-          var linkI = document.createElement('a');
-          linkI.href = pdfBase64;
-          linkI.download = opt.filename;
-          linkI.click();
         } else {
           ultimoPDFBlob = pdfBase64;
           ultimoPDFNombre = opt.filename;
@@ -1065,15 +1074,15 @@
         window.open(ultimoPDFUrl, '_blank');
       } else {
         alert('El PDF todavía se está generando, esperá unos segundos e intentá de nuevo.');
+        return;
       }
-      // Si hay PDF de ingreso (traslado), descargarlo también
       if (ultimoPDFBlobIngreso) {
         setTimeout(function() {
           var link2 = document.createElement('a');
           link2.href = ultimoPDFBlobIngreso;
           link2.download = ultimoPDFNombreIngreso;
           link2.click();
-        }, 500);
+        }, 600);
       }
     }
 
