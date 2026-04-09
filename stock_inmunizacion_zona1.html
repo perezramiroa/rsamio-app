@@ -336,15 +336,17 @@
   </div>
 
   <!-- TEMPLATE PDF VENCIMIENTOS (OCULTO) -->
-  <div id="pdf-vencimientos-template" style="display:none; padding:10px; background:white; color:black; font-size:7pt; width:277mm;">
+  <div id="pdf-vencimientos-template" style="display:none; padding:8px; background:white; color:black; font-size:6pt; width:190mm;">
     <style>
-      #pdf-vencimientos-template tr { page-break-inside: avoid; }
+      #pdf-vencimientos-template table { width:100%; border-collapse:collapse; }
+      #pdf-vencimientos-template th, #pdf-vencimientos-template td { border:1px solid #ddd; padding:3px 4px; font-size:6pt; }
+      #pdf-vencimientos-template th { background:#f2f2f2; }
     </style>
-    <div style="border-bottom:2px solid #f59e0b; margin-bottom:10px; padding-bottom:6px;">
-      <h2 style="color:#f59e0b; font-size:11pt; margin:0;">Reporte de Próximos Vencimientos (15 días)</h2>
-      <p style="margin:2px 0;">Sistema RSAMIO - Generado: <span id="pdf-venc-fecha"></span></p>
+    <div style="border-bottom:2px solid #f59e0b; margin-bottom:8px; padding-bottom:4px;">
+      <h2 style="color:#f59e0b; font-size:10pt; margin:0;">Reporte de Próximos Vencimientos (15 días)</h2>
+      <p style="margin:2px 0; font-size:7pt;">Sistema RSAMIO - Generado: <span id="pdf-venc-fecha"></span></p>
     </div>
-    <div id="pdf-venc-content" style="font-size:7pt;"></div>
+    <div id="pdf-venc-content"></div>
   </div>
 
   <script>
@@ -974,8 +976,7 @@
         filename: 'Vencimientos_' + new Date().toISOString().slice(0,10) + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 1, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-        pagebreak: { mode: 'css', avoid: 'tr' }
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
       html2pdf().set(opt).from(template).outputPdf('datauristring').then(function(pdfBase64) {
