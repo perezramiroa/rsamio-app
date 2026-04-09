@@ -975,7 +975,7 @@
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 1, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        pagebreak: { mode: 'css', avoid: 'tr' }
       };
 
       html2pdf().set(opt).from(template).outputPdf('datauristring').then(function(pdfBase64) {
