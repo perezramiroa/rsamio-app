@@ -148,7 +148,7 @@
           <area shape="rect" coords="35,366,310,397" alt="De la Comarca" onclick="navegarARegion('De la Comarca')" style="cursor:pointer;">
         </map>
       </div>
-      <a href="https://script.google.com/macros/s/AKfycbw2ggM5lyoxZVWWF4uidxuva_Le_BQ0tQc-q-SFooEmC1FvpwIMW99KQnkKoW8SZ4Cb/exec" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
+      <a href="https://script.google.com/macros/s/AKfycbyp35gUJI_iKkDMLE9wW9ZAxzoegcKlofIKEQTjeLXPu8EixhEkGEV4f5LC3LJUc3HY/exec" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
       <div id="tablasNivel1Geografico" style="margin-top: 30px;"></div>
     </div>
 
@@ -188,6 +188,16 @@
           </div>
           <div id="camposEgreso" style="display:none;">
             <div class="form-group">
+              <label class="form-label">Tipo de Egreso *</label>
+              <select id="tipoEgreso" class="form-control" onchange="toggleCamposTraslado()">
+                <option value="">Seleccionar tipo</option>
+                <option value="Vacunación">Vacunación</option>
+                <option value="Pérdida de cadena de frío">Pérdida de cadena de frío</option>
+                <option value="Rotura de ampollas">Rotura de ampollas</option>
+                <option value="Traslado">Traslado</option>
+              </select>
+            </div>
+            <div class="form-group">
               <label class="form-label">Lote *</label>
               <select id="loteSelect" class="form-control" onchange="actualizarRegionesEgreso()"></select>
             </div>
@@ -214,6 +224,37 @@
             <div class="form-group">
               <label class="form-label">Cantidad * <span id="stockDisponibleLabel" style="color:#64748b; font-weight:normal;"></span></label>
               <input type="number" id="cantidad" class="form-control" min="1">
+            </div>
+            <!-- Campos destino para traslado -->
+            <div id="camposTraslado" style="display:none; border:1px solid #e2e8f0; border-radius:10px; padding:15px; margin-top:10px; background:#f8fafc;">
+              <p style="font-weight:600; margin-bottom:10px; color:#3b82f6;">📦 Destino del traslado</p>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="form-group">
+                  <label class="form-label">Región destino *</label>
+                  <select id="regionDest" class="form-control" onchange="actualizarLocalidadesDest()">
+                    <option value="">Seleccionar región</option>
+                    <option value="Confluencia">Confluencia</option>
+                    <option value="Vaca Muerta">Vaca Muerta</option>
+                    <option value="Del Pehuén">Del Pehuén</option>
+                    <option value="Alto Neuquén">Alto Neuquén</option>
+                    <option value="Lagos del Sur">Lagos del Sur</option>
+                    <option value="De la Comarca">De la Comarca</option>
+                    <option value="Del Limay">Del Limay</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Localidad destino *</label>
+                  <select id="localidadDest" class="form-control" onchange="actualizarEstablecimientosDest()">
+                    <option value="">Seleccionar región primero</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Establecimiento destino *</label>
+                <select id="establecimientoDest" class="form-control">
+                  <option value="">Seleccionar localidad primero</option>
+                </select>
+              </div>
             </div>
           </div>
           <div id="camposIngreso" style="display:none;">
@@ -793,6 +834,31 @@
       document.getElementById('stockDisponibleLabel').textContent = '(Disponible: ' + max + ')';
     }
 
+    function toggleCamposTraslado() {
+      var tipo = document.getElementById('tipoEgreso').value;
+      document.getElementById('camposTraslado').style.display = tipo === 'Traslado' ? 'block' : 'none';
+    }
+
+    function actualizarLocalidadesDest() {
+      var region = document.getElementById('regionDest').value;
+      var sel = document.getElementById('localidadDest');
+      sel.innerHTML = '<option value="">Seleccionar localidad</option>';
+      Object.keys(ESTRUCTURA_GEOGRAFICA[region] || {}).forEach(function(l) {
+        sel.innerHTML += '<option value="' + l + '">' + l + '</option>';
+      });
+      document.getElementById('establecimientoDest').innerHTML = '<option value="">Seleccionar localidad primero</option>';
+    }
+
+    function actualizarEstablecimientosDest() {
+      var region = document.getElementById('regionDest').value;
+      var localidad = document.getElementById('localidadDest').value;
+      var sel = document.getElementById('establecimientoDest');
+      sel.innerHTML = '<option value="">Seleccionar establecimiento</option>';
+      ((ESTRUCTURA_GEOGRAFICA[region] || {})[localidad] || []).forEach(function(e) {
+        sel.innerHTML += '<option value="' + e + '">' + e + '</option>';
+      });
+    }
+
     function actualizarLocalidadesMov() {
       var region = document.getElementById('regionMovIngreso').value;
       var sel = document.getElementById('localidadMovIngreso');
@@ -835,6 +901,17 @@
         establecimiento = document.getElementById('establecimientoMov').value;
       }
 
+      var tipoEgreso = modoMovimiento === 'Egreso' ? document.getElementById('tipoEgreso').value : '';
+      var regionDest = '', localidadDest = '', establecimientoDest = '';
+      if (tipoEgreso === 'Traslado') {
+        regionDest = document.getElementById('regionDest').value;
+        localidadDest = document.getElementById('localidadDest').value;
+        establecimientoDest = document.getElementById('establecimientoDest').value;
+        if (!regionDest || !localidadDest || !establecimientoDest) {
+          alert('Por favor completa los campos de destino del traslado'); return;
+        }
+      }
+
       if (!vacuna || !lab || !lote || !cantidad || !responsable || !region || !localidad || !establecimiento) {
         alert('Por favor completa todos los campos requeridos'); return;
       }
@@ -847,6 +924,7 @@
       var url = APPS_SCRIPT_URL +
         '?action=registrarMovimiento' +
         '&tipo=' + encodeURIComponent(modoMovimiento) +
+        '&tipo_egreso=' + encodeURIComponent(tipoEgreso || '') +
         '&vacuna=' + encodeURIComponent(vacuna) +
         '&laboratorio=' + encodeURIComponent(lab) +
         '&lote=' + encodeURIComponent(lote) +
@@ -856,7 +934,10 @@
         '&localidad=' + encodeURIComponent(localidad) +
         '&establecimiento=' + encodeURIComponent(establecimiento) +
         '&observaciones=' + encodeURIComponent(observaciones) +
-        '&vencimiento=' + encodeURIComponent(vencimiento);
+        '&vencimiento=' + encodeURIComponent(vencimiento) +
+        '&region_destino=' + encodeURIComponent(regionDest || '') +
+        '&localidad_destino=' + encodeURIComponent(localidadDest || '') +
+        '&establecimiento_destino=' + encodeURIComponent(establecimientoDest || '');
 
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
