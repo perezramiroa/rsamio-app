@@ -148,7 +148,7 @@
           <area shape="rect" coords="35,366,310,397" alt="De la Comarca" onclick="navegarARegion('De la Comarca')" style="cursor:pointer;">
         </map>
       </div>
-      <a href="https://script.google.com/macros/s/AKfycbyp35gUJI_iKkDMLE9wW9ZAxzoegcKlofIKEQTjeLXPu8EixhEkGEV4f5LC3LJUc3HY/exec" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
+      <a href="https://script.google.com/macros/s/AKfycbxSSdn58CQU199la6EDPKrFvoSJbWtzaAQ3-XJFEQts3ziwAnQ3RpyciIOnB50_J0sh/exec" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
       <div id="tablasNivel1Geografico" style="margin-top: 30px;"></div>
     </div>
 
@@ -962,8 +962,7 @@
               cantidad: cantidad, responsable: responsable, region: region,
               localidad: localidad, establecimiento: establecimiento,
               trazabilidad: result.trazabilidad, observaciones: observaciones
-            });
-            if (tipoEgreso === 'Traslado' && establecimientoDest) {
+            }, tipoEgreso === 'Traslado' && establecimientoDest ? function() {
               generarYGuardarPDF({
                 tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)', vacuna: vacuna, laboratorio: lab, lote: lote,
                 cantidad: cantidad, responsable: responsable, region: regionDest,
@@ -971,7 +970,7 @@
                 trazabilidad: 'TRZ-ING-TRASLADO-REF-' + result.trazabilidad,
                 observaciones: 'Traslado desde ' + establecimiento
               });
-            }
+            } : null);
             cargarDatos();
           } else { alert('Error: ' + result.message); }
         } catch(e) { alert('Error al procesar respuesta.'); }
@@ -981,7 +980,7 @@
     }
 
     // ── PDF ───────────────────────────────────────────────────────────────────
-    function generarYGuardarPDF(datos) {
+    function generarYGuardarPDF(datos, callback) {
       var element = document.getElementById('pdf-template');
       element.style.display = 'block';
       document.getElementById('pdf-trazabilidad').textContent = datos.trazabilidad;
@@ -1012,7 +1011,7 @@
         ultimoPDFBlob = pdfBase64;
         ultimoPDFNombre = opt.filename;
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', APPS_SCRIPT_URL + '?action=guardarPDF', true);
+        xhr.open('POST', APPS_SCRIPT_URL, true);
         xhr.setRequestHeader('Content-Type', 'text/plain');
         xhr.onload = function() {
           try {
