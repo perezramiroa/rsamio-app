@@ -337,6 +337,9 @@
 
   <!-- TEMPLATE PDF VENCIMIENTOS (OCULTO) -->
   <div id="pdf-vencimientos-template" style="display:none; padding:10px; background:white; color:black; font-size:7pt; width:277mm;">
+    <style>
+      #pdf-vencimientos-template tr { page-break-inside: avoid; }
+    </style>
     <div style="border-bottom:2px solid #f59e0b; margin-bottom:10px; padding-bottom:6px;">
       <h2 style="color:#f59e0b; font-size:11pt; margin:0;">Reporte de Próximos Vencimientos (15 días)</h2>
       <p style="margin:2px 0;">Sistema RSAMIO - Generado: <span id="pdf-venc-fecha"></span></p>
@@ -475,7 +478,7 @@
             if (venc < hoy) { estado = 'Vencido'; badge = 'badge-danger'; }
             else if ((venc - hoy) / 86400000 <= 30) { estado = 'Próximo a Vencer'; badge = 'badge-warning'; }
             var diasVenc = Math.ceil((venc - hoy) / 86400000);
-            htmlStock += '<tr><td>' + (it.vacuna||'-') + '</td><td>' + (it.laboratorio||'-') + '</td><td>' + (it.lote||'-') + '</td><td>' + venc.toLocaleDateString('es-AR') + '</td><td>' + (it.stock||0) + '</td><td>' + (it.region||'-') + '</td><td>' + (it.localidad||'-') + '</td><td>' + (it.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td><td>' + (venc < hoy ? 'Vencido' : diasVenc + ' días') + '</td></tr>';
+            htmlStock += '<tr><td>' + (it.vacuna||'-') + '</td><td>' + (it.laboratorio||'-') + '</td><td>' + (it.lote||'-') + '</td><td>' + venc.toLocaleDateString('es-AR') + '</td><td>' + (it.stock||0) + '</td><td>' + (it.region||'-') + '</td><td>' + (it.localidad||'-') + '</td><td>' + (it.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td><td><span class="badge ' + badge + '">' + (venc < hoy ? 'Vencido' : diasVenc + ' días') + '</span></td></tr>';
           }
           tbodyStockInventario.innerHTML = htmlStock;
         }
@@ -538,7 +541,7 @@
             if (venc < hoy) { estado = 'Vencido'; badge = 'badge-danger'; }
             else if (dias <= 30) { estado = 'Próximo a Vencer'; badge = 'badge-warning'; }
             html += '<td><span class="badge ' + badge + '">' + estado + '</span></td>';
-            html += '<td>' + (venc < hoy ? 'Vencido' : dias + ' días') + '</td>';
+            html += '<td><span class="badge ' + badge + '">' + (venc < hoy ? 'Vencido' : dias + ' días') + '</span></td>';
           }
           html += '</tr>';
         }
@@ -971,7 +974,8 @@
         filename: 'Vencimientos_' + new Date().toISOString().slice(0,10) + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 1, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
       };
 
       html2pdf().set(opt).from(template).outputPdf('datauristring').then(function(pdfBase64) {
