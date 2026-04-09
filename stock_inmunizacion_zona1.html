@@ -336,12 +336,12 @@
   </div>
 
   <!-- TEMPLATE PDF VENCIMIENTOS (OCULTO) -->
-  <div id="pdf-vencimientos-template" style="display:none; padding:20px; background:white; color:black; font-size:9pt;">
-    <div style="border-bottom:2px solid #f59e0b; margin-bottom:15px; padding-bottom:10px;">
-      <h2 style="color:#f59e0b; font-size:14pt;">Reporte de Próximos Vencimientos (15 días)</h2>
-      <p>Sistema RSAMIO - Generado: <span id="pdf-venc-fecha"></span></p>
+  <div id="pdf-vencimientos-template" style="display:none; padding:10px; background:white; color:black; font-size:7pt; width:277mm;">
+    <div style="border-bottom:2px solid #f59e0b; margin-bottom:10px; padding-bottom:6px;">
+      <h2 style="color:#f59e0b; font-size:11pt; margin:0;">Reporte de Próximos Vencimientos (15 días)</h2>
+      <p style="margin:2px 0;">Sistema RSAMIO - Generado: <span id="pdf-venc-fecha"></span></p>
     </div>
-    <div id="pdf-venc-content" style="font-size:8pt;"></div>
+    <div id="pdf-venc-content" style="font-size:7pt;"></div>
   </div>
 
   <script>
@@ -967,11 +967,11 @@
       template.style.display = 'block';
 
       var opt = {
-        margin: [8, 5, 8, 5],
+        margin: [5, 3, 5, 3],
         filename: 'Vencimientos_' + new Date().toISOString().slice(0,10) + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 1.5, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        html2canvas: { scale: 1, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
 
       html2pdf().set(opt).from(template).outputPdf('datauristring').then(function(pdfBase64) {
