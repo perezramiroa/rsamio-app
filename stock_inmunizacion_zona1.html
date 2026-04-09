@@ -391,7 +391,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh3UzGQjiUzKLlV907Yj3BGLO_wHwWj5C8YrRA86j2D08AIr2751SB-w-E4qZtky16/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzG3ASPm7oAFlAD6DXs6mP08249uiDyRbufM88I9-CmDF7Iw8KCq0AN8Y37EJdVMxPg/exec';
 
     const VACUNAS_LABORATORIOS = {
       "Antigripal Adulto": ["Viraflu", "Fluxvir"],
@@ -997,10 +997,17 @@
     // ── PDF ───────────────────────────────────────────────────────────────────
     function generarYGuardarPDF(datos, callback) {
       var element = document.getElementById('pdf-template');
-      element.style.display = 'block';
-      document.getElementById('pdf-trazabilidad').textContent = datos.trazabilidad;
-      document.getElementById('pdf-fecha').textContent = new Date().toLocaleString();
-      document.getElementById('pdf-content').innerHTML =
+      // Clonar para evitar que llamadas simultáneas se pisen
+      var clone = element.cloneNode(true);
+      clone.id = 'pdf-template-clone-' + Date.now();
+      clone.style.display = 'block';
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      document.body.appendChild(clone);
+
+      clone.querySelector('#pdf-trazabilidad').textContent = datos.trazabilidad;
+      clone.querySelector('#pdf-fecha').textContent = new Date().toLocaleString();
+      clone.querySelector('#pdf-content').innerHTML =
         '<table class="pdf-table">' +
         '<tr><th>Campo</th><th>Detalle</th></tr>' +
         '<tr><td>Tipo de Movimiento</td><td>' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td></tr>' +
@@ -1021,11 +1028,16 @@
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
-        element.style.display = 'none';
+      html2pdf().set(opt).from(clone).outputPdf('datauristring').then(function(pdfBase64) {
+        document.body.removeChild(clone);
         if (datos.tipo === 'Ingreso') {
           ultimoPDFBlobIngreso = pdfBase64;
           ultimoPDFNombreIngreso = opt.filename;
+          // Descargar ingreso automáticamente (traslado)
+          var linkI = document.createElement('a');
+          linkI.href = pdfBase64;
+          linkI.download = opt.filename;
+          linkI.click();
         } else {
           ultimoPDFBlob = pdfBase64;
           ultimoPDFNombre = opt.filename;
