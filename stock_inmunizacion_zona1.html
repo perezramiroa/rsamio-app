@@ -943,7 +943,7 @@
         return new Date(a.vencimiento) - new Date(b.vencimiento);
       });
 
-      var html = '<div class="table-wrapper"><table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Días para vencer</th><th>Stock</th><th>Región</th><th>Localidad</th><th>Establecimiento</th><th>Estado</th></tr></thead><tbody>';
+      var html = '<div class="table-wrapper"><table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Vencimiento</th><th>Stock</th><th>Región</th><th>Localidad</th><th>Establecimiento</th><th>Estado</th><th>Días para vencer</th></tr></thead><tbody>';
       if (!items.length) {
         html += '<tr><td colspan="10" style="text-align:center;">No hay stock próximo a vencer en los próximos 15 días</td></tr>';
       } else {
@@ -952,7 +952,7 @@
           var dias = Math.ceil((v - hoy) / 86400000);
           var badge = dias <= 7 ? 'badge-danger' : 'badge-warning';
           var estado = dias <= 7 ? 'Crítico' : 'Próximo a Vencer';
-          html += '<tr><td>' + (s.vacuna||'-') + '</td><td>' + (s.laboratorio||'-') + '</td><td>' + (s.lote||'-') + '</td><td>' + v.toLocaleDateString('es-AR') + '</td><td>' + dias + ' días</td><td>' + (s.stock||0) + '</td><td>' + (s.region||'-') + '</td><td>' + (s.localidad||'-') + '</td><td>' + (s.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td></tr>';
+          html += '<tr><td>' + (s.vacuna||'-') + '</td><td>' + (s.laboratorio||'-') + '</td><td>' + (s.lote||'-') + '</td><td>' + v.toLocaleDateString('es-AR') + '</td><td>' + (s.stock||0) + '</td><td>' + (s.region||'-') + '</td><td>' + (s.localidad||'-') + '</td><td>' + (s.establecimiento||'-') + '</td><td><span class="badge ' + badge + '">' + estado + '</span></td><td><span class="badge ' + badge + '">' + dias + ' días</span></td></tr>';
         });
       }
       html += '</tbody></table></div>';
