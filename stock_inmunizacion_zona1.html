@@ -481,6 +481,8 @@
     let ultimoPDFUrl = '';
     let ultimoPDFBlob = '';
     let ultimoPDFNombre = '';
+    let ultimoPDFBlobIngreso = '';
+    let ultimoPDFNombreIngreso = '';
 
     function mostrarLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -686,6 +688,8 @@
       document.getElementById('vencimientoRow').style.display = tipo === 'Ingreso' ? 'block' : 'none';
       document.getElementById('tipoEgresoRow').style.display = tipo === 'Egreso' ? 'block' : 'none';
       document.getElementById('formMov').reset();
+      ultimoPDFBlob = ''; ultimoPDFNombre = ''; ultimoPDFUrl = '';
+      ultimoPDFBlobIngreso = ''; ultimoPDFNombreIngreso = '';
 
       if (tipo === 'Egreso') {
         // Refrescar stock antes de abrir para que los lotes estén actualizados
@@ -762,7 +766,7 @@
       (DATOS_GLOBALES.stock || []).filter(function(s) {
         return s.vacuna === vacuna && s.laboratorio === lab && parseInt(s.stock) > 0;
       }).forEach(function(s) {
-        sel.innerHTML += '<option value="' + s.lote + '">' + s.lote + ' (Vence: ' + new Date(s.vencimiento).toLocaleDateString('es-AR') + ')</option>';
+        sel.innerHTML += '<option value="' + s.lote + '">' + s.lote + ' (Disponible: ' + s.stock + ' - Vence: ' + new Date(s.vencimiento).toLocaleDateString('es-AR') + ')</option>';
       });
       actualizarRegionesEgreso();
     }
@@ -903,6 +907,17 @@
         region = document.getElementById('regionMov').value;
         localidad = document.getElementById('localidadMov').value;
         establecimiento = document.getElementById('establecimientoMov').value;
+        // Obtener vencimiento del stock para el egreso/traslado
+        var stockItem = (DATOS_GLOBALES.stock || []).find(function(s) {
+          return s.vacuna === vacuna && s.laboratorio === lab && s.lote === lote;
+        });
+        vencimiento = stockItem ? stockItem.vencimiento : '';
+        if (vencimiento instanceof Date || (typeof vencimiento === 'string' && vencimiento)) {
+          var vd = new Date(vencimiento);
+          if (!isNaN(vd)) {
+            vencimiento = vd.getFullYear() + '-' + String(vd.getMonth()+1).padStart(2,'0') + '-' + String(vd.getDate()).padStart(2,'0');
+          }
+        }
       }
 
       var tipoEgreso = modoMovimiento === 'Egreso' ? document.getElementById('tipoEgreso').value : '';
@@ -1008,8 +1023,13 @@
 
       html2pdf().set(opt).from(element).outputPdf('datauristring').then(function(pdfBase64) {
         element.style.display = 'none';
-        ultimoPDFBlob = pdfBase64;
-        ultimoPDFNombre = opt.filename;
+        if (datos.tipo === 'Ingreso') {
+          ultimoPDFBlobIngreso = pdfBase64;
+          ultimoPDFNombreIngreso = opt.filename;
+        } else {
+          ultimoPDFBlob = pdfBase64;
+          ultimoPDFNombre = opt.filename;
+        }
         var xhr = new XMLHttpRequest();
         xhr.open('POST', APPS_SCRIPT_URL, true);
         xhr.setRequestHeader('Content-Type', 'text/plain');
@@ -1026,13 +1046,25 @@
     }
 
     function descargarUltimoPDF() {
-      if (ultimoPDFUrl) { window.open(ultimoPDFUrl, '_blank'); }
-      else if (ultimoPDFBlob) {
+      if (ultimoPDFBlob) {
         var link = document.createElement('a');
         link.href = ultimoPDFBlob;
         link.download = ultimoPDFNombre;
         link.click();
-      } else { alert('El PDF todavía se está generando, esperá unos segundos e intentá de nuevo.'); }
+      } else if (ultimoPDFUrl) {
+        window.open(ultimoPDFUrl, '_blank');
+      } else {
+        alert('El PDF todavía se está generando, esperá unos segundos e intentá de nuevo.');
+      }
+      // Si hay PDF de ingreso (traslado), descargarlo también
+      if (ultimoPDFBlobIngreso) {
+        setTimeout(function() {
+          var link2 = document.createElement('a');
+          link2.href = ultimoPDFBlobIngreso;
+          link2.download = ultimoPDFNombreIngreso;
+          link2.click();
+        }, 500);
+      }
     }
 
     function abrirModalVencimientos() {
