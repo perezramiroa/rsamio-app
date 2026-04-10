@@ -902,11 +902,21 @@
       tbody.appendChild(tr);
       document.getElementById('tablaItemsContainer').style.display = 'block';
 
-      // Ocultar ubicación/responsable mientras se agregan más ítems
-      document.getElementById('camposEgreso').style.display = 'none';
-      document.getElementById('camposIngreso').style.display = 'none';
+      // Ocultar solo ubicación/responsable mientras se agregan más ítems
       document.getElementById('seccionUbicacion').style.display = 'none';
       document.getElementById('tipoEgresoRow').style.display = 'none';
+      // Ocultar ubicación dentro de camposEgreso (región/localidad/establecimiento/traslado)
+      var regionGrid = document.querySelector('#camposEgreso > div[style*="grid"]');
+      var estDiv = document.querySelector('#camposEgreso > .form-group:nth-child(3)');
+      var trasladoDiv = document.getElementById('camposTraslado');
+      if (regionGrid) regionGrid.style.display = 'none';
+      if (estDiv) estDiv.style.display = 'none';
+      if (trasladoDiv) trasladoDiv.style.display = 'none';
+      // Ocultar ubicación dentro de camposIngreso
+      var regionGridIng = document.querySelector('#camposIngreso > div[style*="grid"]');
+      var estDivIng = document.querySelector('#camposIngreso > .form-group:last-child');
+      if (regionGridIng) regionGridIng.style.display = 'none';
+      if (estDivIng) estDivIng.style.display = 'none';
 
       // Limpiar solo campos del ítem
       document.getElementById('vacuna').value = '';
@@ -976,11 +986,17 @@
     function registrarMovimiento(event) {
       event.preventDefault();
 
-      // Mostrar sección ubicación por si estaba oculta
+      // Restaurar visibilidad de todos los campos para validar
       document.getElementById('seccionUbicacion').style.display = 'block';
-      document.getElementById('camposEgreso').style.display = modoMovimiento === 'Egreso' ? 'block' : 'none';
-      document.getElementById('camposIngreso').style.display = modoMovimiento === 'Ingreso' ? 'block' : 'none';
       document.getElementById('tipoEgresoRow').style.display = modoMovimiento === 'Egreso' ? 'block' : 'none';
+      var regionGrid = document.querySelector('#camposEgreso > div[style*="grid"]');
+      var estDiv = document.querySelector('#camposEgreso > .form-group:nth-child(3)');
+      if (regionGrid) regionGrid.style.display = '';
+      if (estDiv) estDiv.style.display = '';
+      var regionGridIng = document.querySelector('#camposIngreso > div[style*="grid"]');
+      var estDivIng = document.querySelector('#camposIngreso > .form-group:last-child');
+      if (regionGridIng) regionGridIng.style.display = '';
+      if (estDivIng) estDivIng.style.display = '';
       var vacuna = document.getElementById('vacuna').value;
       var lab = document.getElementById('laboratorio').value;
       var responsable = document.getElementById('responsable').value;
