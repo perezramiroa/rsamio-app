@@ -148,7 +148,7 @@
           <area shape="rect" coords="35,366,310,397" alt="De la Comarca" onclick="navegarARegion('De la Comarca')" style="cursor:pointer;">
         </map>
       </div>
-      <a href="https://script.google.com/macros/s/AKfycbxSSdn58CQU199la6EDPKrFvoSJbWtzaAQ3-XJFEQts3ziwAnQ3RpyciIOnB50_J0sh/exec" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
+      <a href="https://script.google.com/macros/s/AKfycbyqSQffhGkqRHZWWR4l8m4gZKbe1PKKdauIyxEOMMQkUPzt-aPMj-BolEbrBn05taM/exec" target="_blank" class="btn btn-outline" style="margin-top:12px; display:inline-block;">🗺️ Mapa Provincial - Regiones - Establecimientos de Salud</a>
       <div id="tablasNivel1Geografico" style="margin-top: 30px;"></div>
     </div>
 
@@ -254,6 +254,10 @@
                 <select id="establecimientoDest" class="form-control">
                   <option value="">Seleccionar localidad primero</option>
                 </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Responsable destino *</label>
+                <input type="text" id="responsableDest" class="form-control" placeholder="Responsable en destino">
               </div>
             </div>
           </div>
@@ -926,8 +930,9 @@
         regionDest = document.getElementById('regionDest').value;
         localidadDest = document.getElementById('localidadDest').value;
         establecimientoDest = document.getElementById('establecimientoDest').value;
-        if (!regionDest || !localidadDest || !establecimientoDest) {
-          alert('Por favor completa los campos de destino del traslado'); return;
+        var responsableDest = document.getElementById('responsableDest').value;
+        if (!regionDest || !localidadDest || !establecimientoDest || !responsableDest) {
+          alert('Por favor completa todos los campos de destino del traslado'); return;
         }
       }
 
@@ -956,7 +961,8 @@
         '&vencimiento=' + encodeURIComponent(vencimiento) +
         '&region_destino=' + encodeURIComponent(regionDest || '') +
         '&localidad_destino=' + encodeURIComponent(localidadDest || '') +
-        '&establecimiento_destino=' + encodeURIComponent(establecimientoDest || '');
+        '&establecimiento_destino=' + encodeURIComponent(establecimientoDest || '') +
+        '&responsable_destino=' + encodeURIComponent(responsableDest || '');
 
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
@@ -979,7 +985,7 @@
               trazabilidad: result.trazabilidad, observaciones: observaciones
             }, tipoEgreso === 'Traslado' && establecimientoDest ? function() {              generarYGuardarPDF({
                 tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)', vacuna: vacuna, laboratorio: lab, lote: lote,
-                cantidad: cantidad, responsable: responsable, region: regionDest,
+                cantidad: cantidad, responsable: responsableDest, region: regionDest,
                 localidad: localidadDest, establecimiento: establecimientoDest,
                 trazabilidad: 'TRZ-ING-TRASLADO-REF-' + result.trazabilidad,
                 observaciones: 'Traslado desde ' + establecimiento
