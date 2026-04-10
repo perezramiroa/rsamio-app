@@ -1022,42 +1022,44 @@
       el.style.width = '210mm';
       el.style.padding = '20px';
       el.style.background = 'white';
-      el.style.zIndex = '-1';
+      el.style.zIndex = '99999';
       el.style.display = 'block';
 
-      var opt = {
-        margin: [10, 10, 10, 10],
-        filename: 'Reporte_' + datos.trazabilidad + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(el).outputPdf('datauristring').then(function(pdfBase64) {
-        el.style.display = 'none';
-        el.style.position = '';
-        el.style.top = '';
-        el.style.left = '';
-        el.style.zIndex = '';
-        if (datos.tipo === 'Ingreso') {
-          ultimoPDFBlobIngreso = pdfBase64;
-          ultimoPDFNombreIngreso = opt.filename;
-        } else {
-          ultimoPDFBlob = pdfBase64;
-          ultimoPDFNombre = opt.filename;
-        }
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', APPS_SCRIPT_URL, true);
-        xhr.setRequestHeader('Content-Type', 'text/plain');
-        xhr.onload = function() {
-          try {
-            var response = JSON.parse(xhr.responseText);
-            if (response.result && response.url) { ultimoPDFUrl = response.url; }
-          } catch(e) { console.error("Error parseando respuesta de guardarPDF", e); }
-          if (callback) callback();
+      // Esperar un frame para que el DOM se actualice antes de capturar
+      requestAnimationFrame(function() {
+        var opt = {
+          margin: [10, 10, 10, 10],
+          filename: 'Reporte_' + datos.trazabilidad + '.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-        xhr.onerror = function() { if (callback) callback(); };
-        xhr.send(JSON.stringify({ action: 'guardarPDF', pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo, tipoEgreso: datos.tipoEgreso || '' }));
+        html2pdf().set(opt).from(el).outputPdf('datauristring').then(function(pdfBase64) {
+          el.style.display = 'none';
+          el.style.position = '';
+          el.style.top = '';
+          el.style.left = '';
+          el.style.zIndex = '';
+          if (datos.tipo === 'Ingreso') {
+            ultimoPDFBlobIngreso = pdfBase64;
+            ultimoPDFNombreIngreso = opt.filename;
+          } else {
+            ultimoPDFBlob = pdfBase64;
+            ultimoPDFNombre = opt.filename;
+          }
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', APPS_SCRIPT_URL, true);
+          xhr.setRequestHeader('Content-Type', 'text/plain');
+          xhr.onload = function() {
+            try {
+              var response = JSON.parse(xhr.responseText);
+              if (response.result && response.url) { ultimoPDFUrl = response.url; }
+            } catch(e) { console.error("Error parseando respuesta de guardarPDF", e); }
+            if (callback) callback();
+          };
+          xhr.onerror = function() { if (callback) callback(); };
+          xhr.send(JSON.stringify({ action: 'guardarPDF', pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo, tipoEgreso: datos.tipoEgreso || '' }));
+        });
       });
     }
 
