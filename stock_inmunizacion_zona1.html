@@ -302,14 +302,6 @@
               </select>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Responsable *</label>
-            <input type="text" id="responsable" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Observaciones</label>
-            <textarea id="observaciones" class="form-control" rows="2"></textarea>
-          </div>
           <!-- TABLA DE ÍTEMS -->
           <div id="tablaItemsContainer" style="display:none; margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; padding:10px; background:#f8fafc;">
             <p style="font-weight:600; font-size:0.85rem; margin-bottom:6px;">📋 Ítems agregados:</p>
@@ -318,6 +310,17 @@
                 <thead><tr><th>Vacuna</th><th>Lab.</th><th>Lote</th><th>Cant.</th><th></th></tr></thead>
                 <tbody id="tablaItemsBody"></tbody>
               </table>
+            </div>
+          </div>
+          <!-- Sección ubicación/responsable (se oculta al agregar ítems intermedios) -->
+          <div id="seccionUbicacion">
+            <div class="form-group">
+              <label class="form-label">Responsable *</label>
+              <input type="text" id="responsable" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Observaciones</label>
+              <textarea id="observaciones" class="form-control" rows="2"></textarea>
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
@@ -864,7 +867,6 @@
     }
 
     function agregarItemYLimpiar() {
-      // Capturar ítem actual según modo
       var vacuna = document.getElementById('vacuna').value;
       var lab = document.getElementById('laboratorio').value;
       var lote = '', cantidad = '', vencimiento = '';
@@ -891,7 +893,6 @@
 
       itemsMovimiento.push({ vacuna: vacuna, laboratorio: lab, lote: lote, cantidad: cantidad, vencimiento: vencimiento });
 
-      // Mostrar en tabla
       var tbody = document.getElementById('tablaItemsBody');
       var idx = itemsMovimiento.length - 1;
       var tr = document.createElement('tr');
@@ -901,7 +902,13 @@
       tbody.appendChild(tr);
       document.getElementById('tablaItemsContainer').style.display = 'block';
 
-      // Limpiar solo los campos del ítem, no la ubicación/responsable
+      // Ocultar ubicación/responsable mientras se agregan más ítems
+      document.getElementById('camposEgreso').style.display = 'none';
+      document.getElementById('camposIngreso').style.display = 'none';
+      document.getElementById('seccionUbicacion').style.display = 'none';
+      document.getElementById('tipoEgresoRow').style.display = 'none';
+
+      // Limpiar solo campos del ítem
       document.getElementById('vacuna').value = '';
       document.getElementById('laboratorio').innerHTML = '<option value="">Primero selecciona vacuna</option>';
       document.getElementById('loteSelect').innerHTML = '<option value="">Primero selecciona laboratorio</option>';
@@ -910,6 +917,7 @@
       document.getElementById('cantidadIngreso').value = '';
       document.getElementById('vencimiento').value = '';
       document.getElementById('stockDisponibleLabel').textContent = '';
+      actualizarVacunas();
     }
 
     function quitarItem(idx) {
@@ -967,6 +975,12 @@
     }
     function registrarMovimiento(event) {
       event.preventDefault();
+
+      // Mostrar sección ubicación por si estaba oculta
+      document.getElementById('seccionUbicacion').style.display = 'block';
+      document.getElementById('camposEgreso').style.display = modoMovimiento === 'Egreso' ? 'block' : 'none';
+      document.getElementById('camposIngreso').style.display = modoMovimiento === 'Ingreso' ? 'block' : 'none';
+      document.getElementById('tipoEgresoRow').style.display = modoMovimiento === 'Egreso' ? 'block' : 'none';
       var vacuna = document.getElementById('vacuna').value;
       var lab = document.getElementById('laboratorio').value;
       var responsable = document.getElementById('responsable').value;
@@ -1132,10 +1146,10 @@
         '</body></html>';
 
       var opt = {
-        margin: 0,
+        margin: [10,10,10,10],
         filename: 'Reporte_' + datos.trazabilidad + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 1, useCORS: true, windowWidth: 794 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
@@ -1183,7 +1197,7 @@
         '<div class="footer"><p>Fecha de emisión: ' + new Date().toLocaleString('es-AR') + '</p></div>' +
         '</body></html>';
       var traz0 = datos.trazabilidades[0] || Date.now();
-      var opt = { margin:0, filename:'Reporte_' + datos.tipo + '_' + traz0 + '.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} };
+      var opt = { margin: [10,10,10,10], filename:'Reporte_' + datos.tipo + '_' + traz0 + '.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:1, useCORS:true, windowWidth:794}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} };
       html2pdf().set(opt).from(html, 'string').outputPdf('datauristring').then(function(pdfBase64) {
         if (datos.tipo === 'Ingreso') { ultimoPDFBlobIngreso = pdfBase64; ultimoPDFNombreIngreso = opt.filename; }
         else { ultimoPDFBlob = pdfBase64; ultimoPDFNombre = opt.filename; }
