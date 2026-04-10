@@ -1001,38 +1001,40 @@
 
     // ── PDF ───────────────────────────────────────────────────────────────────
     function generarYGuardarPDF(datos, callback) {
-      var contenido =
-        '<div style="font-family:Segoe UI,sans-serif; padding:15px 20px; color:#1e293b;">' +
-        '<div style="border-bottom:2px solid #00384d; margin-bottom:20px; padding-bottom:10px;">' +
-        '<h2 style="color:#00384d; margin:0;">Reporte de Movimiento de Vacunas</h2>' +
-        '<p style="color:#64748b; margin:4px 0 0;">Sistema RSAMIO - Gestión de Inmunización</p>' +
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;left:-9999px;top:0;background:white;color:#1e293b;font-family:Segoe UI,sans-serif;padding:20px;width:190mm;';
+      el.innerHTML =
+        '<div style="border-bottom:2px solid #00384d; margin-bottom:16px; padding-bottom:8px;">' +
+        '<h2 style="color:#00384d; margin:0; font-size:14pt;">Reporte de Movimiento de Vacunas</h2>' +
+        '<p style="color:#64748b; margin:4px 0 0; font-size:9pt;">Sistema RSAMIO - Gestión de Inmunización</p>' +
         '</div>' +
-        '<table style="width:100%; border-collapse:collapse; margin-top:10px;">' +
-        '<tr><th style="background:#f1f5f9; padding:8px; text-align:left; border:1px solid #e2e8f0;">Campo</th><th style="background:#f1f5f9; padding:8px; text-align:left; border:1px solid #e2e8f0;">Detalle</th></tr>' +
-        '<tr><td style="padding:8px; border:1px solid #e2e8f0;">Tipo de Movimiento</td><td style="padding:8px; border:1px solid #e2e8f0;">' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td></tr>' +
-        '<tr><td style="padding:8px; border:1px solid #e2e8f0;">Vacuna</td><td style="padding:8px; border:1px solid #e2e8f0;">' + datos.vacuna + '</td></tr>' +
-        '<tr><td style="padding:8px; border:1px solid #e2e8f0;">Laboratorio</td><td style="padding:8px; border:1px solid #e2e8f0;">' + datos.laboratorio + '</td></tr>' +
-        '<tr><td style="padding:8px; border:1px solid #e2e8f0;">Lote</td><td style="padding:8px; border:1px solid #e2e8f0;">' + datos.lote + '</td></tr>' +
-        '<tr><td style="padding:8px; border:1px solid #e2e8f0;">Cantidad</td><td style="padding:8px; border:1px solid #e2e8f0;">' + datos.cantidad + '</td></tr>' +
-        '<tr><td style="padding:8px; border:1px solid #e2e8f0;">Responsable</td><td style="padding:8px; border:1px solid #e2e8f0;">' + datos.responsable + '</td></tr>' +
-        '<tr><td style="padding:8px; border:1px solid #e2e8f0;">Ubicación</td><td style="padding:8px; border:1px solid #e2e8f0;">' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
-        '<tr><td style="padding:8px; border:1px solid #e2e8f0;">Observaciones</td><td style="padding:8px; border:1px solid #e2e8f0;">' + (datos.observaciones || '-') + '</td></tr>' +
+        '<table style="width:100%; border-collapse:collapse;">' +
+        '<tr><th style="background:#f1f5f9; padding:7px 8px; text-align:left; border:1px solid #e2e8f0; font-size:10pt;">Campo</th><th style="background:#f1f5f9; padding:7px 8px; text-align:left; border:1px solid #e2e8f0; font-size:10pt;">Detalle</th></tr>' +
+        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Tipo de Movimiento</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td></tr>' +
+        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Vacuna</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.vacuna + '</td></tr>' +
+        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Laboratorio</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.laboratorio + '</td></tr>' +
+        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Lote</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.lote + '</td></tr>' +
+        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Cantidad</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.cantidad + '</td></tr>' +
+        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Responsable</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.responsable + '</td></tr>' +
+        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Ubicación</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
+        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Observaciones</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + (datos.observaciones || '-') + '</td></tr>' +
         '</table>' +
-        '<div style="margin-top:30px; font-size:9pt; color:#64748b;">' +
+        '<div style="margin-top:20px; font-size:8pt; color:#64748b;">' +
         '<p>Este documento es un comprobante oficial del sistema. Trazabilidad: ' + datos.trazabilidad + '</p>' +
         '<p>Fecha de emisión: ' + new Date().toLocaleString('es-AR') + '</p>' +
-        '</div>' +
         '</div>';
+      document.body.appendChild(el);
 
       var opt = {
-        margin: 10,
+        margin: [10, 10, 10, 10],
         filename: 'Reporte_' + datos.trazabilidad + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(contenido).outputPdf('datauristring').then(function(pdfBase64) {
+      html2pdf().set(opt).from(el).outputPdf('datauristring').then(function(pdfBase64) {
+        document.body.removeChild(el);
         if (datos.tipo === 'Ingreso') {
           ultimoPDFBlobIngreso = pdfBase64;
           ultimoPDFNombreIngreso = opt.filename;
