@@ -1054,6 +1054,8 @@
       btnSubmit.textContent = 'Registrando...';
       mostrarLoading(true);
 
+      // Capturar valores antes de las llamadas asíncronas
+      var tipoMov = modoMovimiento;
       var trazabilidades = [];
       var errores = [];
       var pendientes = todosItems.length;
@@ -1091,6 +1093,7 @@
             mostrarLoading(false);
             btnSubmit.disabled = false;
             btnSubmit.textContent = 'Confirmar Registro';
+            ultimoPDFBlob = ''; ultimoPDFNombre = ''; ultimoPDFBlobIngreso = ''; ultimoPDFNombreIngreso = '';
             if (errores.length > 0) alert('Errores:\n' + errores.join('\n'));
             if (trazabilidades.length > 0) {
               cerrarModalMov();
@@ -1102,7 +1105,7 @@
               var pdfItems = trazabilidades.map(function(t){ return t.item; });
               var pdfTrazs = trazabilidades.map(function(t){ return t.traz; });
               generarYGuardarPDFMultiple({
-                tipo: modoMovimiento, tipoEgreso: tipoEgreso,
+                tipo: tipoMov, tipoEgreso: tipoEgreso,
                 items: pdfItems, responsable: responsable,
                 region: region, localidad: localidad, establecimiento: establecimiento,
                 trazabilidades: pdfTrazs, observaciones: observaciones
