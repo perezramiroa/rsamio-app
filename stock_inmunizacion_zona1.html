@@ -1045,9 +1045,12 @@
         alert('Por favor completa todos los campos requeridos'); return;
       }
 
-      // Agregar ítem actual a la lista
-      itemsMovimiento.push({ vacuna: vacuna, laboratorio: lab, lote: lote, cantidad: cantidad, vencimiento: vencimiento });
+      // Agregar ítem actual a la lista solo si tiene datos
+      if (vacuna && lab && lote && cantidad && parseInt(cantidad) >= 1) {
+        itemsMovimiento.push({ vacuna: vacuna, laboratorio: lab, lote: lote, cantidad: cantidad, vencimiento: vencimiento });
+      }
       var todosItems = itemsMovimiento.filter(function(i){ return i !== null; });
+      if (todosItems.length === 0) { alert('Agregá al menos un ítem.'); return; }
 
       var btnSubmit = document.getElementById('btnSubmit');
       btnSubmit.disabled = true;
@@ -1086,7 +1089,7 @@
           try {
             var res = JSON.parse(xhrItem.responseText);
             if (res.result) trazabilidades.push({ traz: res.trazabilidad, item: item });
-            else errores.push(item.vacuna + ': ' + res.message);
+            else errores.push(item.vacuna + ': ' + (res.message || res.error || 'Error desconocido'));
           } catch(e) { errores.push(item.vacuna + ': error'); }
           pendientes--;
           if (pendientes === 0) {
