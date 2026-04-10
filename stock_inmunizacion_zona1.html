@@ -983,23 +983,8 @@
                 localidad: localidadDest, establecimiento: establecimientoDest,
                 trazabilidad: 'TRZ-ING-TRASLADO-REF-' + result.trazabilidad,
                 observaciones: 'Traslado desde ' + establecimiento
-              }, function() {
-                // Descargar ambos PDFs al terminar
-                if (ultimoPDFBlob) {
-                  var l1 = document.createElement('a'); l1.href = ultimoPDFBlob; l1.download = ultimoPDFNombre; l1.click();
-                }
-                setTimeout(function() {
-                  if (ultimoPDFBlobIngreso) {
-                    var l2 = document.createElement('a'); l2.href = ultimoPDFBlobIngreso; l2.download = ultimoPDFNombreIngreso; l2.click();
-                  }
-                }, 500);
-              });
-            } : function() {
-              // Egreso simple: descargar solo el egreso
-              if (ultimoPDFBlob) {
-                var l = document.createElement('a'); l.href = ultimoPDFBlob; l.download = ultimoPDFNombre; l.click();
-              }
-            });
+              }, null);
+            } : null);
             cargarDatos();
           } else { alert('Error: ' + result.message); }
         } catch(e) { alert('Error al procesar respuesta.'); }
