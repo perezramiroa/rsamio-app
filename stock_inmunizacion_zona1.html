@@ -1001,11 +1001,21 @@
 
     // ── PDF ───────────────────────────────────────────────────────────────────
     function generarYGuardarPDF(datos, callback) {
-      var el = document.getElementById('pdf-template');
-      document.getElementById('pdf-trazabilidad').textContent = datos.trazabilidad;
-      document.getElementById('pdf-fecha').textContent = new Date().toLocaleString('es-AR');
-      document.getElementById('pdf-content').innerHTML =
-        '<table class="pdf-table">' +
+      var html =
+        '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
+        'body{margin:0;padding:20px;font-family:Segoe UI,sans-serif;color:#1e293b;}' +
+        'h2{color:#00384d;margin:0 0 4px 0;font-size:16pt;}' +
+        'p.sub{color:#64748b;margin:0 0 16px 0;font-size:9pt;}' +
+        'hr{border:none;border-top:2px solid #00384d;margin-bottom:16px;}' +
+        'table{width:100%;border-collapse:collapse;}' +
+        'th,td{padding:8px;border:1px solid #e2e8f0;font-size:10pt;text-align:left;}' +
+        'th{background:#f1f5f9;}' +
+        '.footer{margin-top:24px;font-size:8pt;color:#64748b;}' +
+        '</style></head><body>' +
+        '<h2>Reporte de Movimiento de Vacunas</h2>' +
+        '<p class="sub">Sistema RSAMIO - Gestión de Inmunización</p>' +
+        '<hr>' +
+        '<table>' +
         '<tr><th>Campo</th><th>Detalle</th></tr>' +
         '<tr><td>Tipo de Movimiento</td><td>' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td></tr>' +
         '<tr><td>Vacuna</td><td>' + datos.vacuna + '</td></tr>' +
@@ -1015,51 +1025,41 @@
         '<tr><td>Responsable</td><td>' + datos.responsable + '</td></tr>' +
         '<tr><td>Ubicación</td><td>' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
         '<tr><td>Observaciones</td><td>' + (datos.observaciones || '-') + '</td></tr>' +
-        '</table>';
-      el.style.position = 'fixed';
-      el.style.top = '0';
-      el.style.left = '0';
-      el.style.width = '210mm';
-      el.style.padding = '20px';
-      el.style.background = 'white';
-      el.style.zIndex = '99999';
-      el.style.display = 'block';
+        '</table>' +
+        '<div class="footer">' +
+        '<p>Comprobante oficial del sistema. Trazabilidad: ' + datos.trazabilidad + '</p>' +
+        '<p>Fecha de emisión: ' + new Date().toLocaleString('es-AR') + '</p>' +
+        '</div>' +
+        '</body></html>';
 
-      // Esperar un frame para que el DOM se actualice antes de capturar
-      requestAnimationFrame(function() {
-        var opt = {
-          margin: [10, 10, 10, 10],
-          filename: 'Reporte_' + datos.trazabilidad + '.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, logging: false },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      var opt = {
+        margin: 0,
+        filename: 'Reporte_' + datos.trazabilidad + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(html, 'string').outputPdf('datauristring').then(function(pdfBase64) {
+        if (datos.tipo === 'Ingreso') {
+          ultimoPDFBlobIngreso = pdfBase64;
+          ultimoPDFNombreIngreso = opt.filename;
+        } else {
+          ultimoPDFBlob = pdfBase64;
+          ultimoPDFNombre = opt.filename;
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', APPS_SCRIPT_URL, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain');
+        xhr.onload = function() {
+          try {
+            var response = JSON.parse(xhr.responseText);
+            if (response.result && response.url) { ultimoPDFUrl = response.url; }
+          } catch(e) { console.error("Error parseando respuesta de guardarPDF", e); }
+          if (callback) callback();
         };
-        html2pdf().set(opt).from(el).outputPdf('datauristring').then(function(pdfBase64) {
-          el.style.display = 'none';
-          el.style.position = '';
-          el.style.top = '';
-          el.style.left = '';
-          el.style.zIndex = '';
-          if (datos.tipo === 'Ingreso') {
-            ultimoPDFBlobIngreso = pdfBase64;
-            ultimoPDFNombreIngreso = opt.filename;
-          } else {
-            ultimoPDFBlob = pdfBase64;
-            ultimoPDFNombre = opt.filename;
-          }
-          var xhr = new XMLHttpRequest();
-          xhr.open('POST', APPS_SCRIPT_URL, true);
-          xhr.setRequestHeader('Content-Type', 'text/plain');
-          xhr.onload = function() {
-            try {
-              var response = JSON.parse(xhr.responseText);
-              if (response.result && response.url) { ultimoPDFUrl = response.url; }
-            } catch(e) { console.error("Error parseando respuesta de guardarPDF", e); }
-            if (callback) callback();
-          };
-          xhr.onerror = function() { if (callback) callback(); };
-          xhr.send(JSON.stringify({ action: 'guardarPDF', pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo, tipoEgreso: datos.tipoEgreso || '' }));
-        });
+        xhr.onerror = function() { if (callback) callback(); };
+        xhr.send(JSON.stringify({ action: 'guardarPDF', pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo, tipoEgreso: datos.tipoEgreso || '' }));
       });
     }
 
