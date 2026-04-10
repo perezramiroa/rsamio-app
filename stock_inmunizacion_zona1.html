@@ -1001,29 +1001,29 @@
 
     // ── PDF ───────────────────────────────────────────────────────────────────
     function generarYGuardarPDF(datos, callback) {
-      var el = document.createElement('div');
-      el.style.cssText = 'position:absolute;left:-9999px;top:0;background:white;color:#1e293b;font-family:Segoe UI,sans-serif;padding:20px;width:190mm;';
-      el.innerHTML =
-        '<div style="border-bottom:2px solid #00384d; margin-bottom:16px; padding-bottom:8px;">' +
-        '<h2 style="color:#00384d; margin:0; font-size:14pt;">Reporte de Movimiento de Vacunas</h2>' +
-        '<p style="color:#64748b; margin:4px 0 0; font-size:9pt;">Sistema RSAMIO - Gestión de Inmunización</p>' +
-        '</div>' +
-        '<table style="width:100%; border-collapse:collapse;">' +
-        '<tr><th style="background:#f1f5f9; padding:7px 8px; text-align:left; border:1px solid #e2e8f0; font-size:10pt;">Campo</th><th style="background:#f1f5f9; padding:7px 8px; text-align:left; border:1px solid #e2e8f0; font-size:10pt;">Detalle</th></tr>' +
-        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Tipo de Movimiento</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td></tr>' +
-        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Vacuna</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.vacuna + '</td></tr>' +
-        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Laboratorio</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.laboratorio + '</td></tr>' +
-        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Lote</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.lote + '</td></tr>' +
-        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Cantidad</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.cantidad + '</td></tr>' +
-        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Responsable</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.responsable + '</td></tr>' +
-        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Ubicación</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
-        '<tr><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">Observaciones</td><td style="padding:7px 8px; border:1px solid #e2e8f0; font-size:10pt;">' + (datos.observaciones || '-') + '</td></tr>' +
-        '</table>' +
-        '<div style="margin-top:20px; font-size:8pt; color:#64748b;">' +
-        '<p>Este documento es un comprobante oficial del sistema. Trazabilidad: ' + datos.trazabilidad + '</p>' +
-        '<p>Fecha de emisión: ' + new Date().toLocaleString('es-AR') + '</p>' +
-        '</div>';
-      document.body.appendChild(el);
+      var el = document.getElementById('pdf-template');
+      document.getElementById('pdf-trazabilidad').textContent = datos.trazabilidad;
+      document.getElementById('pdf-fecha').textContent = new Date().toLocaleString('es-AR');
+      document.getElementById('pdf-content').innerHTML =
+        '<table class="pdf-table">' +
+        '<tr><th>Campo</th><th>Detalle</th></tr>' +
+        '<tr><td>Tipo de Movimiento</td><td>' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td></tr>' +
+        '<tr><td>Vacuna</td><td>' + datos.vacuna + '</td></tr>' +
+        '<tr><td>Laboratorio</td><td>' + datos.laboratorio + '</td></tr>' +
+        '<tr><td>Lote</td><td>' + datos.lote + '</td></tr>' +
+        '<tr><td>Cantidad</td><td>' + datos.cantidad + '</td></tr>' +
+        '<tr><td>Responsable</td><td>' + datos.responsable + '</td></tr>' +
+        '<tr><td>Ubicación</td><td>' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
+        '<tr><td>Observaciones</td><td>' + (datos.observaciones || '-') + '</td></tr>' +
+        '</table>';
+      el.style.position = 'fixed';
+      el.style.top = '0';
+      el.style.left = '0';
+      el.style.width = '210mm';
+      el.style.padding = '20px';
+      el.style.background = 'white';
+      el.style.zIndex = '-1';
+      el.style.display = 'block';
 
       var opt = {
         margin: [10, 10, 10, 10],
@@ -1034,7 +1034,11 @@
       };
 
       html2pdf().set(opt).from(el).outputPdf('datauristring').then(function(pdfBase64) {
-        document.body.removeChild(el);
+        el.style.display = 'none';
+        el.style.position = '';
+        el.style.top = '';
+        el.style.left = '';
+        el.style.zIndex = '';
         if (datos.tipo === 'Ingreso') {
           ultimoPDFBlobIngreso = pdfBase64;
           ultimoPDFNombreIngreso = opt.filename;
