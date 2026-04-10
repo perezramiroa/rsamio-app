@@ -188,24 +188,63 @@
               <option value="Traslado">Traslado</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Vacuna *</label>
-            <select id="vacuna" class="form-control" onchange="actualizarLaboratorios()"></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Laboratorio *</label>
-            <select id="laboratorio" class="form-control" onchange="actualizarLotes()"></select>
-          </div>
-          <div id="camposEgreso" style="display:none;">
+
+          <!-- SECCIÓN AGREGAR ÍTEMS -->
+          <div style="border:1px solid #e2e8f0; border-radius:10px; padding:15px; margin-bottom:15px; background:#f8fafc;">
+            <p style="font-weight:600; margin-bottom:10px; color:#1e293b;">➕ Agregar vacuna al movimiento</p>
             <div class="form-group">
-              <label class="form-label">Lote *</label>
-              <select id="loteSelect" class="form-control" onchange="actualizarRegionesEgreso()"></select>
+              <label class="form-label">Vacuna</label>
+              <select id="vacuna" class="form-control" onchange="actualizarLaboratorios()"></select>
             </div>
+            <div class="form-group">
+              <label class="form-label">Laboratorio</label>
+              <select id="laboratorio" class="form-control" onchange="actualizarLotes()"></select>
+            </div>
+            <div id="camposEgresoItem" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Lote</label>
+                <select id="loteSelect" class="form-control" onchange="actualizarRegionesEgreso()"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cantidad <span id="stockDisponibleLabel" style="color:#64748b; font-weight:normal;"></span></label>
+                <input type="number" id="cantidad" class="form-control" min="1">
+              </div>
+            </div>
+            <div id="camposIngresoItem" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Lote</label>
+                <input type="text" id="loteInput" class="form-control" placeholder="Ingrese número de lote">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Vencimiento</label>
+                <input type="date" id="vencimiento" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cantidad</label>
+                <input type="number" id="cantidadIngreso" class="form-control" min="1">
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="agregarItem()" style="width:100%; margin-top:5px;">+ Agregar ítem</button>
+          </div>
+
+          <!-- TABLA DE ÍTEMS -->
+          <div id="tablaItemsContainer" style="display:none; margin-bottom:15px;">
+            <p style="font-weight:600; margin-bottom:8px; color:#1e293b;">� Ítems a registrar</p>
+            <div class="table-wrapper">
+              <table style="font-size:0.85rem;">
+                <thead><tr><th>Vacuna</th><th>Lab.</th><th>Lote</th><th>Cant.</th><th></th></tr></thead>
+                <tbody id="tablaItemsBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- UBICACIÓN (común a todos los ítems) -->
+          <div id="camposEgreso" style="display:none;">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
               <div class="form-group">
                 <label class="form-label">Región *</label>
                 <select id="regionMov" class="form-control" onchange="actualizarLocalidadesEgreso()">
-                  <option value="">Seleccionar lote primero</option>
+                  <option value="">Seleccionar región</option>
                 </select>
               </div>
               <div class="form-group">
@@ -220,10 +259,6 @@
               <select id="establecimientoMov" class="form-control" onchange="actualizarStockDisponible()">
                 <option value="">Seleccionar localidad primero</option>
               </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Cantidad * <span id="stockDisponibleLabel" style="color:#64748b; font-weight:normal;"></span></label>
-              <input type="number" id="cantidad" class="form-control" min="1">
             </div>
             <!-- Campos destino para traslado -->
             <div id="camposTraslado" style="display:none; border:1px solid #e2e8f0; border-radius:10px; padding:15px; margin-top:10px; background:#f8fafc;">
@@ -262,18 +297,6 @@
             </div>
           </div>
           <div id="camposIngreso" style="display:none;">
-            <div class="form-group">
-              <label class="form-label">Lote *</label>
-              <input type="text" id="loteInput" class="form-control" placeholder="Ingrese número de lote">
-            </div>
-            <div class="form-group" id="vencimientoRow">
-              <label class="form-label">Vencimiento *</label>
-              <input type="date" id="vencimiento" class="form-control">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Cantidad *</label>
-              <input type="number" id="cantidadIngreso" class="form-control" min="1">
-            </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
               <div class="form-group">
                 <label class="form-label">Región *</label>
@@ -487,6 +510,7 @@
     let ultimoPDFNombre = '';
     let ultimoPDFBlobIngreso = '';
     let ultimoPDFNombreIngreso = '';
+    let itemsMovimiento = [];
 
     function mostrarLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -686,24 +710,24 @@
     // ── MODAL MOVIMIENTO ──────────────────────────────────────────────────────
     function abrirModalMov(tipo) {
       modoMovimiento = tipo;
+      itemsMovimiento = [];
       document.getElementById('modalTitulo').textContent = tipo === 'Ingreso' ? '📥 Registrar Ingreso' : '📤 Registrar Egreso';
       document.getElementById('camposEgreso').style.display = tipo === 'Egreso' ? 'block' : 'none';
       document.getElementById('camposIngreso').style.display = tipo === 'Ingreso' ? 'block' : 'none';
-      document.getElementById('vencimientoRow').style.display = tipo === 'Ingreso' ? 'block' : 'none';
+      document.getElementById('camposEgresoItem').style.display = tipo === 'Egreso' ? 'block' : 'none';
+      document.getElementById('camposIngresoItem').style.display = tipo === 'Ingreso' ? 'block' : 'none';
       document.getElementById('tipoEgresoRow').style.display = tipo === 'Egreso' ? 'block' : 'none';
+      document.getElementById('tablaItemsContainer').style.display = 'none';
+      document.getElementById('tablaItemsBody').innerHTML = '';
       document.getElementById('formMov').reset();
       ultimoPDFBlob = ''; ultimoPDFNombre = ''; ultimoPDFUrl = '';
       ultimoPDFBlobIngreso = ''; ultimoPDFNombreIngreso = '';
-
       if (tipo === 'Egreso') {
-        // Refrescar stock antes de abrir para que los lotes estén actualizados
         var url = APPS_SCRIPT_URL + '?action=getDatosAgregados';
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.onload = function() {
-          try {
-            DATOS_GLOBALES = JSON.parse(xhr.responseText);
-          } catch(e) {}
+          try { DATOS_GLOBALES = JSON.parse(xhr.responseText); } catch(e) {}
           actualizarVacunas();
           document.getElementById('modalMov').style.display = 'block';
         };
@@ -846,6 +870,64 @@
       document.getElementById('stockDisponibleLabel').textContent = '(Disponible: ' + max + ')';
     }
 
+    function agregarItem() {
+      var vacuna = document.getElementById('vacuna').value;
+      var lab = document.getElementById('laboratorio').value;
+      var lote = '', cantidad = '', vencimiento = '';
+
+      if (modoMovimiento === 'Egreso') {
+        lote = document.getElementById('loteSelect').value;
+        cantidad = document.getElementById('cantidad').value;
+        var stockItem = (DATOS_GLOBALES.stock || []).find(function(s) {
+          return s.vacuna === vacuna && s.laboratorio === lab && s.lote === lote;
+        });
+        vencimiento = stockItem ? stockItem.vencimiento : '';
+        if (vencimiento) {
+          var vd = new Date(vencimiento);
+          if (!isNaN(vd)) vencimiento = vd.getFullYear() + '-' + String(vd.getMonth()+1).padStart(2,'0') + '-' + String(vd.getDate()).padStart(2,'0');
+        }
+      } else {
+        lote = document.getElementById('loteInput').value;
+        cantidad = document.getElementById('cantidadIngreso').value;
+        vencimiento = document.getElementById('vencimiento').value;
+      }
+
+      if (!vacuna || !lab || !lote || !cantidad || parseInt(cantidad) < 1) {
+        alert('Completá vacuna, laboratorio, lote y cantidad antes de agregar.'); return;
+      }
+
+      itemsMovimiento.push({ vacuna: vacuna, laboratorio: lab, lote: lote, cantidad: cantidad, vencimiento: vencimiento });
+
+      // Actualizar tabla
+      var tbody = document.getElementById('tablaItemsBody');
+      var idx = itemsMovimiento.length - 1;
+      var tr = document.createElement('tr');
+      tr.id = 'item-' + idx;
+      tr.innerHTML = '<td>' + vacuna + '</td><td>' + lab + '</td><td>' + lote + '</td><td>' + cantidad + '</td>' +
+        '<td><button type="button" onclick="eliminarItem(' + idx + ')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:1.1rem;">✕</button></td>';
+      tbody.appendChild(tr);
+      document.getElementById('tablaItemsContainer').style.display = 'block';
+
+      // Limpiar campos del agregador
+      document.getElementById('vacuna').value = '';
+      document.getElementById('laboratorio').innerHTML = '<option value="">Primero selecciona vacuna</option>';
+      document.getElementById('loteSelect').innerHTML = '<option value="">Primero selecciona laboratorio</option>';
+      document.getElementById('cantidad').value = '';
+      document.getElementById('loteInput').value = '';
+      document.getElementById('cantidadIngreso').value = '';
+      document.getElementById('vencimiento').value = '';
+      document.getElementById('stockDisponibleLabel').textContent = '';
+    }
+
+    function eliminarItem(idx) {
+      itemsMovimiento[idx] = null;
+      var tr = document.getElementById('item-' + idx);
+      if (tr) tr.remove();
+      if (itemsMovimiento.filter(function(i) { return i !== null; }).length === 0) {
+        document.getElementById('tablaItemsContainer').style.display = 'none';
+      }
+    }
+
     function toggleCamposTraslado() {
       var tipo = document.getElementById('tipoEgreso').value;
       document.getElementById('camposTraslado').style.display = tipo === 'Traslado' ? 'block' : 'none';
@@ -892,11 +974,122 @@
     }
     function registrarMovimiento(event) {
       event.preventDefault();
-      var vacuna = document.getElementById('vacuna').value;
-      var lab = document.getElementById('laboratorio').value;
+      var items = itemsMovimiento.filter(function(i) { return i !== null; });
+      if (items.length === 0) { alert('Agregá al menos un ítem antes de confirmar.'); return; }
+
       var responsable = document.getElementById('responsable').value;
       var observaciones = document.getElementById('observaciones').value;
-      var lote = '', vencimiento = '', cantidad = '', region = '', localidad = '', establecimiento = '';
+      var region = '', localidad = '', establecimiento = '';
+      var tipoEgreso = modoMovimiento === 'Egreso' ? document.getElementById('tipoEgreso').value : '';
+      var regionDest = '', localidadDest = '', establecimientoDest = '', responsableDest = '';
+
+      if (modoMovimiento === 'Ingreso') {
+        region = document.getElementById('regionMovIngreso').value;
+        localidad = document.getElementById('localidadMovIngreso').value;
+        establecimiento = document.getElementById('establecimientoMovIngreso').value;
+      } else {
+        region = document.getElementById('regionMov').value;
+        localidad = document.getElementById('localidadMov').value;
+        establecimiento = document.getElementById('establecimientoMov').value;
+        if (tipoEgreso === 'Traslado') {
+          regionDest = document.getElementById('regionDest').value;
+          localidadDest = document.getElementById('localidadDest').value;
+          establecimientoDest = document.getElementById('establecimientoDest').value;
+          responsableDest = document.getElementById('responsableDest').value;
+          if (!regionDest || !localidadDest || !establecimientoDest || !responsableDest) {
+            alert('Completá todos los campos de destino del traslado.'); return;
+          }
+        }
+      }
+
+      if (!responsable || !region || !localidad || !establecimiento) {
+        alert('Completá responsable y ubicación.'); return;
+      }
+
+      var btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Registrando...';
+      mostrarLoading(true);
+
+      var trazabilidades = [];
+      var errores = [];
+      var pendientes = items.length;
+
+      items.forEach(function(item) {
+        var vencimiento = item.vencimiento || '';
+        var url = APPS_SCRIPT_URL +
+          '?action=registrarMovimiento' +
+          '&tipo=' + encodeURIComponent(modoMovimiento) +
+          '&tipo_egreso=' + encodeURIComponent(tipoEgreso || '') +
+          '&vacuna=' + encodeURIComponent(item.vacuna) +
+          '&laboratorio=' + encodeURIComponent(item.laboratorio) +
+          '&lote=' + encodeURIComponent(item.lote) +
+          '&cantidad=' + encodeURIComponent(item.cantidad) +
+          '&responsable=' + encodeURIComponent(responsable) +
+          '&region=' + encodeURIComponent(region) +
+          '&localidad=' + encodeURIComponent(localidad) +
+          '&establecimiento=' + encodeURIComponent(establecimiento) +
+          '&observaciones=' + encodeURIComponent(observaciones) +
+          '&vencimiento=' + encodeURIComponent(vencimiento) +
+          '&region_destino=' + encodeURIComponent(regionDest) +
+          '&localidad_destino=' + encodeURIComponent(localidadDest) +
+          '&establecimiento_destino=' + encodeURIComponent(establecimientoDest) +
+          '&responsable_destino=' + encodeURIComponent(responsableDest);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = function() {
+          try {
+            var result = JSON.parse(xhr.responseText);
+            if (result.result) { trazabilidades.push(result.trazabilidad); }
+            else { errores.push(item.vacuna + ': ' + result.message); }
+          } catch(e) { errores.push(item.vacuna + ': error de respuesta'); }
+          pendientes--;
+          if (pendientes === 0) { finalizarRegistro(trazabilidades, errores, items, responsable, region, localidad, establecimiento, tipoEgreso, regionDest, localidadDest, establecimientoDest, responsableDest, observaciones); }
+        };
+        xhr.onerror = function() {
+          errores.push(item.vacuna + ': error de conexión');
+          pendientes--;
+          if (pendientes === 0) { finalizarRegistro(trazabilidades, errores, items, responsable, region, localidad, establecimiento, tipoEgreso, regionDest, localidadDest, establecimientoDest, responsableDest, observaciones); }
+        };
+        xhr.send();
+      });
+    }
+
+    function finalizarRegistro(trazabilidades, errores, items, responsable, region, localidad, establecimiento, tipoEgreso, regionDest, localidadDest, establecimientoDest, responsableDest, observaciones) {
+      mostrarLoading(false);
+      var btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Confirmar Registro';
+
+      if (errores.length > 0) {
+        alert('Errores:\n' + errores.join('\n'));
+      }
+      if (trazabilidades.length > 0) {
+        cerrarModalMov();
+        var msg = '<b>Registrado correctamente.</b><br><small>' + trazabilidades.length + ' ítem(s) procesado(s).</small>';
+        if (tipoEgreso === 'Traslado') msg += '<br><small>Ingresos en destino registrados automáticamente.</small>';
+        document.getElementById('confirmacionMensaje').innerHTML = msg;
+        document.getElementById('modalConfirmacion').style.display = 'block';
+
+        // Generar PDF con todos los ítems
+        generarYGuardarPDFMultiple({
+          tipo: modoMovimiento, tipoEgreso: tipoEgreso,
+          items: items, responsable: responsable,
+          region: region, localidad: localidad, establecimiento: establecimiento,
+          trazabilidades: trazabilidades, observaciones: observaciones
+        }, tipoEgreso === 'Traslado' && establecimientoDest ? function() {
+          generarYGuardarPDFMultiple({
+            tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)',
+            items: items, responsable: responsableDest,
+            region: regionDest, localidad: localidadDest, establecimiento: establecimientoDest,
+            trazabilidades: trazabilidades.map(function(t) { return 'TRZ-ING-TRASLADO-REF-' + t; }),
+            observaciones: 'Traslado desde ' + establecimiento
+          }, null);
+        } : null);
+        cargarDatos();
+      }
+    }
 
       if (modoMovimiento === 'Ingreso') {
         lote = document.getElementById('loteInput').value;
@@ -1056,6 +1249,66 @@
             var response = JSON.parse(xhr.responseText);
             if (response.result && response.url) { ultimoPDFUrl = response.url; }
           } catch(e) { console.error("Error parseando respuesta de guardarPDF", e); }
+          if (callback) callback();
+        };
+        xhr.onerror = function() { if (callback) callback(); };
+        xhr.send(JSON.stringify({ action: 'guardarPDF', pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo, tipoEgreso: datos.tipoEgreso || '' }));
+      });
+    }
+
+    function generarYGuardarPDFMultiple(datos, callback) {
+      var filas = datos.items.map(function(it, i) {
+        return '<tr><td>' + it.vacuna + '</td><td>' + it.laboratorio + '</td><td>' + it.lote + '</td><td>' + it.cantidad + '</td><td>' + (datos.trazabilidades[i] || '-') + '</td></tr>';
+      }).join('');
+
+      var html =
+        '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
+        'body{margin:0;padding:20px;font-family:Segoe UI,sans-serif;color:#1e293b;}' +
+        'h2{color:#00384d;margin:0 0 4px 0;font-size:16pt;}' +
+        'p.sub{color:#64748b;margin:0 0 16px 0;font-size:9pt;}' +
+        'hr{border:none;border-top:2px solid #00384d;margin-bottom:16px;}' +
+        'table{width:100%;border-collapse:collapse;margin-bottom:16px;}' +
+        'th,td{padding:7px 8px;border:1px solid #e2e8f0;font-size:9pt;text-align:left;}' +
+        'th{background:#f1f5f9;}' +
+        '.info td{border:none;padding:3px 8px;font-size:9pt;}' +
+        '.footer{margin-top:16px;font-size:8pt;color:#64748b;}' +
+        '</style></head><body>' +
+        '<h2>Reporte de Movimiento de Vacunas</h2>' +
+        '<p class="sub">Sistema RSAMIO - Gestión de Inmunización</p>' +
+        '<hr>' +
+        '<table class="info"><tr><td><b>Tipo:</b> ' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td>' +
+        '<td><b>Responsable:</b> ' + datos.responsable + '</td></tr>' +
+        '<tr><td colspan="2"><b>Ubicación:</b> ' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
+        '<tr><td colspan="2"><b>Observaciones:</b> ' + (datos.observaciones || '-') + '</td></tr></table>' +
+        '<table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Trazabilidad</th></tr></thead><tbody>' + filas + '</tbody></table>' +
+        '<div class="footer"><p>Fecha de emisión: ' + new Date().toLocaleString('es-AR') + '</p></div>' +
+        '</body></html>';
+
+      var traz = datos.trazabilidades[0] || new Date().getTime();
+      var opt = {
+        margin: 0,
+        filename: 'Reporte_' + datos.tipo + '_' + traz + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(html, 'string').outputPdf('datauristring').then(function(pdfBase64) {
+        if (datos.tipo === 'Ingreso') {
+          ultimoPDFBlobIngreso = pdfBase64;
+          ultimoPDFNombreIngreso = opt.filename;
+        } else {
+          ultimoPDFBlob = pdfBase64;
+          ultimoPDFNombre = opt.filename;
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', APPS_SCRIPT_URL, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain');
+        xhr.onload = function() {
+          try {
+            var response = JSON.parse(xhr.responseText);
+            if (response.result && response.url) { ultimoPDFUrl = response.url; }
+          } catch(e) {}
           if (callback) callback();
         };
         xhr.onerror = function() { if (callback) callback(); };
