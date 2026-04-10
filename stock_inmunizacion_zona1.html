@@ -756,6 +756,16 @@
           if (parseInt(s.stock) > 0 && vacunas.indexOf(s.vacuna) === -1) vacunas.push(s.vacuna);
         });
         vacunas.forEach(function(v) { sel.innerHTML += '<option value="' + v + '">' + v + '</option>'; });
+        // Poblar región con todas las disponibles en stock
+        var regSel = document.getElementById('regionMov');
+        if (regSel) {
+          regSel.innerHTML = '<option value="">Seleccionar región</option>';
+          var regiones = [];
+          (DATOS_GLOBALES.stock || []).forEach(function(s) {
+            if (parseInt(s.stock) > 0 && regiones.indexOf(s.region) === -1) regiones.push(s.region);
+          });
+          regiones.forEach(function(r) { regSel.innerHTML += '<option value="' + r + '">' + r + '</option>'; });
+        }
       } else {
         Object.keys(VACUNAS_LABORATORIOS).forEach(function(v) {
           sel.innerHTML += '<option value="' + v + '">' + v + '</option>';
@@ -1010,6 +1020,8 @@
       btnSubmit.disabled = true;
       btnSubmit.textContent = 'Registrando...';
       mostrarLoading(true);
+      // Timeout de seguridad: ocultar loading después de 30 segundos
+      var loadingTimeout = setTimeout(function() { mostrarLoading(false); }, 30000);
 
       var trazabilidades = [];
       var errores = [];
@@ -1057,6 +1069,7 @@
     }
 
     function finalizarRegistro(trazabilidades, errores, items, responsable, region, localidad, establecimiento, tipoEgreso, regionDest, localidadDest, establecimientoDest, responsableDest, observaciones) {
+      clearTimeout(loadingTimeout);
       mostrarLoading(false);
       var btnSubmit = document.getElementById('btnSubmit');
       btnSubmit.disabled = false;
