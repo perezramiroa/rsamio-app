@@ -1138,7 +1138,7 @@
     function generarYGuardarPDF(datos, callback) {
       var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
         'body{margin:0;padding:0;font-family:"Segoe UI",sans-serif;color:#1e293b;}' +
-        '.page-container{padding:15mm 20mm;}' +
+        '' +
         'h2{color:#00384d;margin:0 0 5px 0;font-size:18pt;}' +
         'p.sub{color:#64748b;margin:0 0 15px 0;font-size:10pt;}' +
         'hr{border:none;border-top:2px solid #00384d;margin-bottom:20px;}' +
@@ -1146,7 +1146,7 @@
         'th,td{padding:10px;border:1px solid #e2e8f0;font-size:10pt;text-align:left;}' +
         'th{background:#f1f5f9;font-weight:bold;}' +
         '.footer{margin-top:30px;font-size:9pt;color:#64748b;border-top:1px solid #eee;padding-top:10px;}' +
-        '</style></head><body><div class="page-container">' +
+        '</style></head><body>' +
         '<h2>Reporte de Movimiento de Vacunas</h2>' +
         '<p class="sub">Sistema RSAMIO - Gestion de Inmunizacion</p><hr>' +
         '<table><tr><th style="width:30%">Campo</th><th>Detalle</th></tr>' +
@@ -1161,9 +1161,9 @@
         '</table><div class="footer">' +
         '<p>Comprobante oficial. Trazabilidad: ' + datos.trazabilidad + '</p>' +
         '<p>Fecha: ' + new Date().toLocaleString('es-AR') + '</p>' +
-        '</div></div></body></html>';
+        '</div></body></html>';
 
-      var opt = { margin: 0, filename: 'Reporte_' + datos.trazabilidad + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 1, useCORS: true, windowWidth: 794 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+      var opt = { margin: 15, filename: 'Reporte_' + datos.trazabilidad + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 1, useCORS: true, windowWidth: 794 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
 
       html2pdf().set(opt).from(html, 'string').outputPdf('datauristring').then(function(pdfBase64) {
         if (datos.tipo === 'Ingreso') {
@@ -1192,8 +1192,8 @@
       var filas = datos.items.map(function(it, i) {
         return '<tr><td>' + it.vacuna + '</td><td>' + it.laboratorio + '</td><td>' + it.lote + '</td><td>' + it.cantidad + '</td><td style="font-size:7pt;">' + (datos.trazabilidades[i] || '-') + '</td></tr>';
       }).join('');
-      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;font-family:Segoe UI,sans-serif;color:#1e293b;}.page-container{padding:15mm 20mm;}h2{color:#00384d;margin:0 0 5px 0;font-size:18pt;}p.sub{color:#64748b;margin:0 0 15px 0;font-size:10pt;}hr{border:none;border-top:2px solid #00384d;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-bottom:16px;}th,td{padding:8px;border:1px solid #e2e8f0;font-size:9pt;text-align:left;}th{background:#f1f5f9;font-weight:bold;}.info td{border:none;padding:3px 0;font-size:9pt;}.footer{margin-top:20px;font-size:8pt;color:#64748b;border-top:1px solid #eee;padding-top:8px;}</style></head><body><div class="page-container"><h2>Reporte de Movimiento de Vacunas</h2><p class="sub">Sistema RSAMIO - Gestion de Inmunizacion</p><hr><table class="info"><tr><td><b>Tipo:</b> ' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td><td><b>Responsable:</b> ' + datos.responsable + '</td></tr><tr><td colspan="2"><b>Ubicacion:</b> ' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr><tr><td colspan="2"><b>Observaciones:</b> ' + (datos.observaciones || '-') + '</td></tr></table><table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Trazabilidad</th></tr></thead><tbody>' + filas + '</tbody></table><div class="footer"><p>Fecha: ' + new Date().toLocaleString('es-AR') + '</p></div></div></body></html>';
-            var opt = { margin: 0, filename: 'Reporte_' + datos.trazabilidad + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 1, useCORS: true, windowWidth: 794 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;font-family:Segoe UI,sans-serif;color:#1e293b;}h2{color:#00384d;margin:0 0 5px 0;font-size:18pt;}p.sub{color:#64748b;margin:0 0 15px 0;font-size:10pt;}hr{border:none;border-top:2px solid #00384d;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-bottom:16px;}th,td{padding:8px;border:1px solid #e2e8f0;font-size:9pt;text-align:left;}th{background:#f1f5f9;font-weight:bold;}.info td{border:none;padding:3px 0;font-size:9pt;}.footer{margin-top:20px;font-size:8pt;color:#64748b;border-top:1px solid #eee;padding-top:8px;}</style></head><body><h2>Reporte de Movimiento de Vacunas</h2><p class="sub">Sistema RSAMIO - Gestion de Inmunizacion</p><hr><table class="info"><tr><td><b>Tipo:</b> ' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td><td><b>Responsable:</b> ' + datos.responsable + '</td></tr><tr><td colspan="2"><b>Ubicacion:</b> ' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr><tr><td colspan="2"><b>Observaciones:</b> ' + (datos.observaciones || '-') + '</td></tr></table><table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Trazabilidad</th></tr></thead><tbody>' + filas + '</tbody></table><div class="footer"><p>Fecha: ' + new Date().toLocaleString('es-AR') + '</p></div></body></html>';
+            var opt = { margin: 15, filename: 'Reporte_' + datos.trazabilidad + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 1, useCORS: true, windowWidth: 794 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
       html2pdf().set(opt).from(html, 'string').outputPdf('datauristring').then(function(pdfBase64) {
         if (datos.tipo === 'Ingreso') { ultimoPDFBlobIngreso = pdfBase64; ultimoPDFNombreIngreso = opt.filename; }
         else { ultimoPDFBlob = pdfBase64; ultimoPDFNombre = opt.filename; }
