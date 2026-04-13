@@ -1059,6 +1059,16 @@
 
       // Capturar valores antes de las llamadas asíncronas
       var tipoMov = modoMovimiento;
+      var capRegion = region;
+      var capLocalidad = localidad;
+      var capEstablecimiento = establecimiento;
+      var capResponsable = responsable;
+      var capObservaciones = observaciones;
+      var capTipoEgreso = tipoEgreso;
+      var capRegionDest = regionDest;
+      var capLocalidadDest = localidadDest;
+      var capEstablecimientoDest = establecimientoDest;
+      var capResponsableDest = responsableDest || '';
       var trazabilidades = [];
       var errores = [];
       var pendientes = todosItems.length;
@@ -1108,17 +1118,17 @@
               var pdfItems = trazabilidades.map(function(t){ return t.item; });
               var pdfTrazs = trazabilidades.map(function(t){ return t.traz; });
               generarYGuardarPDFMultiple({
-                tipo: tipoMov, tipoEgreso: tipoEgreso,
-                items: pdfItems, responsable: responsable,
-                region: region, localidad: localidad, establecimiento: establecimiento,
-                trazabilidades: pdfTrazs, observaciones: observaciones
-              }, tipoEgreso === 'Traslado' && establecimientoDest ? function() {
+                tipo: tipoMov, tipoEgreso: capTipoEgreso,
+                items: pdfItems, responsable: capResponsable,
+                region: capRegion, localidad: capLocalidad, establecimiento: capEstablecimiento,
+                trazabilidades: pdfTrazs, observaciones: capObservaciones
+              }, capTipoEgreso === 'Traslado' && capEstablecimientoDest ? function() {
                 generarYGuardarPDFMultiple({
                   tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)',
-                  items: pdfItems, responsable: responsableDest,
-                  region: regionDest, localidad: localidadDest, establecimiento: establecimientoDest,
+                  items: pdfItems, responsable: capResponsableDest,
+                  region: capRegionDest, localidad: capLocalidadDest, establecimiento: capEstablecimientoDest,
                   trazabilidades: pdfTrazs.map(function(t){ return 'TRZ-ING-TRA-REF-' + t; }),
-                  observaciones: 'Traslado desde ' + establecimiento
+                  observaciones: 'Traslado desde ' + capEstablecimiento
                 }, null);
               } : null);
               cargarDatos();
