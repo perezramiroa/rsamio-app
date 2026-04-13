@@ -993,6 +993,9 @@
       var estDiv = document.querySelector('#camposEgreso > .form-group:nth-child(3)');
       if (regionGrid) regionGrid.style.display = '';
       if (estDiv) estDiv.style.display = '';
+      // Restaurar traslado si corresponde
+      var tipoEgresoVal = modoMovimiento === 'Egreso' ? document.getElementById('tipoEgreso').value : '';
+      if (tipoEgresoVal === 'Traslado') document.getElementById('camposTraslado').style.display = 'block';
       var regionGridIng = document.querySelector('#camposIngreso > div[style*="grid"]');
       var estDivIng = document.querySelector('#camposIngreso > .form-group:last-child');
       if (regionGridIng) regionGridIng.style.display = '';
@@ -1123,7 +1126,6 @@
                 region: capRegion, localidad: capLocalidad, establecimiento: capEstablecimiento,
                 trazabilidades: pdfTrazs, observaciones: capObservaciones
               }, capTipoEgreso === 'Traslado' && capEstablecimientoDest ? function() {
-                console.log('PDF Traslado ingreso - pdfTrazs:', pdfTrazs, 'pdfItems:', pdfItems);
                 generarYGuardarPDFMultiple({
                   tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)',
                   items: pdfItems, responsable: capResponsableDest,
@@ -1200,7 +1202,6 @@
     }
 
     function generarYGuardarPDFMultiple(datos, callback) {
-      console.log('PDF Multiple datos:', JSON.stringify({tipo:datos.tipo, responsable:datos.responsable, region:datos.region, items:datos.items, trazabilidades:datos.trazabilidades}));
       var filas = datos.items.map(function(it, i) {
         return '<tr><td>' + it.vacuna + '</td><td>' + it.laboratorio + '</td><td>' + it.lote + '</td><td>' + it.cantidad + '</td><td style="font-size:7pt;">' + (datos.trazabilidades[i] || '-') + '</td></tr>';
       }).join('');
