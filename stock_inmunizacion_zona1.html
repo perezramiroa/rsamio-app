@@ -1211,7 +1211,8 @@
         xhr.send(JSON.stringify({ action: 'guardarPDF', pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo, tipoEgreso: datos.tipoEgreso || '' }));
       });
     }
-function descargarUltimoPDF() {
+
+    function descargarUltimoPDF() {
       if (ultimoPDFBlob) {
         var link = document.createElement('a');
         link.href = ultimoPDFBlob;
