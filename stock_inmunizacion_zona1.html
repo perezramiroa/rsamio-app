@@ -1088,7 +1088,7 @@
         xhrItem.onload = function() {
           try {
             var res = JSON.parse(xhrItem.responseText);
-            if (res.result) trazabilidades.push({ traz: res.trazabilidad, item: item });
+            if (res.result) trazabilidades.push({ traz: res.trazabilidad || 'TRZ-' + Date.now(), item: item });
             else errores.push(item.vacuna + ': ' + (res.message || res.error || 'Error desconocido'));
           } catch(e) { errores.push(item.vacuna + ': error'); }
           pendientes--;
@@ -1189,6 +1189,7 @@
     }
 
     function generarYGuardarPDFMultiple(datos, callback) {
+      console.log('PDF Multiple datos:', JSON.stringify({tipo:datos.tipo, responsable:datos.responsable, region:datos.region, items:datos.items, trazabilidades:datos.trazabilidades}));
       var filas = datos.items.map(function(it, i) {
         return '<tr><td>' + it.vacuna + '</td><td>' + it.laboratorio + '</td><td>' + it.lote + '</td><td>' + it.cantidad + '</td><td style="font-size:7pt;">' + (datos.trazabilidades[i] || '-') + '</td></tr>';
       }).join('');
