@@ -1123,6 +1123,7 @@
                 region: capRegion, localidad: capLocalidad, establecimiento: capEstablecimiento,
                 trazabilidades: pdfTrazs, observaciones: capObservaciones
               }, capTipoEgreso === 'Traslado' && capEstablecimientoDest ? function() {
+                console.log('PDF Traslado ingreso - pdfTrazs:', pdfTrazs, 'pdfItems:', pdfItems);
                 generarYGuardarPDFMultiple({
                   tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)',
                   items: pdfItems, responsable: capResponsableDest,
