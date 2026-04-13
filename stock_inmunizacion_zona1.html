@@ -1134,7 +1134,7 @@
       });
     }
 
-                    // ── PDF ───────────────────────────────────────────────────────────────────
+    // ── PDF ───────────────────────────────────────────────────────────────────
     function generarYGuardarPDF(datos, callback) {
       var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
         'body{margin:0;padding:0;font-family:"Segoe UI",sans-serif;color:#1e293b;}' +
@@ -1159,56 +1159,53 @@
         '<tr><td>Ubicacion</td><td>' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
         '<tr><td>Observaciones</td><td>' + (datos.observaciones || '-') + '</td></tr>' +
         '</table><div class="footer">' +
-        '<p>Comprobante oficial del sistema. Trazabilidad: ' + datos.trazabilidad + '</p>' +
-        '<p>Fecha de emision: ' + new Date().toLocaleString('es-AR') + '</p>' +
+        '<p>Comprobante oficial. Trazabilidad: ' + datos.trazabilidad + '</p>' +
+        '<p>Fecha: ' + new Date().toLocaleString('es-AR') + '</p>' +
         '</div></div></body></html>';
+
       var opt = { margin: 0, filename: 'Reporte_' + datos.trazabilidad + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, windowWidth: 800 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+
       html2pdf().set(opt).from(html, 'string').outputPdf('datauristring').then(function(pdfBase64) {
-        if (datos.tipo === 'Ingreso') { ultimoPDFBlobIngreso = pdfBase64; ultimoPDFNombreIngreso = opt.filename; }
-        else { ultimoPDFBlob = pdfBase64; ultimoPDFNombre = opt.filename; }
+        if (datos.tipo === 'Ingreso') {
+          ultimoPDFBlobIngreso = pdfBase64;
+          ultimoPDFNombreIngreso = opt.filename;
+        } else {
+          ultimoPDFBlob = pdfBase64;
+          ultimoPDFNombre = opt.filename;
+        }
         var xhr = new XMLHttpRequest();
         xhr.open('POST', APPS_SCRIPT_URL, true);
         xhr.setRequestHeader('Content-Type', 'text/plain');
-        xhr.onload = function() { try { var r = JSON.parse(xhr.responseText); if (r.result && r.url) ultimoPDFUrl = r.url; } catch(e) {} if (callback) callback(); };
+        xhr.onload = function() {
+          try {
+            var response = JSON.parse(xhr.responseText);
+            if (response.result && response.url) { ultimoPDFUrl = response.url; }
+          } catch(e) { console.error("Error parseando respuesta de guardarPDF", e); }
+          if (callback) callback();
+        };
         xhr.onerror = function() { if (callback) callback(); };
         xhr.send(JSON.stringify({ action: 'guardarPDF', pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo, tipoEgreso: datos.tipoEgreso || '' }));
       });
     }
+
     function generarYGuardarPDFMultiple(datos, callback) {
       var filas = datos.items.map(function(it, i) {
-        return '<tr><td>' + it.vacuna + '</td><td>' + it.laboratorio + '</td><td>' + it.lote + '</td><td>' + it.cantidad + '</td><td style="font-size:8pt;">' + (datos.trazabilidades[i] || '-') + '</td></tr>';
+        return '<tr><td>' + it.vacuna + '</td><td>' + it.laboratorio + '</td><td>' + it.lote + '</td><td>' + it.cantidad + '</td><td style="font-size:7pt;">' + (datos.trazabilidades[i] || '-') + '</td></tr>';
       }).join('');
-      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
-        'body{margin:0;padding:0;font-family:"Segoe UI",sans-serif;color:#1e293b;}' +
-        '.page-container{padding:15mm 20mm;}' +
-        'h2{color:#00384d;margin:0 0 5px 0;font-size:18pt;}' +
-        'p.sub{color:#64748b;margin:0 0 15px 0;font-size:10pt;}' +
-        'hr{border:none;border-top:2px solid #00384d;margin-bottom:20px;}' +
-        'table{width:100%;border-collapse:collapse;margin-bottom:16px;}' +
-        'th,td{padding:8px;border:1px solid #e2e8f0;font-size:9pt;text-align:left;}' +
-        'th{background:#f1f5f9;font-weight:bold;}' +
-        '.info td{border:none;padding:3px 0;font-size:9pt;}' +
-        '.footer{margin-top:20px;font-size:8pt;color:#64748b;border-top:1px solid #eee;padding-top:8px;}' +
-        '</style></head><body><div class="page-container">' +
-        '<h2>Reporte de Movimiento de Vacunas</h2>' +
-        '<p class="sub">Sistema RSAMIO - Gestion de Inmunizacion</p><hr>' +
-        '<table class="info"><tr><td><b>Tipo:</b> ' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td><td><b>Responsable:</b> ' + datos.responsable + '</td></tr>' +
-        '<tr><td colspan="2"><b>Ubicacion:</b> ' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr>' +
-        '<tr><td colspan="2"><b>Observaciones:</b> ' + (datos.observaciones || '-') + '</td></tr></table>' +
-        '<table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Trazabilidad</th></tr></thead><tbody>' + filas + '</tbody></table>' +
-        '<div class="footer"><p>Fecha de emision: ' + new Date().toLocaleString('es-AR') + '</p></div>' +
-        '</div></body></html>';
-      var traz0 = datos.trazabilidades[0] || Date.now();
-      var opt = { margin: 0, filename: 'Reporte_' + datos.tipo + '_' + traz0 + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, windowWidth: 800 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:0;font-family:Segoe UI,sans-serif;color:#1e293b;}.page-container{padding:15mm 20mm;}h2{color:#00384d;margin:0 0 5px 0;font-size:18pt;}p.sub{color:#64748b;margin:0 0 15px 0;font-size:10pt;}hr{border:none;border-top:2px solid #00384d;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-bottom:16px;}th,td{padding:8px;border:1px solid #e2e8f0;font-size:9pt;text-align:left;}th{background:#f1f5f9;font-weight:bold;}.info td{border:none;padding:3px 0;font-size:9pt;}.footer{margin-top:20px;font-size:8pt;color:#64748b;border-top:1px solid #eee;padding-top:8px;}</style></head><body><div class="page-container"><h2>Reporte de Movimiento de Vacunas</h2><p class="sub">Sistema RSAMIO - Gestion de Inmunizacion</p><hr><table class="info"><tr><td><b>Tipo:</b> ' + datos.tipo + (datos.tipoEgreso ? ' - ' + datos.tipoEgreso : '') + '</td><td><b>Responsable:</b> ' + datos.responsable + '</td></tr><tr><td colspan="2"><b>Ubicacion:</b> ' + datos.region + ' - ' + datos.localidad + ' - ' + datos.establecimiento + '</td></tr><tr><td colspan="2"><b>Observaciones:</b> ' + (datos.observaciones || '-') + '</td></tr></table><table><thead><tr><th>Vacuna</th><th>Laboratorio</th><th>Lote</th><th>Cantidad</th><th>Trazabilidad</th></tr></thead><tbody>' + filas + '</tbody></table><div class="footer"><p>Fecha: ' + new Date().toLocaleString('es-AR') + '</p></div></div></body></html>';
+            var opt = { margin: 0, filename: 'Reporte_' + datos.trazabilidad + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, windowWidth: 800 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
       html2pdf().set(opt).from(html, 'string').outputPdf('datauristring').then(function(pdfBase64) {
         if (datos.tipo === 'Ingreso') { ultimoPDFBlobIngreso = pdfBase64; ultimoPDFNombreIngreso = opt.filename; }
         else { ultimoPDFBlob = pdfBase64; ultimoPDFNombre = opt.filename; }
         var xhr = new XMLHttpRequest();
         xhr.open('POST', APPS_SCRIPT_URL, true);
         xhr.setRequestHeader('Content-Type', 'text/plain');
-        xhr.onload = function() { try { var r = JSON.parse(xhr.responseText); if (r.result && r.url) ultimoPDFUrl = r.url; } catch(e) {} if (callback) callback(); };
+        xhr.onload = function() {
+          try { var r = JSON.parse(xhr.responseText); if (r.result && r.url) ultimoPDFUrl = r.url; } catch(e) {}
+          if (callback) callback();
+        };
         xhr.onerror = function() { if (callback) callback(); };
-        xhr.send(JSON.stringify({ action: 'guardarPDF', pdfData: pdfBase64, filename: opt.filename, tipo: datos.tipo, tipoEgreso: datos.tipoEgreso || '' }));
+        xhr.send(JSON.stringify({ action:'guardarPDF', pdfData:pdfBase64, filename:opt.filename, tipo:datos.tipo, tipoEgreso:datos.tipoEgreso||'' }));
       });
     }
 
@@ -1262,29 +1259,6 @@
     }
 
     function descargarPDFVencimientos() {
-      var template = document.getElementById('pdf-vencimientos-template');
-      document.getElementById('pdf-venc-fecha').textContent = new Date().toLocaleString('es-AR');
-      document.getElementById('pdf-venc-content').innerHTML = document.getElementById('tablaVencimientos').innerHTML;
-      template.style.display = 'block';
-      var opt = {
-        margin: [10, 10, 10, 10],
-        filename: 'Vencimientos_' + new Date().toISOString().slice(0,10) + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(template).outputPdf('datauristring').then(function(pdfBase64) {
-        template.style.display = 'none';
-        var link = document.createElement('a');
-        link.href = pdfBase64;
-        link.download = opt.filename;
-        link.click();
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', APPS_SCRIPT_URL, true);
-        xhr.setRequestHeader('Content-Type', 'text/plain');
-        xhr.send(JSON.stringify({ action: 'guardarPDFVencimientos', pdfData: pdfBase64, filename: opt.filename }));
-      });
-    }
       var template = document.getElementById('pdf-vencimientos-template');
       document.getElementById('pdf-venc-fecha').textContent = new Date().toLocaleString('es-AR');
       document.getElementById('pdf-venc-content').innerHTML = document.getElementById('tablaVencimientos').innerHTML;
