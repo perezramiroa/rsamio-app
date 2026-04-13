@@ -504,6 +504,7 @@
     let ultimoPDFBlobIngreso = '';
     let ultimoPDFNombreIngreso = '';
     let itemsMovimiento = [];
+    let contextoMovimiento = {};
 
     function mostrarLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -710,6 +711,7 @@
       document.getElementById('tipoEgresoRow').style.display = tipo === 'Egreso' ? 'block' : 'none';
       document.getElementById('formMov').reset();
       itemsMovimiento = [];
+      contextoMovimiento = {};
       document.getElementById('tablaItemsContainer').style.display = 'none';
       document.getElementById('tablaItemsBody').innerHTML = '';
       ultimoPDFBlob = ''; ultimoPDFNombre = ''; ultimoPDFUrl = '';
@@ -1390,4 +1392,3 @@
     };
   </script>
 </body>
-</html>
