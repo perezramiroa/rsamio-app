@@ -1119,9 +1119,43 @@
       var capResponsableDest = responsableDest || '';
       var trazabilidades = [];
       var errores = [];
-      var pendientes = todosItems.length;
 
-      todosItems.forEach(function(item) {
+      function procesarItem(index) {
+        if (index >= todosItems.length) {
+          // Todos procesados
+          mostrarLoading(false);
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Confirmar Registro';
+          ultimoPDFBlob = ''; ultimoPDFNombre = ''; ultimoPDFBlobIngreso = ''; ultimoPDFNombreIngreso = '';
+          if (errores.length > 0) alert('Errores:\n' + errores.join('\n'));
+          if (trazabilidades.length > 0) {
+            cerrarModalMov();
+            var msg = '<b>Registrado correctamente.</b><br><small>' + trazabilidades.length + ' ítem(s) procesado(s).</small>';
+            if (tipoEgreso === 'Traslado') msg += '<br><small>Ingresos en destino registrados automáticamente.</small>';
+            document.getElementById('confirmacionMensaje').innerHTML = msg;
+            document.getElementById('modalConfirmacion').style.display = 'block';
+            var pdfItems = trazabilidades.map(function(t){ return t.item; });
+            var pdfTrazs = trazabilidades.map(function(t){ return t.traz; });
+            generarYGuardarPDFMultiple({
+              tipo: tipoMov, tipoEgreso: capTipoEgreso,
+              items: pdfItems, responsable: capResponsable,
+              region: capRegion, localidad: capLocalidad, establecimiento: capEstablecimiento,
+              trazabilidades: pdfTrazs, observaciones: capObservaciones
+            }, capTipoEgreso === 'Traslado' && capEstablecimientoDest ? function() {
+              generarYGuardarPDFMultiple({
+                tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)',
+                items: pdfItems, responsable: capResponsableDest,
+                region: capRegionDest, localidad: capLocalidadDest, establecimiento: capEstablecimientoDest,
+                trazabilidades: pdfTrazs.map(function(t){ return 'TRZ-ING-TRA-REF-' + t; }),
+                observaciones: 'Traslado desde ' + capEstablecimiento
+              }, null);
+            } : null);
+            cargarDatos();
+          }
+          return;
+        }
+
+        var item = todosItems[index];
         var url = APPS_SCRIPT_URL +
           '?action=registrarMovimiento' +
           '&tipo=' + encodeURIComponent(modoMovimiento) +
@@ -1149,47 +1183,16 @@
             if (res.result) trazabilidades.push({ traz: res.trazabilidad || 'TRZ-' + Date.now(), item: item });
             else errores.push(item.vacuna + ': ' + (res.message || res.error || 'Error desconocido'));
           } catch(e) { errores.push(item.vacuna + ': error'); }
-          pendientes--;
-          if (pendientes === 0) {
-            mostrarLoading(false);
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = 'Confirmar Registro';
-            ultimoPDFBlob = ''; ultimoPDFNombre = ''; ultimoPDFBlobIngreso = ''; ultimoPDFNombreIngreso = '';
-            if (errores.length > 0) alert('Errores:\n' + errores.join('\n'));
-            if (trazabilidades.length > 0) {
-              cerrarModalMov();
-              var msg = '<b>Registrado correctamente.</b><br><small>' + trazabilidades.length + ' ítem(s) procesado(s).</small>';
-              if (tipoEgreso === 'Traslado') msg += '<br><small>Ingresos en destino registrados automáticamente.</small>';
-              document.getElementById('confirmacionMensaje').innerHTML = msg;
-              document.getElementById('modalConfirmacion').style.display = 'block';
-              // Generar PDF con todos los ítems
-              var pdfItems = trazabilidades.map(function(t){ return t.item; });
-              var pdfTrazs = trazabilidades.map(function(t){ return t.traz; });
-              generarYGuardarPDFMultiple({
-                tipo: tipoMov, tipoEgreso: capTipoEgreso,
-                items: pdfItems, responsable: capResponsable,
-                region: capRegion, localidad: capLocalidad, establecimiento: capEstablecimiento,
-                trazabilidades: pdfTrazs, observaciones: capObservaciones
-              }, capTipoEgreso === 'Traslado' && capEstablecimientoDest ? function() {
-                generarYGuardarPDFMultiple({
-                  tipo: 'Ingreso', tipoEgreso: 'Traslado (destino)',
-                  items: pdfItems, responsable: capResponsableDest,
-                  region: capRegionDest, localidad: capLocalidadDest, establecimiento: capEstablecimientoDest,
-                  trazabilidades: pdfTrazs.map(function(t){ return 'TRZ-ING-TRA-REF-' + t; }),
-                  observaciones: 'Traslado desde ' + capEstablecimiento
-                }, null);
-              } : null);
-              cargarDatos();
-            }
-          }
+          procesarItem(index + 1); // Siguiente ítem
         };
         xhrItem.onerror = function() {
           errores.push(item.vacuna + ': error de conexión');
-          pendientes--;
-          if (pendientes === 0) { mostrarLoading(false); btnSubmit.disabled = false; btnSubmit.textContent = 'Confirmar Registro'; alert('Errores:\n' + errores.join('\n')); }
+          procesarItem(index + 1);
         };
         xhrItem.send();
-      });
+      }
+
+      procesarItem(0);
     }
 
     // ── PDF ───────────────────────────────────────────────────────────────────
@@ -1392,3 +1395,4 @@
     };
   </script>
 </body>
+</html>
