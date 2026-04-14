@@ -892,6 +892,7 @@
       if (!vacuna || !lab || !lote || !cantidad || parseInt(cantidad) < 1) {
         alert('Completá vacuna, laboratorio, lote y cantidad antes de agregar.'); return;
       }
+      console.log('Agregando item:', vacuna, lab, lote, cantidad);
 
       // Guardar contexto la primera vez (ubicación/responsable)
       if (Object.keys(contextoMovimiento).length === 0) {
@@ -1098,8 +1099,23 @@
         itemsMovimiento.push({ vacuna: vacuna, laboratorio: lab, lote: lote, cantidad: cantidad, vencimiento: vencimiento });
       }
       var todosItems = itemsMovimiento.filter(function(i){ return i !== null; });
+      // Si itemsMovimiento está vacío pero hay filas en la tabla, reconstruirlo
+      if (todosItems.length === 0) {
+        var filas = document.querySelectorAll('#tablaItemsBody tr');
+        filas.forEach(function(fila) {
+          var celdas = fila.querySelectorAll('td');
+          if (celdas.length >= 4) {
+            todosItems.push({
+              vacuna: celdas[0].textContent,
+              laboratorio: celdas[1].textContent,
+              lote: celdas[2].textContent,
+              cantidad: celdas[3].textContent,
+              vencimiento: ''
+            });
+          }
+        });
+      }
       if (todosItems.length === 0) { alert('Agregá al menos un ítem.'); return; }
-      console.log('Items a procesar:', todosItems.length, todosItems.map(function(i){ return i.vacuna; }));
 
       var btnSubmit = document.getElementById('btnSubmit');
       btnSubmit.disabled = true;
