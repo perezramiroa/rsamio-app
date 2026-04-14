@@ -1112,12 +1112,14 @@
         filas.forEach(function(fila) {
           var celdas = fila.querySelectorAll('td');
           if (celdas.length >= 4) {
+            var venc = fila.getAttribute('data-vencimiento') || '';
+            console.log('Reconstruyendo item:', celdas[0].textContent, 'vencimiento:', venc);
             todosItems.push({
               vacuna: celdas[0].textContent,
               laboratorio: celdas[1].textContent,
               lote: celdas[2].textContent,
               cantidad: celdas[3].textContent,
-              vencimiento: fila.getAttribute('data-vencimiento') || ''
+              vencimiento: venc
             });
           }
         });
