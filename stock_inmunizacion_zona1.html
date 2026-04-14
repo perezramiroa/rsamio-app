@@ -952,6 +952,7 @@
       var idx = itemsMovimiento.length - 1;
       var tr = document.createElement('tr');
       tr.id = 'item-row-' + idx;
+      tr.setAttribute('data-vencimiento', vencimiento);
       tr.innerHTML = '<td>' + vacuna + '</td><td>' + lab + '</td><td>' + lote + '</td><td>' + cantidad + '</td>' +
         '<td><button type="button" onclick="quitarItem(' + idx + ')" style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button></td>';
       tbody.appendChild(tr);
@@ -1116,7 +1117,7 @@
               laboratorio: celdas[1].textContent,
               lote: celdas[2].textContent,
               cantidad: celdas[3].textContent,
-              vencimiento: ''
+              vencimiento: fila.getAttribute('data-vencimiento') || ''
             });
           }
         });
