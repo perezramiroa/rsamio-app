@@ -714,6 +714,12 @@
       contextoMovimiento = {};
       document.getElementById('tablaItemsContainer').style.display = 'none';
       document.getElementById('tablaItemsBody').innerHTML = '';
+      document.getElementById('seccionUbicacion').style.display = 'block';
+      var rg = document.querySelector('#camposEgreso > div[style*="grid"]'); if (rg) rg.style.display = '';
+      var ed = document.querySelector('#camposEgreso > .form-group:nth-child(3)'); if (ed) ed.style.display = '';
+      var rgi = document.querySelector('#camposIngreso > div[style*="grid"]'); if (rgi) rgi.style.display = '';
+      var edi = document.querySelector('#camposIngreso > .form-group:last-child'); if (edi) edi.style.display = '';
+      var td = document.getElementById('camposTraslado'); if (td) td.style.display = 'none';
       ultimoPDFBlob = ''; ultimoPDFNombre = ''; ultimoPDFUrl = '';
       ultimoPDFBlobIngreso = ''; ultimoPDFNombreIngreso = '';
 
