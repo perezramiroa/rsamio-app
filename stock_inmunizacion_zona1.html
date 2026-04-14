@@ -1099,6 +1099,7 @@
       }
       var todosItems = itemsMovimiento.filter(function(i){ return i !== null; });
       if (todosItems.length === 0) { alert('Agregá al menos un ítem.'); return; }
+      console.log('Items a procesar:', todosItems.length, todosItems.map(function(i){ return i.vacuna; }));
 
       var btnSubmit = document.getElementById('btnSubmit');
       btnSubmit.disabled = true;
