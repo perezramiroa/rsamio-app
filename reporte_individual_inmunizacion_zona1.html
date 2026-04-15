@@ -1173,7 +1173,7 @@
         eventos.forEach(evento => {
             const duracion = parseFloat(evento.duracion) || 0;
             totalDuracion += duracion;
-            if (evento.tipo && evento.tipo.includes('Energía')) {
+            if (evento.tipo && (evento.tipo.includes('Energía') || evento.tipo.includes('Energia'))) {
                 cortesElectricos++;
             } else if (evento.tipo && evento.tipo.includes('WiFi')) {
                 cortesWiFi++;
@@ -1208,7 +1208,7 @@
             "• Mantener actualizado el firmware del sensor y del gateway."
         ];
         
-        const tieneCortesElectricos = eventos.some(e => e.tipo && e.tipo.includes('Energía'));
+        const tieneCortesElectricos = eventos.some(e => e.tipo && (e.tipo.includes('Energía') || e.tipo.includes('Energia')));
         if (tieneCortesElectricos) {
             recomendaciones.push("• Dado que se detectaron cortes de energía con impacto térmico, se recomienda:");
             recomendaciones.push("  - Instalar sistema de monitoreo con respaldo de batería.");
